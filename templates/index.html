@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Job Card Management</title>
 
   <style>
@@ -11,18 +12,22 @@
       --primary-bg: #1a2238;
       --secondary-bg: #232946;
       --card-bg: #282c34;
-      --accent: #ff6a3d;         /* Orange Accent */
+      --accent: #ff6a3d;
+      /* Orange Accent */
       --accent-hover: #e65c2a;
-      --action: #4dd4fa;         /* Cyan for actions */
-      --success: #19a974;        /* Green for confirms */
-      --danger: #ea445a;         /* Red for destructive */
+      --action: #4dd4fa;
+      /* Cyan for actions */
+      --success: #19a974;
+      /* Green for confirms */
+      --danger: #ea445a;
+      /* Red for destructive */
       --table-border: #6b7280;
       --focus-ring: #ffe287;
       --text: #fffffe;
       --muted-text: #b7bfc9;
       --button-radius: 8px;
       --input-radius: 6px;
-      --shadow: 0 4px 24px 0 rgba(0,0,0,0.12);
+      --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
       --shadow-glow: 0 0 10px 3px var(--accent);
       --transition-speed: 0.3s;
       --row-hover: #27314a;
@@ -30,7 +35,12 @@
     }
 
     /* Global Reset & Typography */
-    *, *::before, *::after { box-sizing: border-box; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       background: var(--primary-bg);
@@ -38,11 +48,18 @@
       font-family: 'Segoe UI', Arial, sans-serif;
       font-size: 1rem;
     }
-    h1, h2, h3 {
+
+    h1,
+    h2,
+    h3 {
       color: var(--accent);
       margin-top: 0;
     }
-    a { color: var(--action); text-decoration: none; }
+
+    a {
+      color: var(--action);
+      text-decoration: none;
+    }
 
     main {
       padding: 2rem 0.75rem;
@@ -57,6 +74,7 @@
       align-items: center;
       margin-bottom: 1.5rem;
     }
+
     .search-bar__input {
       flex: 1;
       padding: 0.75em 1em;
@@ -69,6 +87,7 @@
       min-width: 130px;
       width: 180px;
     }
+
     .search-bar__input:focus {
       border-color: var(--action);
       outline: none;
@@ -76,6 +95,7 @@
       width: 240px;
       /* Animate with a slight expand on focus */
     }
+
     .search-bar__button {
       padding: 0.75em 1.5em;
       border: none;
@@ -90,7 +110,9 @@
       position: relative;
       overflow: hidden;
     }
-    .search-bar_button:focus, .search-bar_button:hover {
+
+    .search-bar_button:focus,
+    .search-bar_button:hover {
       background: linear-gradient(100deg, var(--accent-hover), var(--action));
       box-shadow: 0 0 0 3px var(--focus-ring), var(--shadow-glow);
       transform: scale(1.04);
@@ -108,14 +130,16 @@
       gap: 1rem;
       align-items: flex-end;
       margin-bottom: 2.5rem;
-      animation: fadeInUp 1s cubic-bezier(0.3,0.7,0.4,1) 0.2s backwards;
+      animation: fadeInUp 1s cubic-bezier(0.3, 0.7, 0.4, 1) 0.2s backwards;
     }
+
     .job-form__group {
       flex: 1 1 180px;
       display: flex;
       flex-direction: column;
       position: relative;
     }
+
     .job-form__input {
       padding: 0.75em 1em;
       border-radius: var(--input-radius);
@@ -125,24 +149,28 @@
       font-size: 1em;
       transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
     }
+
     .job-form__input:focus {
       border-color: var(--action);
       box-shadow: 0 0 0 3px var(--focus-ring);
       outline: none;
     }
+
     .job-form__label {
       margin-bottom: 0.35em;
       font-weight: 500;
       color: var(--muted-text);
       transition: color var(--transition-speed), transform var(--transition-speed), font-size var(--transition-speed);
     }
+
     /* Float label on focus or if input has text */
-    .job-form_input:focus + .job-form_label,
-    .job-form_input:not(:placeholder-shown) + .job-form_label {
+    .job-form_input:focus+.job-form_label,
+    .job-form_input:not(:placeholder-shown)+.job-form_label {
       color: var(--accent);
       transform: translateY(-1.1em) scale(0.92);
       font-size: 0.92em;
     }
+
     .job-form__submit {
       flex: 0 1 160px;
       padding: 1em 2em;
@@ -157,7 +185,9 @@
       transition: background var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
       align-self: flex-end;
     }
-    .job-form_submit:focus, .job-form_submit:hover {
+
+    .job-form_submit:focus,
+    .job-form_submit:hover {
       background: var(--accent);
       color: var(--text);
       box-shadow: 0 0 0 3px var(--focus-ring), 0 0 5px 2px var(--action);
@@ -175,8 +205,9 @@
       border-spacing: 0;
       overflow: hidden;
       margin-bottom: 2rem;
-      animation: fadeInUp 0.8s cubic-bezier(0.3,0.7,0.4,1) 0.25s backwards;
+      animation: fadeInUp 0.8s cubic-bezier(0.3, 0.7, 0.4, 1) 0.25s backwards;
     }
+
     .job-table th,
     .job-table td {
       font-size: 1em;
@@ -184,6 +215,7 @@
       border-bottom: 1.5px solid var(--table-border);
       text-align: left;
     }
+
     .job-table th {
       background: var(--accent);
       color: var(--primary-bg);
@@ -191,13 +223,17 @@
       border-bottom: 2px solid var(--action);
       letter-spacing: 1px;
     }
-    .job-table tr:last-child td { border-bottom: none; }
+
+    .job-table tr:last-child td {
+      border-bottom: none;
+    }
 
     /* Table Row Motion */
     .job-table tr {
       transition: background var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
       position: relative;
     }
+
     .job-table tr:hover,
     .job-table tr:focus-within {
       background: var(--row-hover);
@@ -205,11 +241,13 @@
       transform: scale(1.011);
       z-index: 1;
     }
+
     .job-table td.job-table__actions {
       display: flex;
       gap: 0.6em;
       align-items: center;
     }
+
     .job-table__btn {
       padding: 0.6em 1.1em;
       border-radius: var(--button-radius);
@@ -218,7 +256,7 @@
       cursor: pointer;
       color: var(--text);
       background: var(--action);
-      box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
+      box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
       transition: background var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
       outline: none;
       margin-right: 0.1em;
@@ -227,13 +265,17 @@
       gap: 0.4em;
       min-width: 80px;
     }
+
     .job-table__btn.update {
       background: var(--action);
     }
+
     .job-table__btn.delete {
       background: var(--danger);
     }
-    .job-table_btn:hover, .job-table_btn:focus {
+
+    .job-table_btn:hover,
+    .job-table_btn:focus {
       opacity: 0.94;
       box-shadow: 0 0 0 3px var(--focus-ring), 0 0 8px 2px var(--accent);
       transform: scale(1.075) rotate(-2deg);
@@ -242,24 +284,42 @@
 
     /* Responsive Design */
     @media (max-width: 900px) {
-      main { max-width: 97vw; }
+      main {
+        max-width: 97vw;
+      }
+
       .job-form,
       .search-bar {
         flex-direction: column;
         align-items: stretch;
         gap: 0.9rem;
       }
-      .job-form__submit { width: 100%; align-self: stretch; }
+
+      .job-form__submit {
+        width: 100%;
+        align-self: stretch;
+      }
     }
+
     @media (max-width: 600px) {
       .job-form {
         padding: 1rem 0.25rem;
       }
-      .job-table, .job-table thead, .job-table tbody, .job-table tr, .job-table th, .job-table td {
+
+      .job-table,
+      .job-table thead,
+      .job-table tbody,
+      .job-table tr,
+      .job-table th,
+      .job-table td {
         display: block;
         width: 100%;
       }
-      .job-table thead { display: none; }
+
+      .job-table thead {
+        display: none;
+      }
+
       .job-table tr {
         margin-bottom: 2rem;
         box-shadow: var(--shadow);
@@ -267,6 +327,7 @@
         padding: 0.5em 0;
         background: var(--secondary-bg);
       }
+
       .job-table td {
         text-align: right;
         padding-left: 50%;
@@ -275,6 +336,7 @@
         min-height: 2.5rem;
         margin-bottom: 0.25rem;
       }
+
       .job-table td::before {
         content: attr(data-label);
         position: absolute;
@@ -289,9 +351,17 @@
 
     /* Animations and Keyframes */
     @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(32px);}
-      100% { opacity: 1; transform: none;}
+      0% {
+        opacity: 0;
+        transform: translateY(32px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: none;
+      }
     }
+
     @media (prefers-reduced-motion: reduce) {
       * {
         animation: none !important;
@@ -300,6 +370,7 @@
     }
   </style>
 </head>
+
 <body>
   <main>
     <header>
@@ -308,28 +379,33 @@
 
     <!-- Search Bar -->
     <form class="search-bar" action="#" autocomplete="off" aria-label="Search Job Cards">
-      <input class="search-bar__input" type="search" placeholder="Search job cards…" aria-label="Search"/>
+      <input class="search-bar__input" type="search" placeholder="Search job cards…" aria-label="Search" />
       <button class="search-bar__button" type="submit" aria-label="Submit Search">
         <span role="img" aria-label="Search">&#128269;</span> Search
       </button>
     </form>
 
     <!-- Add/Edit Job Card Form -->
-    <form class="job-form" aria-label="Add New Job Card" autocomplete="off">
+    <form class="job-form" method="post" action="{{ url_for('home') }}" aria-label="Add New Job Card"
+      autocomplete="off">
+
       <div class="job-form__group">
-        <input class="job-form__input" type="text" name="job_id" id="job_id" placeholder=" " required autocomplete="off"/>
+        <input class="job-form__input" type="text" name="job_id" id="job_id" placeholder=" " required
+          autocomplete="off" />
         <label class="job-form__label" for="job_id">Job ID</label>
       </div>
       <div class="job-form__group">
-        <input class="job-form__input" type="text" name="status" id="status" placeholder=" " required autocomplete="off"/>
+        <input class="job-form__input" type="text" name="status" id="status" placeholder=" " required
+          autocomplete="off" />
         <label class="job-form__label" for="status">Status</label>
       </div>
       <div class="job-form__group">
-        <input class="job-form__input" type="text" name="remarks" id="remarks" placeholder=" " autocomplete="off"/>
+        <input class="job-form__input" type="text" name="remarks" id="remarks" placeholder=" " autocomplete="off" />
         <label class="job-form__label" for="remarks">Remarks</label>
       </div>
       <div class="job-form__group">
-        <input class="job-form__input" type="text" name="assigned_to" id="assigned_to" placeholder=" " autocomplete="off"/>
+        <input class="job-form__input" type="text" name="assigned_to" id="assigned_to" placeholder=" "
+          autocomplete="off" />
         <label class="job-form__label" for="assigned_to">Assigned To</label>
       </div>
       <button class="job-form_submit animate_animated" type="submit">Add Job</button>
@@ -347,29 +423,22 @@
         </tr>
       </thead>
       <tbody>
+        {% for job in jobs %}
         <tr>
-          <td data-label="Job ID">JC1234</td>
-          <td data-label="Status">Open</td>
-          <td data-label="Remarks">Initial review</td>
-          <td data-label="Assigned To">Alice</td>
+          <td data-label="Job ID">{{ job.job_id }}</td>
+          <td data-label="Status">{{ job.status }}</td>
+          <td data-label="Remarks">{{ job.remarks }}</td>
+          <td data-label="Assigned To">{{ job.assigned_to }}</td>
           <td class="job-table__actions" data-label="Actions">
             <button class="job-table__btn update" aria-label="Update Job">Update</button>
             <button class="job-table__btn delete" aria-label="Delete Job">Delete</button>
           </td>
         </tr>
-        <tr>
-          <td data-label="Job ID">JC5678</td>
-          <td data-label="Status">Closed</td>
-          <td data-label="Remarks">Completed</td>
-          <td data-label="Assigned To">Bob</td>
-          <td class="job-table__actions" data-label="Actions">
-            <button class="job-table__btn update" aria-label="Update Job">Update</button>
-            <button class="job-table__btn delete" aria-label="Delete Job">Delete</button>
-          </td>
-        </tr>
-        <!-- More rows... -->
+        {% endfor %}
       </tbody>
+
     </table>
   </main>
 </body>
+
 </html>
