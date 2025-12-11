@@ -1,8 +1,20 @@
 [
   {
-    "job_id": "REFORMED123",
+    "job_id": "JC123",
+    "status": "Closed",
+    "remarks": "Open as it is",
+    "assigned_to": "Bob"
+  },
+  {
+    "job_id": "JC124",
     "status": "Open",
-    "remarks": "Initial interview",
-    "assigned_to": "Sulaiman"
+    "remarks": "Its open",
+    "assigned_to": "Alice"
+  },
+  {
+    "job_id": "Reformed",
+    "status": "Open",
+    "remarks": "",
+    "assigned_to": "Alice"
   }
 ]
