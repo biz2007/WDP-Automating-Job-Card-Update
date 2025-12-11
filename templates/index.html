@@ -378,8 +378,10 @@
     </header>
 
     <!-- Search Bar -->
-    <form class="search-bar" action="#" autocomplete="off" aria-label="Search Job Cards">
-      <input class="search-bar__input" type="search" placeholder="Search job cards…" aria-label="Search" />
+    <form class="search-bar" method="get" action="{{ url_for('home') }}" autocomplete="off"
+      aria-label="Search Job Cards">
+      <input class="search-bar__input" type="search" name="search" placeholder="Search job cards…" aria-label="Search"
+        value="{{ search_query or '' }}" />
       <button class="search-bar__button" type="submit" aria-label="Submit Search">
         <span role="img" aria-label="Search">&#128269;</span> Search
       </button>
@@ -430,8 +432,13 @@
           <td data-label="Remarks">{{ job.remarks }}</td>
           <td data-label="Assigned To">{{ job.assigned_to }}</td>
           <td class="job-table__actions" data-label="Actions">
-            <button class="job-table__btn update" aria-label="Update Job">Update</button>
-            <button class="job-table__btn delete" aria-label="Delete Job">Delete</button>
+            <a href="{{ url_for('update', job_id=job.job_id) }}">
+              <button class="job-table__btn update" type="button" aria-label="Update Job">Update</button>
+            </a>
+            <form method="post" action="{{ url_for('delete', job_id=job.job_id) }}" style="display: inline;"
+              onsubmit="return confirm('Delete job {{ job.job_id }}?');">
+              <button class="job-table__btn delete" type="submit" aria-label="Delete Job">Delete</button>
+            </form>
           </td>
         </tr>
         {% endfor %}

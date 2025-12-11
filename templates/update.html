@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Update Job Card</title>
+
+    <style>
+        :root {
+            /* Theming (easy to override for dark mode, branding, etc) */
+            --primary-bg: #1a2238;
+            --secondary-bg: #232946;
+            --card-bg: #282c34;
+            --accent: #ff6a3d;
+            /* Orange Accent */
+            --accent-hover: #e65c2a;
+            --action: #4dd4fa;
+            /* Cyan for actions */
+            --success: #19a974;
+            /* Green for confirms */
+            --danger: #ea445a;
+            /* Red for destructive */
+            --table-border: #6b7280;
+            --focus-ring: #ffe287;
+            --text: #fffffe;
+            --muted-text: #b7bfc9;
+            --button-radius: 8px;
+            --input-radius: 6px;
+            --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
+            --shadow-glow: 0 0 10px 3px var(--accent);
+            --transition-speed: 0.3s;
+            --row-hover: #27314a;
+            font-size: 16px;
+        }
+
+        /* Global Reset & Typography */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--primary-bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 1rem;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: var(--accent);
+            margin-top: 0;
+        }
+
+        a {
+            color: var(--action);
+            text-decoration: none;
+        }
+
+        main {
+            padding: 2rem 0.75rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            padding: 0.5em 1em;
+            background: var(--secondary-bg);
+            border-radius: var(--button-radius);
+            transition: background var(--transition-speed);
+        }
+
+        .back-link:hover {
+            background: var(--card-bg);
+        }
+
+        /* Update Form */
+        .update-form {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--muted-text);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75em 1em;
+            border-radius: var(--input-radius);
+            border: 2px solid var(--accent);
+            background: var(--secondary-bg);
+            color: var(--text);
+            font-size: 1em;
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--action);
+            box-shadow: 0 0 0 3px var(--focus-ring);
+            outline: none;
+        }
+
+        .form-group .readonly {
+            background: var(--primary-bg);
+            border-color: var(--table-border);
+            cursor: not-allowed;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1em 2em;
+            border-radius: var(--button-radius);
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            border: none;
+            transition: background var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
+        }
+
+        .btn:hover,
+        .btn:focus {
+            box-shadow: 0 0 0 3px var(--focus-ring), var(--shadow);
+            transform: scale(1.04);
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--action);
+            color: var(--primary-bg);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent);
+            color: var(--text);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-bg);
+            color: var(--text);
+            border: 2px solid var(--table-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--card-bg);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <a href="{{ url_for('home') }}" class="back-link">← Back to Job Cards</a>
+
+        <h1>Update Job Card</h1>
+
+        <form class="update-form" method="post">
+            <div class="form-group">
+                <label for="job_id">Job ID</label>
+                <input type="text" id="job_id" name="job_id" value="{{ job.job_id }}" class="readonly" readonly />
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status *</label>
+                <input type="text" id="status" name="status" value="{{ job.status }}" required />
+            </div>
+
+            <div class="form-group">
+                <label for="remarks">Remarks</label>
+                <input type="text" id="remarks" name="remarks" value="{{ job.remarks }}" />
+            </div>
+
+            <div class="form-group">
+                <label for="assigned_to">Assigned To</label>
+                <input type="text" id="assigned_to" name="assigned_to" value="{{ job.assigned_to }}" />
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{{ url_for('home') }}" style="flex: 1;">
+                    <button type="button" class="btn btn-secondary" style="width: 100%;">Cancel</button>
+                </a>
+            </div>
+        </form>
+    </main>
+</body>
+
+</html>
