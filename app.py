@@ -104,23 +104,23 @@ def compute_reward_balance(customer):
     redeemed = customer.get("redeemed", 0)
     return max(0, earned - redeemed)
 
-# Catalog Storage
-CATALOG_FILE = "catalog_data.json"
+# Catalogue Storage
+CATALOGUE_FILE = "catalogue_data.json"
 
-def load_catalog():
-    """Load catalog items from JSON file"""
-    if os.path.exists(CATALOG_FILE):
-        with open(CATALOG_FILE, "r") as f:
+def load_catalogue():
+    """Load catalogue items from JSON file"""
+    if os.path.exists(CATALOGUE_FILE):
+        with open(CATALOGUE_FILE, "r") as f:
             try:
                 return json.load(f)
             except json.JSONDecodeError:
                 return []
     return []
 
-def save_catalog(catalog):
-    """Save catalog items to JSON file"""
-    with open(CATALOG_FILE, "w") as f:
-        json.dump(catalog, f, indent=2)
+def save_catalogue(catalogue):
+    """Save catalogue items to JSON file"""
+    with open(CATALOGUE_FILE, "w") as f:
+        json.dump(catalogue, f, indent=2)
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -274,12 +274,12 @@ def redeem_reward(customer_id):
             save_rewards(customers)
     return redirect(url_for("rewards"))
 
-# ==================== CATALOG ROUTES ====================
+# ==================== CATALOGUE ROUTES ====================
 
-@app.route("/catalog", methods=["GET", "POST"])
-def catalog():
-    """Display and manage parts catalog with images"""
-    catalog_items = load_catalog()
+@app.route("/catalogue", methods=["GET", "POST"])
+def catalogue():
+    """Display and manage parts catalogue with images"""
+    catalogue_items = load_catalogue()
     search_query = request.args.get("search", "").strip().lower()
     category_filter = request.args.get("category", "").strip()
     
@@ -299,11 +299,17 @@ def catalog():
             image_path = None
             if 'image' in request.files:
                 file = request.files['image']
-                if file and file.filename != '' and allowed_file(file.filename):
-                    filename = secure_filename(f"{part_id}_{file.filename}")
+                if file and file.filename and allowed_file(file.filename):
+                    # Use part_id if available, otherwise use timestamp
+                    prefix = part_id if part_id else str(int(__import__('time').time()))
+                    filename = secure_filename(f"{prefix}_{file.filename}")
                     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                    file.save(filepath)
-                    image_path = f"/static/uploads/{filename}"
+                    try:
+                        file.save(filepath)
+                        image_path = f"/static/uploads/{filename}"
+                    except Exception as e:
+                        print(f"Error saving file: {e}")
+                        image_path = None
             
             # Validate required fields
             if part_id and name and category:
@@ -325,10 +331,15 @@ def catalog():
                 }
                 
                 # Check if part already exists
-                existing = next((p for p in catalog_items if p["part_id"] == part_id), None)
-                if not existing:
-                    catalog_items.append(new_part)
-                    save_catalog(catalog_items)
+                existing = next((p for p in catalogue_items if p["part_id"] == part_id), None)
+                if existing:
+                    # Update existing part
+                    existing.update(new_part)
+                else:
+                    # Add new part
+                    catalogue_items.append(new_part)
+                
+                save_catalogue(catalogue_items)
         
         # Update stock
         elif action == "update_stock":
@@ -340,23 +351,23 @@ def catalog():
             except ValueError:
                 stock_int = 0
             
-            part = next((p for p in catalog_items if p["part_id"] == part_id), None)
+            part = next((p for p in catalogue_items if p["part_id"] == part_id), None)
             if part:
                 part["stock"] = stock_int
-                save_catalog(catalog_items)
+                save_catalogue(catalogue_items)
         
         # Delete part
         elif action == "delete_part":
             part_id = request.form.get("part_id", "").strip()
-            catalog_items = [p for p in catalog_items if p["part_id"] != part_id]
-            save_catalog(catalog_items)
+            catalogue_items = [p for p in catalogue_items if p["part_id"] != part_id]
+            save_catalogue(catalogue_items)
         
-        # Add to cart from catalog
-        elif action == "add_to_cart_from_catalog":
+        # Add to cart from catalogue
+        elif action == "add_to_cart_from_catalogue":
             part_id = request.form.get("part_id", "").strip()
             quantity = request.form.get("quantity", "1").strip()
             
-            part = next((p for p in catalog_items if p["part_id"] == part_id), None)
+            part = next((p for p in catalogue_items if p["part_id"] == part_id), None)
             if part:
                 try:
                     quantity_int = int(quantity)
@@ -375,20 +386,20 @@ def catalog():
                     })
                 save_cart(cart)
         
-        return redirect(url_for("catalog", search=search_query, category=category_filter))
+        return redirect(url_for("catalogue", search=search_query, category=category_filter))
     
     # Get unique categories
-    categories = sorted(set(p.get("category", "Other") for p in catalog_items if p.get("category")))
+    categories = sorted(set(p.get("category", "Other") for p in catalogue_items if p.get("category")))
     
-    # Filter catalog
-    filtered_catalog = catalog_items
+    # Filter catalogue
+    filtered_catalogue = catalogue_items
     
     if category_filter:
-        filtered_catalog = [p for p in filtered_catalog if p.get("category") == category_filter]
+        filtered_catalogue = [p for p in filtered_catalogue if p.get("category") == category_filter]
     
     if search_query:
-        filtered_catalog = [
-            p for p in filtered_catalog
+        filtered_catalogue = [
+            p for p in filtered_catalogue
             if search_query in p.get("part_id", "").lower()
             or search_query in p.get("name", "").lower()
             or search_query in p.get("category", "").lower()
@@ -396,8 +407,8 @@ def catalog():
         ]
     
     return render_template(
-        "catalog.html",
-        catalog=filtered_catalog,
+        "catalogue.html",
+        catalogue=filtered_catalogue,
         categories=categories,
         search_query=search_query,
         category_filter=category_filter
