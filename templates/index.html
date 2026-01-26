@@ -111,8 +111,8 @@
       overflow: hidden;
     }
 
-    .search-bar_button:focus,
-    .search-bar_button:hover {
+    .search-bar__button:focus,
+    .search-bar__button:hover {
       background: linear-gradient(100deg, var(--accent-hover), var(--action));
       box-shadow: 0 0 0 3px var(--focus-ring), var(--shadow-glow);
       transform: scale(1.04);
@@ -375,6 +375,23 @@
   <main>
     <header>
       <h1 class="animate_animated animate_bounceInDown">Job Card Management</h1>
+      <p style="margin: 0.5rem 0 1.25rem 0;">
+  <a href="{{ url_for('rewards') }}"
+     style="
+       color: #4dd4fa;
+       display: inline-block;
+       padding: 0.55em 1em;
+       background: var(--secondary-bg);
+       border-radius: var(--button-radius);
+       border: 1px solid var(--table-border);
+       transition: background var(--transition-speed), transform var(--transition-speed);
+     "
+     onmouseover="this.style.background='var(--card-bg)'; this.style.transform='scale(1.02)'"
+     onmouseout="this.style.background='var(--secondary-bg)'; this.style.transform='scale(1)'">
+    🎁 Customer Rewards
+  </a>
+</p>
+
     </header>
 
     <!-- Search Bar -->
