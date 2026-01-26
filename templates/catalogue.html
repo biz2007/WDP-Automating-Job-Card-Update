@@ -475,6 +475,9 @@
 
                 <!-- Add to Cart -->
                 <div class="part-actions">
+                    <a href="{{ url_for('edit_catalogue_part', part_id=part.part_id) }}" style="flex: 1;">
+                        <button type="button" class="btn btn-primary btn-sm" style="width: 100%;">Edit</button>
+                    </a>
                     <form method="post" style="flex: 1; display: flex; gap: 0.5rem;">
                         <input type="hidden" name="action" value="add_to_cart_from_catalogue" />
                         <input type="hidden" name="part_id" value="{{ part.part_id }}" />
