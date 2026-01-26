@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Edit Order</title>
+    <style>
+        :root {
+            --primary-bg: #1a2238;
+            --secondary-bg: #232946;
+            --card-bg: #282c34;
+            --accent: #ff6a3d;
+            --accent-hover: #e65c2a;
+            --action: #4dd4fa;
+            --success: #19a974;
+            --table-border: #6b7280;
+            --focus-ring: #ffe287;
+            --text: #fffffe;
+            --muted-text: #b7bfc9;
+            --button-radius: 8px;
+            --input-radius: 6px;
+            --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
+            --transition-speed: 0.3s;
+            font-size: 16px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--primary-bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        h1,
+        h2 {
+            color: var(--accent);
+            margin-top: 0;
+        }
+
+        a {
+            color: var(--action);
+            text-decoration: none;
+        }
+
+        main {
+            padding: 2rem 0.75rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            padding: 0.5em 1em;
+            background: var(--secondary-bg);
+            border-radius: var(--button-radius);
+            transition: background var(--transition-speed);
+        }
+
+        .back-link:hover {
+            background: var(--card-bg);
+        }
+
+        .edit-form {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--muted-text);
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.75em 1em;
+            border-radius: var(--input-radius);
+            border: 2px solid var(--accent);
+            background: var(--secondary-bg);
+            color: var(--text);
+            font-size: 1em;
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--action);
+            box-shadow: 0 0 0 3px var(--focus-ring);
+            outline: none;
+        }
+
+        .readonly {
+            background: var(--primary-bg);
+            border-color: var(--table-border);
+            cursor: not-allowed;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1em 2em;
+            border-radius: var(--button-radius);
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            border: none;
+            transition: all var(--transition-speed);
+        }
+
+        .btn:hover {
+            transform: scale(1.04);
+        }
+
+        .btn-primary {
+            background: var(--action);
+            color: var(--primary-bg);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-bg);
+            color: var(--text);
+            border: 2px solid var(--table-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--card-bg);
+        }
+
+        .order-items {
+            background: var(--primary-bg);
+            padding: 1rem;
+            border-radius: var(--input-radius);
+            margin-bottom: 1.5rem;
+        }
+
+        .order-items h3 {
+            color: var(--action);
+            font-size: 1.1em;
+        }
+
+        .item-list {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0;
+        }
+
+        .item-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--table-border);
+        }
+
+        .item-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <a href="{{ url_for('orders') }}" class="back-link">← Back to Orders</a>
+
+        <h1>Edit Order: {{ order.order_id }}</h1>
+
+        <form class="edit-form" method="post">
+            <div class="form-group">
+                <label for="order_id">Order ID</label>
+                <input type="text" id="order_id" value="{{ order.order_id }}" class="form-input readonly" readonly />
+            </div>
+
+            <div class="form-group">
+                <label for="customer_name">Customer Name *</label>
+                <input type="text" id="customer_name" name="customer_name" value="{{ order.customer_name }}"
+                    class="form-input" required />
+            </div>
+
+            <div class="form-group">
+                <label for="customer_phone">Phone Number</label>
+                <input type="tel" id="customer_phone" name="customer_phone" value="{{ order.customer_phone or '' }}"
+                    class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label for="customer_email">Email</label>
+                <input type="email" id="customer_email" name="customer_email" value="{{ order.customer_email or '' }}"
+                    class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label for="status">Order Status</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="Pending" {% if order.status=="Pending" %}selected{% endif %}>Pending</option>
+                    <option value="Processing" {% if order.status=="Processing" %}selected{% endif %}>Processing
+                    </option>
+                    <option value="Completed" {% if order.status=="Completed" %}selected{% endif %}>Completed</option>
+                    <option value="Cancelled" {% if order.status=="Cancelled" %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="order_notes">Order Notes</label>
+                <input type="text" id="order_notes" name="order_notes" value="{{ order.order_notes or '' }}"
+                    class="form-input" />
+            </div>
+
+            <div class="order-items">
+                <h3>Order Items (Total: ${{ "%.2f"|format(order.total) }})</h3>
+                <ul class="item-list">
+                    {% for item in order['items'] %}
+                    <li>{{ item.item_name }} - {{ item.quantity }}x @ ${{ "%.2f"|format(item.price) }} = ${{
+                        "%.2f"|format(item.price * item.quantity) }}</li>
+                    {% endfor %}
+                </ul>
+                <p style="color: var(--muted-text); font-size: 0.9em; margin-top: 1rem;">Note: Items cannot be modified
+                    after order creation</p>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{{ url_for('orders') }}" style="flex: 1;">
+                    <button type="button" class="btn btn-secondary" style="width: 100%;">Cancel</button>
+                </a>
+            </div>
+        </form>
+    </main>
+</body>
+
+</html>

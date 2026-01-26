@@ -4,5 +4,11 @@
     "name": "Bob",
     "purchases": 14,
     "redeemed": 3
+  },
+  {
+    "customer_id": "suhailah.tk@gmail.com",
+    "name": "asasas",
+    "purchases": 144,
+    "redeemed": 4
   }
 ]

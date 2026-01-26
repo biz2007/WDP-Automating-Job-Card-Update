@@ -425,9 +425,24 @@
                     <form class="checkout-form" method="post">
                         <input type="hidden" name="action" value="checkout" />
                         <div class="form-group">
-                            <label for="customer_name">Customer Name</label>
+                            <label for="customer_name">Customer Name *</label>
                             <input type="text" id="customer_name" name="customer_name" class="form-input"
-                                placeholder="Enter customer name" />
+                                placeholder="Enter customer name" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_phone">Phone Number</label>
+                            <input type="tel" id="customer_phone" name="customer_phone" class="form-input"
+                                placeholder="e.g., +65 9123 4567" />
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_email">Email</label>
+                            <input type="email" id="customer_email" name="customer_email" class="form-input"
+                                placeholder="customer@email.com" />
+                        </div>
+                        <div class="form-group">
+                            <label for="order_notes">Order Notes</label>
+                            <input type="text" id="order_notes" name="order_notes" class="form-input"
+                                placeholder="Special instructions..." />
                         </div>
                         <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 1rem;">
                             Checkout & Create Order
@@ -471,7 +486,13 @@
                             {% for order in orders %}
                             <tr>
                                 <td><strong>{{ order.order_id }}</strong></td>
-                                <td>{{ order.customer_name }}</td>
+                                <td>
+                                    <strong>{{ order.customer_name }}</strong>
+                                    {% if order.customer_phone %}<br><small>📞 {{ order.customer_phone }}</small>{%
+                                    endif %}
+                                    {% if order.customer_email %}<br><small>✉️ {{ order.customer_email }}</small>{%
+                                    endif %}
+                                </td>
                                 <td><strong>${{ "%.2f"|format(order.total) }}</strong></td>
                                 <td>
                                     <form method="post" style="display: inline;">
@@ -492,6 +513,9 @@
                                 </td>
                                 <td>{{ order.date }}</td>
                                 <td>
+                                    <a href="{{ url_for('edit_order', order_id=order.order_id) }}">
+                                        <button class="btn btn-primary btn-sm">Edit</button>
+                                    </a>
                                     <form method="post" action="{{ url_for('delete_order', order_id=order.order_id) }}"
                                         style="display: inline;"
                                         onsubmit="return confirm('Delete order {{ order.order_id }}?');">
@@ -507,6 +531,12 @@
                                         • {{ item.item_name }} ({{ item.quantity }}x @ ${{ "%.2f"|format(item.price) }})
                                         {% endfor %}
                                     </div>
+                                    {% if order.order_notes %}
+                                    <div style="margin-top: 0.5rem;">
+                                        <strong>Notes:</strong> <span style="color: var(--muted-text);">{{
+                                            order.order_notes }}</span>
+                                    </div>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}

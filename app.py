@@ -317,9 +317,18 @@ def orders():
                 
                 total = sum(item["price"] * item["quantity"] for item in cart)
                 
+                # Get customer details
+                customer_name = request.form.get("customer_name", "Guest").strip()
+                customer_phone = request.form.get("customer_phone", "").strip()
+                customer_email = request.form.get("customer_email", "").strip()
+                order_notes = request.form.get("order_notes", "").strip()
+                
                 new_order = {
                     "order_id": order_id,
-                    "customer_name": request.form.get("customer_name", "Guest").strip(),
+                    "customer_name": customer_name,
+                    "customer_phone": customer_phone,
+                    "customer_email": customer_email,
+                    "order_notes": order_notes,
                     "items": cart.copy(),
                     "total": round(total, 2),
                     "status": "Pending",
@@ -380,6 +389,28 @@ def delete_order(order_id):
     orders_list = [o for o in orders_list if o["order_id"] != order_id]
     save_orders(orders_list)
     return redirect(url_for("orders"))
+
+@app.route("/orders/edit/<order_id>", methods=["GET", "POST"])
+def edit_order(order_id):
+    """Edit an existing order"""
+    orders_list = load_orders()
+    order = next((o for o in orders_list if o["order_id"] == order_id), None)
+    
+    if not order:
+        return redirect(url_for("orders"))
+    
+    if request.method == "POST":
+        # Update order details
+        order["customer_name"] = request.form.get("customer_name", "").strip()
+        order["customer_phone"] = request.form.get("customer_phone", "").strip()
+        order["customer_email"] = request.form.get("customer_email", "").strip()
+        order["order_notes"] = request.form.get("order_notes", "").strip()
+        order["status"] = request.form.get("status", "Pending").strip()
+        
+        save_orders(orders_list)
+        return redirect(url_for("orders"))
+    
+    return render_template("edit_order.html", order=order)
 
 if __name__ == "__main__":
     app.run(debug=True)
