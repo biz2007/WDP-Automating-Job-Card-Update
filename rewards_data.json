@@ -1,17 +1,8 @@
 [
   {
-    "customer_id": "JC1234",
-    "name": "Bob",
-    "purchases": 14,
-<<<<<<< HEAD
-    "redeemed": 3
-  },
-  {
-    "customer_id": "suhailah.tk@gmail.com",
-    "name": "asasas",
-    "purchases": 144,
-=======
->>>>>>> 934f1c76541532074a2e7de49828cdd0b07793dd
-    "redeemed": 4
+    "customer_id": "90009999",
+    "name": "Alex",
+    "purchases": 1,
+    "redeemed": 0
   }
 ]

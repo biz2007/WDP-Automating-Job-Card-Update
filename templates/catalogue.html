@@ -161,6 +161,47 @@
             font-size: 0.9em;
         }
 
+        .flash-message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flash-message.flash-success {
+            background: #1d4c2f;
+            color: #19a974;
+            border: 1px solid #19a974;
+        }
+
+        .flash-message.flash-error {
+            background: #5c2029;
+            color: #ea445a;
+            border: 1px solid #ea445a;
+        }
+
+        .flash-message.flash-warning {
+            background: #664d00;
+            color: #ffa500;
+            border: 1px solid #ffa500;
+        }
+
+        .flash-message button {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            margin-left: 1rem;
+        }
+
+        .flash-message button:hover {
+            opacity: 0.7;
+        }
+
         .catalogue-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -365,6 +406,18 @@
 
 <body>
     <main>
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        <span>{{ message }}</span>
+                        <button onclick="this.parentElement.style.display='none';">✕</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         <header>
             <h1>📦 Parts Catalogue</h1>
             <div class="nav-links">
@@ -392,6 +445,21 @@
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{{ url_for('export_catalogue') }}" style="display: inline-block; text-decoration: none;">
+                <button type="button" class="btn btn-primary">📥 Export CSV</button>
+            </a>
+        </form>
+
+        <!-- Import Catalogue -->
+        <form method="post" action="{{ url_for('import_catalogue') }}" enctype="multipart/form-data" class="import-form" style="margin-bottom: 2rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: flex-end; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                    <label for="import-file" style="display: block; font-size: 0.9em; color: var(--muted-text); margin-bottom: 0.3rem;">📤 Import from Excel/CSV</label>
+                    <input type="file" id="import-file" name="file" accept=".csv,.xlsx,.xls" required style="padding: 0.5em; border-radius: 6px; border: 2px solid var(--accent); background: var(--secondary-bg); color: var(--text); width: 100%;" />
+                </div>
+                <button type="submit" class="btn btn-primary">Import</button>
+            </div>
+            <small style="display: block; margin-top: 0.5rem; color: var(--muted-text);">Format: Part ID, Name, Category, Price, Stock, Description, Image (optional)</small>
         </form>
 
         <!-- Add New Part -->

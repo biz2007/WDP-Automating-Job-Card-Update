@@ -1,9 +1,17 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash
 import json
 import os
+import csv
+from io import BytesIO
 from werkzeug.utils import secure_filename
+try:
+    from openpyxl import load_workbook
+    HAS_OPENPYXL = True
+except ImportError:
+    HAS_OPENPYXL = False
 
 app = Flask(__name__)
+app.secret_key = 'your-secret-key-change-in-production'
 
 # Configure upload folder
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
@@ -406,6 +414,15 @@ def catalogue():
             or search_query in p.get("description", "").lower()
         ]
     
+    # Sort by part_id (natural sort: P001, P002, P010, P100, etc.)
+    def extract_number(part_id):
+        """Extract number from part_id for sorting (e.g., 'P001' -> 1)"""
+        import re
+        match = re.search(r'\d+', part_id)
+        return int(match.group()) if match else 0
+    
+    filtered_catalogue = sorted(filtered_catalogue, key=lambda p: extract_number(p.get("part_id", "")))
+    
     return render_template(
         "catalogue.html",
         catalogue=filtered_catalogue,
@@ -413,6 +430,226 @@ def catalogue():
         search_query=search_query,
         category_filter=category_filter
     )
+
+@app.route("/catalogue/edit/<part_id>", methods=["GET", "POST"])
+def edit_catalogue_part(part_id):
+    """Edit a catalogue part"""
+    catalogue_items = load_catalogue()
+    part = next((p for p in catalogue_items if p["part_id"] == part_id), None)
+    
+    if not part:
+        return redirect(url_for("catalogue"))
+    
+    if request.method == "POST":
+        # Update part details
+        part["name"] = request.form.get("name", "").strip()
+        part["category"] = request.form.get("category", "").strip()
+        part["description"] = request.form.get("description", "").strip()
+        
+        try:
+            part["price"] = float(request.form.get("price", "0"))
+        except ValueError:
+            part["price"] = 0.0
+        
+        try:
+            part["stock"] = int(request.form.get("stock", "0"))
+        except ValueError:
+            part["stock"] = 0
+        
+        # Handle image upload
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename and allowed_file(file.filename):
+                filename = secure_filename(f"{part_id}_{file.filename}")
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                try:
+                    file.save(filepath)
+                    part["image"] = f"/static/uploads/{filename}"
+                except Exception as e:
+                    print(f"Error saving file: {e}")
+        
+        save_catalogue(catalogue_items)
+        return redirect(url_for("catalogue"))
+    
+    return render_template("edit_part.html", part=part)
+
+@app.route("/catalogue/export", methods=["GET"])
+def export_catalogue():
+    """Export catalogue to CSV"""
+    from datetime import datetime
+    catalogue_items = load_catalogue()
+    
+    # Create CSV in memory using BytesIO for binary mode
+    output = BytesIO()
+    text_stream = output.write
+    
+    # Manually write CSV content as bytes
+    lines = []
+    lines.append("Part ID,Name,Category,Price,Stock,Description,Image\n")
+    
+    for part in catalogue_items:
+        # Escape quotes and wrap fields with quotes
+        row = [
+            f'"{part.get("part_id", "").replace(chr(34), chr(34)+chr(34))}"',
+            f'"{part.get("name", "").replace(chr(34), chr(34)+chr(34))}"',
+            f'"{part.get("category", "").replace(chr(34), chr(34)+chr(34))}"',
+            str(part.get("price", "")),
+            str(part.get("stock", "")),
+            f'"{part.get("description", "").replace(chr(34), chr(34)+chr(34))}"',
+            f'"{part.get("image", "").replace(chr(34), chr(34)+chr(34))}"'
+        ]
+        lines.append(",".join(row) + "\n")
+    
+    # Write as bytes
+    csv_content = "".join(lines)
+    output.write(csv_content.encode('utf-8'))
+    output.seek(0)
+    
+    filename = f"catalogue_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="text/csv"
+    )
+
+@app.route("/catalogue/import", methods=["POST"])
+def import_catalogue():
+    """Import parts from CSV or Excel file"""
+    try:
+        if 'file' not in request.files:
+            return redirect(url_for('catalogue'))
+        
+        file = request.files['file']
+        if not file or file.filename == '':
+            return redirect(url_for('catalogue'))
+        
+        filename = file.filename.lower()
+        catalogue_items = load_catalogue()
+        rows_processed = 0
+        rows_added = 0
+        rows_updated = 0
+        
+        # Handle Excel files
+        if filename.endswith(('.xlsx', '.xls')):
+            if not HAS_OPENPYXL:
+                return redirect(url_for('catalogue'))
+            
+            try:
+                workbook = load_workbook(file)
+                worksheet = workbook.active
+                
+                for idx, row in enumerate(worksheet.iter_rows(values_only=True), 1):
+                    if idx == 1:  # Skip header
+                        continue
+                    
+                    if not row or not row[0]:  # Skip empty rows
+                        continue
+                    
+                    rows_processed += 1
+                    part_id = str(row[0]).strip()
+                    
+                    # Check if part exists
+                    existing = next((p for p in catalogue_items if p["part_id"] == part_id), None)
+                    
+                    # Parse values
+                    try:
+                        price = float(row[3]) if row[3] else 0.0
+                    except (ValueError, TypeError):
+                        price = 0.0
+                    
+                    try:
+                        stock = int(row[4]) if row[4] else 0
+                    except (ValueError, TypeError):
+                        stock = 0
+                    
+                    part_data = {
+                        "part_id": part_id,
+                        "name": str(row[1]).strip() if row[1] else "",
+                        "category": str(row[2]).strip() if row[2] else "",
+                        "price": price,
+                        "stock": stock,
+                        "description": str(row[5]).strip() if len(row) > 5 and row[5] else "",
+                        "image": str(row[6]).strip() if len(row) > 6 and row[6] else ""
+                    }
+                    
+                    if existing:
+                        existing.update(part_data)
+                        rows_updated += 1
+                    else:
+                        catalogue_items.append(part_data)
+                        rows_added += 1
+                
+                workbook.close()
+            except Exception as e:
+                print(f"Error reading Excel: {e}")
+                return redirect(url_for('catalogue'))
+        
+        # Handle CSV files
+        elif filename.endswith('.csv'):
+            try:
+                file.seek(0)
+                stream = file.read().decode('utf-8')
+                reader = csv.reader(stream.splitlines())
+                
+                for idx, row in enumerate(reader):
+                    if idx == 0:  # Skip header
+                        continue
+                    
+                    if not row or not row[0].strip():
+                        continue
+                    
+                    rows_processed += 1
+                    part_id = row[0].strip()
+                    
+                    # Check if part exists
+                    existing = next((p for p in catalogue_items if p["part_id"] == part_id), None)
+                    
+                    # Parse values
+                    try:
+                        price = float(row[3]) if len(row) > 3 and row[3] else 0.0
+                    except (ValueError, TypeError):
+                        price = 0.0
+                    
+                    try:
+                        stock = int(row[4]) if len(row) > 4 and row[4] else 0
+                    except (ValueError, TypeError):
+                        stock = 0
+                    
+                    part_data = {
+                        "part_id": part_id,
+                        "name": row[1].strip() if len(row) > 1 else "",
+                        "category": row[2].strip() if len(row) > 2 else "",
+                        "price": price,
+                        "stock": stock,
+                        "description": row[5].strip() if len(row) > 5 else "",
+                        "image": row[6].strip() if len(row) > 6 else ""
+                    }
+                    
+                    if existing:
+                        existing.update(part_data)
+                        rows_updated += 1
+                    else:
+                        catalogue_items.append(part_data)
+                        rows_added += 1
+            except Exception as e:
+                print(f"Error reading CSV: {e}")
+                flash(f"Error reading CSV file: {str(e)}", "error")
+                return redirect(url_for('catalogue'))
+        
+        # Save updated catalogue
+        if rows_processed > 0:
+            save_catalogue(catalogue_items)
+            flash(f"Import successful! Added {rows_added} parts, Updated {rows_updated} parts", "success")
+        else:
+            flash("No valid data found in file", "warning")
+        
+        return redirect(url_for('catalogue'))
+    except Exception as e:
+        print(f"Error importing catalogue: {e}")
+        flash(f"Error importing catalogue: {str(e)}", "error")
+        return redirect(url_for('catalogue'))
 
 # ==================== ORDERS & CART ROUTES ====================
 
