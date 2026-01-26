@@ -24,6 +24,40 @@ def save_jobs(jobs):
 
 jobs = load_jobs()
 
+# Orders Storage
+ORDERS_FILE = "orders_data.json"
+CART_FILE = "cart_data.json"
+
+def load_orders():
+    """Load orders from JSON file"""
+    if os.path.exists(ORDERS_FILE):
+        with open(ORDERS_FILE, "r") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return []
+    return []
+
+def save_orders(orders):
+    """Save orders to JSON file"""
+    with open(ORDERS_FILE, "w") as f:
+        json.dump(orders, f, indent=2)
+
+def load_cart():
+    """Load shopping cart from JSON file"""
+    if os.path.exists(CART_FILE):
+        with open(CART_FILE, "r") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return []
+    return []
+
+def save_cart(cart):
+    """Save shopping cart to JSON file"""
+    with open(CART_FILE, "w") as f:
+        json.dump(cart, f, indent=2)
+
 # Rewards Storage
 REWARDS_FILE = "rewards_data.json"
 
@@ -206,6 +240,146 @@ def redeem_reward(customer_id):
             cust["redeemed"] = int(cust.get("redeemed", 0)) + 1
             save_rewards(customers)
     return redirect(url_for("rewards"))
+
+# ==================== ORDERS & CART ROUTES ====================
+
+@app.route("/orders", methods=["GET", "POST"])
+def orders():
+    """Display orders and shopping cart"""
+    orders_list = load_orders()
+    cart = load_cart()
+    search_query = request.args.get("search", "").strip().lower()
+
+    if request.method == "POST":
+        action = request.form.get("action", "").strip()
+
+        # Add item to cart
+        if action == "add_to_cart":
+            item_name = request.form.get("item_name", "").strip()
+            price = request.form.get("price", "0").strip()
+            quantity = request.form.get("quantity", "1").strip()
+
+            try:
+                price_float = float(price)
+                quantity_int = int(quantity)
+            except ValueError:
+                price_float = 0.0
+                quantity_int = 1
+
+            if item_name and price_float > 0:
+                # Check if item already in cart
+                existing = next((item for item in cart if item["item_name"] == item_name), None)
+                if existing:
+                    existing["quantity"] += quantity_int
+                else:
+                    cart.append({
+                        "item_name": item_name,
+                        "price": price_float,
+                        "quantity": quantity_int
+                    })
+                save_cart(cart)
+
+            return redirect(url_for("orders"))
+
+        # Remove item from cart
+        if action == "remove_from_cart":
+            item_name = request.form.get("item_name", "").strip()
+            cart = [item for item in cart if item["item_name"] != item_name]
+            save_cart(cart)
+            return redirect(url_for("orders"))
+
+        # Update cart item quantity
+        if action == "update_cart_quantity":
+            item_name = request.form.get("item_name", "").strip()
+            quantity = request.form.get("quantity", "1").strip()
+
+            try:
+                quantity_int = int(quantity)
+            except ValueError:
+                quantity_int = 1
+
+            if quantity_int < 1:
+                quantity_int = 1
+
+            for item in cart:
+                if item["item_name"] == item_name:
+                    item["quantity"] = quantity_int
+                    break
+
+            save_cart(cart)
+            return redirect(url_for("orders"))
+
+        # Checkout - convert cart to order
+        if action == "checkout":
+            if cart:
+                import datetime
+                order_id = f"ORD{len(orders_list) + 1001}"
+                
+                total = sum(item["price"] * item["quantity"] for item in cart)
+                
+                new_order = {
+                    "order_id": order_id,
+                    "customer_name": request.form.get("customer_name", "Guest").strip(),
+                    "items": cart.copy(),
+                    "total": round(total, 2),
+                    "status": "Pending",
+                    "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+                
+                orders_list.append(new_order)
+                save_orders(orders_list)
+                
+                # Clear cart after checkout
+                save_cart([])
+                cart = []
+
+            return redirect(url_for("orders"))
+
+        # Update order status
+        if action == "update_order_status":
+            order_id = request.form.get("order_id", "").strip()
+            new_status = request.form.get("status", "").strip()
+
+            order = next((o for o in orders_list if o["order_id"] == order_id), None)
+            if order and new_status:
+                order["status"] = new_status
+                save_orders(orders_list)
+
+            return redirect(url_for("orders"))
+
+    # Calculate cart totals
+    cart_total = sum(item["price"] * item["quantity"] for item in cart)
+    cart_item_count = sum(item["quantity"] for item in cart)
+
+    # Filter orders by search
+    filtered_orders = orders_list
+    if search_query:
+        filtered_orders = [
+            o for o in orders_list
+            if search_query in o.get("order_id", "").lower()
+            or search_query in o.get("customer_name", "").lower()
+            or search_query in o.get("status", "").lower()
+        ]
+
+    # Sort orders by most recent
+    filtered_orders = sorted(filtered_orders, key=lambda x: x.get("date", ""), reverse=True)
+
+    return render_template(
+        "orders.html",
+        orders=filtered_orders,
+        cart=cart,
+        cart_total=round(cart_total, 2),
+        cart_item_count=cart_item_count,
+        search_query=search_query
+    )
+
+@app.route("/orders/delete/<order_id>", methods=["POST"])
+def delete_order(order_id):
+    """Delete an order"""
+    orders_list = load_orders()
+    orders_list = [o for o in orders_list if o["order_id"] != order_id]
+    save_orders(orders_list)
+    return redirect(url_for("orders"))
 
 if __name__ == "__main__":
     app.run(debug=True)
