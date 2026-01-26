@@ -1,467 +1,135 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Customer Rewards</title>
+{% block title %}Customer Rewards - WDP{% endblock %}
 
-  <style>
-    :root {
-      --primary-bg: #1a2238;
-      --secondary-bg: #232946;
-      --card-bg: #282c34;
-      --accent: #ff6a3d;
-      --accent-hover: #e65c2a;
-      --action: #4dd4fa;
-      --success: #19a974;
-      --danger: #ea445a;
-      --table-border: #6b7280;
-      --focus-ring: #ffe287;
-      --text: #fffffe;
-      --muted-text: #b7bfc9;
-      --button-radius: 8px;
-      --input-radius: 6px;
-      --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
-      --shadow-glow: 0 0 10px 3px var(--accent);
-      --transition-speed: 0.3s;
-      --row-hover: #27314a;
-      font-size: 16px;
-    }
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-gift"></i> Customer Rewards</h1>
+</div>
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-    }
+<!-- Search Bar -->
+<form style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+    <input type="search" name="search" placeholder="Search customers…" value="{{ search_query or '' }}"
+           style="flex: 1; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-search"></i> Search
+    </button>
+</form>
 
-    body {
-      margin: 0;
-      background: var(--primary-bg);
-      color: var(--text);
-      font-family: 'Segoe UI', Arial, sans-serif;
-      font-size: 1rem;
-    }
-
-    main {
-      padding: 2rem 0.75rem;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      color: var(--accent);
-      margin: 0 0 1rem 0;
-    }
-
-    a {
-      color: var(--action);
-      text-decoration: none;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 1.25rem;
-      flex-wrap: wrap;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .nav-link {
-      padding: 0.6em 1.2em;
-      background: var(--secondary-bg);
-      border-radius: var(--button-radius);
-      transition: background var(--transition-speed);
-      color: var(--action);
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .nav-link:hover {
-      background: var(--card-bg);
-    }
-
-    .navlinks {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-
-    .navpill {
-      display: inline-block;
-      padding: 0.55em 1em;
-      background: var(--secondary-bg);
-      border-radius: var(--button-radius);
-      border: 1px solid var(--table-border);
-      transition: background var(--transition-speed), transform var(--transition-speed);
-    }
-
-    .navpill:hover {
-      background: var(--card-bg);
-      transform: scale(1.02);
-    }
-
-    /* Search Bar */
-    .search-bar {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      margin-bottom: 1.25rem;
-    }
-
-    .search-bar__input {
-      flex: 1;
-      padding: 0.75em 1em;
-      border-radius: var(--input-radius);
-      border: 2px solid var(--accent);
-      background: var(--secondary-bg);
-      color: var(--text);
-      font-size: 1em;
-      transition: border-color var(--transition-speed), box-shadow var(--transition-speed), width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      min-width: 130px;
-      width: 180px;
-    }
-
-    .search-bar__input:focus {
-      border-color: var(--action);
-      outline: none;
-      box-shadow: 0 0 0 3px var(--focus-ring);
-      width: 240px;
-    }
-
-    .search-bar__button {
-      padding: 0.75em 1.5em;
-      border: none;
-      border-radius: var(--button-radius);
-      background: linear-gradient(90deg, var(--accent), var(--action));
-      color: var(--text);
-      font-weight: bold;
-      font-size: 1em;
-      box-shadow: var(--shadow);
-      cursor: pointer;
-      transition: background var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
-    }
-
-    .search-bar__button:hover,
-    .search-bar__button:focus {
-      background: linear-gradient(100deg, var(--accent-hover), var(--action));
-      box-shadow: 0 0 0 3px var(--focus-ring), var(--shadow-glow);
-      transform: scale(1.04);
-      outline: none;
-    }
-
-    /* Forms */
-    .card {
-      background: var(--card-bg);
-      border-radius: 1rem;
-      box-shadow: var(--shadow);
-      padding: 1.25rem;
-      margin-bottom: 1.5rem;
-      animation: fadeInUp 0.8s cubic-bezier(0.3, 0.7, 0.4, 1) 0.2s backwards;
-    }
-
-    .grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      align-items: flex-end;
-    }
-
-    .group {
-      flex: 1 1 200px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    label {
-      margin-bottom: 0.35em;
-      font-weight: 500;
-      color: var(--muted-text);
-    }
-
-    input {
-      padding: 0.75em 1em;
-      border-radius: var(--input-radius);
-      border: 2px solid var(--accent);
-      background: var(--secondary-bg);
-      color: var(--text);
-      font-size: 1em;
-      transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
-    }
-
-    input:focus {
-      border-color: var(--action);
-      box-shadow: 0 0 0 3px var(--focus-ring);
-      outline: none;
-    }
-
-    .btn {
-      padding: 0.85em 1.4em;
-      border-radius: var(--button-radius);
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-      transition: background var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
-      min-width: 160px;
-    }
-
-    .btn:hover,
-    .btn:focus {
-      box-shadow: 0 0 0 3px var(--focus-ring), var(--shadow-glow);
-      transform: scale(1.03);
-      outline: none;
-    }
-
-    .btn-primary {
-      background: var(--action);
-      color: var(--primary-bg);
-    }
-
-    .btn-primary:hover {
-      background: var(--accent);
-      color: var(--text);
-    }
-
-    .btn-success {
-      background: var(--success);
-      color: var(--text);
-    }
-
-    .btn-danger {
-      background: var(--danger);
-      color: var(--text);
-    }
-
-    /* Data Table */
-    .job-table {
-      width: 100%;
-      border-radius: 1rem;
-      box-shadow: var(--shadow);
-      background: var(--secondary-bg);
-      border-collapse: separate;
-      border-spacing: 0;
-      overflow: hidden;
-      margin-bottom: 2rem;
-      animation: fadeInUp 0.8s cubic-bezier(0.3, 0.7, 0.4, 1) 0.25s backwards;
-    }
-
-    .job-table th,
-    .job-table td {
-      font-size: 1em;
-      padding: 1em 1em;
-      border-bottom: 1.5px solid var(--table-border);
-      text-align: left;
-    }
-
-    .job-table th {
-      background: var(--accent);
-      color: var(--primary-bg);
-      font-weight: bold;
-      border-bottom: 2px solid var(--action);
-      letter-spacing: 1px;
-    }
-
-    .job-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .job-table tr {
-      transition: background var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
-    }
-
-    .job-table tr:hover,
-    .job-table tr:focus-within {
-      background: var(--row-hover);
-      box-shadow: 0 2px 16px 0 var(--accent-hover);
-      transform: scale(1.011);
-      z-index: 1;
-    }
-
-    .actions {
-      display: flex;
-      gap: 0.6em;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      display: inline-block;
-      padding: 0.25em 0.6em;
-      border-radius: 999px;
-      border: 1px solid var(--table-border);
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--muted-text);
-      font-size: 0.9em;
-    }
-
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(24px); }
-      100% { opacity: 1; transform: none; }
-    }
-
-    @media (max-width: 900px) {
-      .search-bar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .btn { width: 100%; }
-    }
-
-    @media (max-width: 600px) {
-      .job-table,
-      .job-table thead,
-      .job-table tbody,
-      .job-table tr,
-      .job-table th,
-      .job-table td {
-        display: block;
-        width: 100%;
-      }
-
-      .job-table thead {
-        display: none;
-      }
-
-      .job-table tr {
-        margin-bottom: 1.25rem;
-        box-shadow: var(--shadow);
-        border-radius: 1rem;
-        padding: 0.5em 0;
-        background: var(--secondary-bg);
-      }
-
-      .job-table td {
-        text-align: right;
-        padding-left: 50%;
-        border-bottom: none;
-        position: relative;
-        min-height: 2.5rem;
-        margin-bottom: 0.25rem;
-      }
-
-      .job-table td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 0;
-        width: 48%;
-        padding-left: 1em;
-        font-weight: bold;
-        color: var(--muted-text);
-        text-align: left;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <main>
-    <header>
-      <h1>🎁 Customer Rewards</h1>
-      <div class="nav-links">
-        <a href="{{ url_for('home') }}" class="nav-link">📋 Job Cards</a>
-        <a href="{{ url_for('rewards') }}" class="nav-link">🎁 Rewards</a>
-        <a href="{{ url_for('catalogue') }}" class="nav-link">📦 Parts Catalogue</a>
-        <a href="{{ url_for('orders') }}" class="nav-link">🛒 Orders</a>
-      </div>
-    </header>
-
-    <!-- Search -->
-    <form class="search-bar" method="get" action="{{ url_for('rewards') }}" autocomplete="off" aria-label="Search Customers">
-      <input class="search-bar__input" type="search" name="search" placeholder="Search customers…" aria-label="Search"
-        value="{{ search_query or '' }}" />
-      <button class="search-bar__button" type="submit" aria-label="Submit Search">
-        <span role="img" aria-label="Search">&#128269;</span> Search
-      </button>
+<!-- Create Customer Section -->
+<div class="card" style="margin-bottom: 2rem;">
+    <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-user-plus"></i> Create Customer</h2>
+    <form method="post" style="display: grid; gap: 1rem; grid-template-columns: 1fr 1fr auto;">
+        <input type="hidden" name="action" value="create_customer">
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">Customer ID (phone/email/NRIC)</label>
+            <input type="text" name="customer_id" placeholder="e.g. JC0000" required
+                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">Name (optional)</label>
+            <input type="text" name="name" placeholder="e.g. Alex Tan"
+                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        </div>
+        <button type="submit" class="btn btn-primary" style="align-self: flex-end;">
+            <i class="fas fa-save"></i> Save Customer
+        </button>
     </form>
+    <p style="margin-top: 1rem; padding: 0.75rem; background-color: rgba(77, 212, 250, 0.1); border-left: 3px solid var(--action); border-radius: 4px; color: var(--muted-text); font-size: 0.9rem;">
+        <strong>Reward Rule:</strong> 1 discount reward per 3 purchases
+    </p>
+</div>
 
-    <!-- Create / Update Customer -->
-    <section class="card" aria-label="Create Customer">
-      <h2 style="margin-top:0; color: var(--accent);">Create Customer</h2>
-      <form method="post" class="grid">
-        <input type="hidden" name="action" value="create_customer" />
-        <div class="group">
-          <label for="customer_id">Customer ID (e.g. phone / email / NRIC)</label>
-          <input id="customer_id" name="customer_id" type="text" placeholder="e.g. JC0000" required />
+<!-- Add Purchase Section -->
+<div class="card" style="margin-bottom: 2rem;">
+    <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-shopping-bag"></i> Add Purchase</h2>
+    <form method="post" style="display: grid; gap: 1rem; grid-template-columns: 1fr 1fr auto;">
+        <input type="hidden" name="action" value="add_purchase">
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">Customer ID</label>
+            <input type="text" name="customer_id" placeholder="Enter customer ID" required
+                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
         </div>
-        <div class="group">
-          <label for="name">Name (optional)</label>
-          <input id="name" name="name" type="text" placeholder="e.g. Alex Tan" />
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">Number of Purchases</label>
+            <input type="number" name="amount" min="1" value="1"
+                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
         </div>
-        <button class="btn btn-primary" type="submit">Save Customer</button>
-      </form>
-      <p class="pill" style="margin-top: 0.9rem;">
-        Rule: 1 discount reward per 3 purchases.
-      </p>
-    </section>
+        <button type="submit" class="btn" style="background-color: var(--success); color: white; align-self: flex-end;">
+            <i class="fas fa-plus"></i> Add
+        </button>
+    </form>
+</div>
 
-    <!-- Add Purchase -->
-    <section class="card" aria-label="Add Purchase">
-      <h2 style="margin-top:0; color: var(--accent);">Add Purchase</h2>
-      <form method="post" class="grid">
-        <input type="hidden" name="action" value="add_purchase" />
-        <div class="group">
-          <label for="purchase_customer_id">Customer ID</label>
-          <input id="purchase_customer_id" name="customer_id" type="text" placeholder="Enter customer ID" required />
-        </div>
-        <div class="group">
-          <label for="amount">How many purchases to add?</label>
-          <input id="amount" name="amount" type="number" min="1" value="1" />
-        </div>
-        <button class="btn btn-success" type="submit">Add Purchase(s)</button>
-      </form>
-    </section>
-
-    <!-- Customers Table -->
-    <table class="job-table" aria-label="Rewards Table">
-      <thead>
-        <tr>
-          <th>Customer ID</th>
-          <th>Name</th>
-          <th>Purchases</th>
-          <th>Rewards Available</th>
-          <th>Redeemed</th>
-          <th>Next Reward At</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
+<!-- Customers Cards Grid -->
+<div style="margin-bottom: 2rem;">
+    <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-list"></i> Customers</h2>
+    {% if customers %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
         {% for c in customers %}
-        <tr>
-          <td data-label="Customer ID">{{ c.customer_id }}</td>
-          <td data-label="Name">{{ c.name or "-" }}</td>
-          <td data-label="Purchases">{{ c.purchases }}</td>
-          <td data-label="Rewards Available">{{ c.reward_balance }}</td>
-          <td data-label="Redeemed">{{ c.redeemed }}</td>
-          <td data-label="Next Reward At">{{ c.next_reward_at }} purchases</td>
-          <td data-label="Actions">
-            <div class="actions">
-              <form method="post" action="{{ url_for('redeem_reward', customer_id=c.customer_id) }}" style="display:inline;">
-                <button class="btn btn-primary" type="submit" {% if c.reward_balance <= 0 %}disabled{% endif %}>
-                  Redeem 1 Reward
-                </button>
-              </form>
-              {% if c.reward_balance <= 0 %}
-              <span class="pill">No rewards yet</span>
-              {% else %}
-              <span class="pill">Discount ready</span>
-              {% endif %}
+        <div style="background-color: rgba(25, 169, 116, 0.05); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; transition: all 0.3s ease;">
+            <!-- Customer Header -->
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem;">
+                <div>
+                    <div style="color: var(--action); font-size: 0.85rem; font-weight: 500;">{{ c.customer_id }}</div>
+                    <h3 style="color: var(--text); margin: 0.25rem 0; font-size: 1.2rem;">{{ c.name or 'Unknown' }}</h3>
+                </div>
+                <div style="text-align: right;">
+                    {% if c.reward_balance > 0 %}
+                    <div style="background-color: rgba(25, 169, 116, 0.2); color: var(--success); padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">
+                        <i class="fas fa-gift"></i> {{ c.reward_balance }} Ready
+                    </div>
+                    {% else %}
+                    <div style="background-color: rgba(183, 191, 201, 0.2); color: var(--muted-text); padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.85rem;">
+                        No Rewards
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-          </td>
-        </tr>
+
+            <!-- Stats Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                <div style="text-align: center;">
+                    <div style="color: var(--muted-text); font-size: 0.85rem;">Purchases</div>
+                    <div style="color: var(--accent); font-size: 1.8rem; font-weight: bold;">{{ c.purchases }}</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="color: var(--muted-text); font-size: 0.85rem;">Redeemed</div>
+                    <div style="color: var(--success); font-size: 1.8rem; font-weight: bold;">{{ c.redeemed }}</div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="color: var(--muted-text); font-size: 0.9rem;">Next Reward</span>
+                    <span style="color: var(--action); font-weight: bold;">{{ c.next_reward_at }} purchases</span>
+                </div>
+                <div style="background-color: var(--input-bg); height: 8px; border-radius: 10px; overflow: hidden;">
+                    <div style="background-color: var(--action); height: 100%; width: {{ (c.purchases % 3) / 3 * 100 }}%; transition: width 0.3s ease;"></div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            {% if c.reward_balance > 0 %}
+            <form method="post" action="{{ url_for('redeem_reward', customer_id=c.customer_id) }}" style="display: inline; width: 100%;">
+                <button type="submit" class="btn btn-primary" style="background-color: var(--success); color: white; padding: 0.75rem; width: 100%; font-weight: 500;">
+                    <i class="fas fa-ticket-alt"></i> Redeem Reward
+                </button>
+            </form>
+            {% else %}
+            <button type="button" disabled class="btn" style="background-color: var(--input-bg); color: var(--muted-text); padding: 0.75rem; width: 100%; font-weight: 500; cursor: not-allowed;">
+                <i class="fas fa-lock"></i> No Rewards Available
+            </button>
+            {% endif %}
+        </div>
         {% endfor %}
-      </tbody>
-    </table>
-
-  </main>
-</body>
-
-</html>
+    </div>
+    {% else %}
+    <div style="padding: 3rem 2rem; text-align: center; background-color: rgba(77, 212, 250, 0.05); border: 1px dashed var(--border-color); border-radius: 10px;">
+        <i class="fas fa-inbox" style="font-size: 3rem; color: var(--muted-text); margin-bottom: 1rem; display: block;"></i>
+        <p style="color: var(--muted-text); font-size: 1.1rem;">No customers yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
