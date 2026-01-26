@@ -290,6 +290,76 @@
             font-size: 3em;
             margin-bottom: 0.5rem;
         }
+
+        .part-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: var(--secondary-bg);
+            border: 2px solid var(--table-border);
+        }
+
+        .part-image-placeholder {
+            width: 100%;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: var(--secondary-bg);
+            border: 2px dashed var(--table-border);
+            color: var(--muted-text);
+            font-size: 3em;
+        }
+
+        .image-upload-area {
+            margin: 1rem 0;
+        }
+
+        .image-upload-area label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--muted-text);
+            font-size: 0.9em;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 0.7em;
+            border-radius: var(--input-radius);
+            border: 2px dashed var(--accent);
+            text-align: center;
+            background: var(--secondary-bg);
+            color: var(--accent);
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .file-input-label:hover {
+            background: var(--card-bg);
+            border-color: var(--action);
+            color: var(--action);
+        }
+
+        .file-input-wrapper input[type=file]:focus + .file-input-label {
+            border-color: var(--action);
+            box-shadow: 0 0 0 3px var(--focus-ring);
+        }
     </style>
 </head>
 
@@ -327,7 +397,7 @@
         <!-- Add New Part -->
         <div class="add-part-section">
             <h2>➕ Add New Part</h2>
-            <form class="add-part-form" method="post">
+            <form class="add-part-form" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="add_part" />
                 <div class="form-group">
                     <label>Part ID *</label>
@@ -354,6 +424,13 @@
                     <label>Description</label>
                     <input type="text" name="description" class="form-input" placeholder="Part description..." />
                 </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label for="image-upload">📷 Upload Image (PNG, JPG, GIF, WebP)</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="image-upload" name="image" class="form-input" accept="image/*" />
+                        <label for="image-upload" class="file-input-label">Click to select an image or drag & drop</label>
+                    </div>
+                </div>
                 <div class="form-group" style="display: flex; align-items: end;">
                     <button type="submit" class="btn btn-success" style="width: 100%;">Add Part</button>
                 </div>
@@ -365,6 +442,12 @@
         <div class="catalog-grid">
             {% for part in catalog %}
             <div class="part-card">
+                {% if part.image %}
+                <img src="{{ part.image }}" alt="{{ part.name }}" class="part-image" />
+                {% else %}
+                <div class="part-image-placeholder">📦</div>
+                {% endif %}
+                
                 <div class="part-header">
                     <span class="part-id">{{ part.part_id }}</span>
                     <span class="category-badge">{{ part.category or 'Other' }}</span>
@@ -419,6 +502,45 @@
         </div>
         {% endif %}
     </main>
+
+    <script>
+        // Handle drag and drop for file input
+        const fileInput = document.getElementById('image-upload');
+        const fileLabel = document.querySelector('.file-input-label');
+
+        if (fileLabel) {
+            fileLabel.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileLabel.style.borderColor = 'var(--action)';
+                fileLabel.style.backgroundColor = 'var(--card-bg)';
+            });
+
+            fileLabel.addEventListener('dragleave', () => {
+                fileLabel.style.borderColor = 'var(--accent)';
+                fileLabel.style.backgroundColor = 'var(--secondary-bg)';
+            });
+
+            fileLabel.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileLabel.style.borderColor = 'var(--accent)';
+                fileLabel.style.backgroundColor = 'var(--secondary-bg)';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    fileLabel.textContent = e.dataTransfer.files[0].name;
+                }
+            });
+
+            // Update label text when file is selected
+            if (fileInput) {
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        fileLabel.textContent = e.target.files[0].name;
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 
 </html>
