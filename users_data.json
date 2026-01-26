@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@example.com",
+    "password": "scrypt:32768:8:1$z17bgZfb4arlh07L$d0aeb17030e20db9917e2b383d4e7cb6af922ab6da7a8371c245b690628db11fbfbe29f80ebaea1653ea2eccacbfdff5274ed8770d8578642352fb67f57b0c6b",
+    "role": "admin",
+    "created_at": "2026-01-27T01:26:57.084594"
+  },
+  {
+    "id": 2,
+    "username": "testuser",
+    "email": "testuser@example.com",
+    "password": "scrypt:32768:8:1$uE0cyy5quF7sGniz$15f8c78ca63ec9798f27198d116162d84430abb46fa36ef90fa92860673529f06922a9ebf49dc352cae1041d39f67f29c00e8976d4676073bdd9bb5d1a431d2c",
+    "role": "user",
+    "created_at": "2026-01-27T01:26:57.458109"
+  },
+  {
+    "id": 3,
+    "username": "KEICHEONG",
+    "email": "massivedogger@gmail.com",
+    "password": "scrypt:32768:8:1$QoBZKNJUHJknilHC$10dd5836745ba780c8a76280a9a62654b3974ad0ad0c1345661369d91018b85c965bef6ee8a7f66fe7ed934096269aaab614a587b95cde36be307af79d8ce1c7",
+    "role": "user",
+    "created_at": "2026-01-27T04:01:48.907092"
+  }
+]

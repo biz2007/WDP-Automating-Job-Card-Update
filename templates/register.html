@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Register - WDP Job Card System{% endblock %}
+
+{% block content %}
+<div style="max-width: 450px; margin: 3rem auto;">
+    <div class="card">
+        <h2 style="text-align: center; margin-bottom: 1.5rem; color: var(--accent);">
+            <i class="fas fa-user-plus"></i> Create New Account
+        </h2>
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;">
+                    <i class="fas fa-user"></i> Username
+                </label>
+                <input type="text" name="username" placeholder="Choose a username" required autofocus
+                       style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;">
+                    <i class="fas fa-envelope"></i> Email
+                </label>
+                <input type="email" name="email" placeholder="Enter your email" required
+                       style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <input type="password" name="password" placeholder="Enter your password (min. 6 characters)" required
+                       style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+                <small style="color: var(--muted-text);">Password must be at least 6 characters</small>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;">
+                    <i class="fas fa-lock"></i> Confirm Password
+                </label>
+                <input type="password" name="confirm_password" placeholder="Confirm your password" required
+                       style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" style="margin-bottom: 1rem; padding: 0.75rem;">
+                <i class="fas fa-user-plus"></i> Register
+            </button>
+        </form>
+
+        <hr style="border: 1px solid var(--border-color); margin: 1.5rem 0;">
+
+        <div style="text-align: center;">
+            <p style="color: var(--muted-text); margin-bottom: 0.5rem;">Already have an account?</p>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary w-100" style="padding: 0.75rem;">
+                <i class="fas fa-sign-in-alt"></i> Login Here
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

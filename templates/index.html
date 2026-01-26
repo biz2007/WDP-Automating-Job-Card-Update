@@ -1,12 +1,106 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Job Card Management</title>
+{% block title %}Job Card Management - WDP{% endblock %}
 
-  <style>
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-briefcase"></i> Job Card Management</h1>
+</div>
+
+<!-- Search Bar -->
+<form style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+    <input type="search" name="search" placeholder="Search job cards…" value="{{ search_query or '' }}"
+           style="flex: 1; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-search"></i> Search
+    </button>
+</form>
+
+<!-- Add Job Card Form (Admin Only) -->
+{% if is_admin %}
+<div class="card" style="margin-bottom: 2rem;">
+    <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-plus-circle"></i> Create New Job Card</h2>
+    <form method="post" action="{{ url_for('home') }}" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Job ID</label>
+            <input type="text" name="job_id" placeholder="e.g., JC1001" required
+                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        </div>
+        <div>
+            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Status</label>
+            <input type="text" name="status" placeholder="e.g., Open, In Progress, Closed" required
+                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        </div>
+        <div>
+            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Remarks</label>
+            <input type="text" name="remarks" placeholder="Add remarks..."
+                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        </div>
+        <div>
+            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Assigned To</label>
+            <input type="text" name="assigned_to" placeholder="Technician name"
+                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        </div>
+        <button type="submit" class="btn btn-primary" style="grid-column: span 2; width: 100%;">
+            <i class="fas fa-plus"></i> Create Job Card
+        </button>
+    </form>
+</div>
+{% endif %}
+
+<!-- Job Cards Table -->
+<div class="card">
+    <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-list"></i> Job Cards</h2>
+    {% if jobs %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--accent); background-color: rgba(255, 106, 61, 0.1);">
+                    <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">Job ID</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">Status</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">Remarks</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">Assigned To</th>
+                    {% if is_admin %}
+                    <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr style="border-bottom: 1px solid var(--border-color); transition: background-color var(--transition);">
+                    <td style="padding: 1rem;">{{ job.job_id }}</td>
+                    <td style="padding: 1rem;">
+                        <span style="background-color: {% if 'Open' in job.status %}var(--action){% elif 'In Progress' in job.status %}var(--accent){% else %}var(--success){% endif %}; color: var(--primary-bg); padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.9rem; font-weight: 500;">
+                            {{ job.status }}
+                        </span>
+                    </td>
+                    <td style="padding: 1rem; color: var(--muted-text);">{{ job.remarks }}</td>
+                    <td style="padding: 1rem;">{{ job.assigned_to }}</td>
+                    {% if is_admin %}
+                    <td style="padding: 1rem; display: flex; gap: 0.5rem;">
+                        <a href="{{ url_for('update', job_id=job.job_id) }}" class="btn btn-small" style="background-color: var(--action); color: var(--primary-bg); text-decoration: none; padding: 0.5rem 0.75rem;">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <form method="post" action="{{ url_for('delete', job_id=job.job_id) }}" style="display: inline;" onsubmit="return confirm('Delete job {{ job.job_id }}?');">
+                            <button type="submit" class="btn btn-small" style="background-color: var(--danger); color: white; padding: 0.5rem 0.75rem;">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="padding: 2rem; text-align: center; color: var(--muted-text);">
+        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+        <p>No job cards found. {% if is_admin %}Create one to get started!{% else %}Check back later.{% endif %}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
     :root {
       /* Theming (easy to override for dark mode, branding, etc) */
       --primary-bg: #1a2238;

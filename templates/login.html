@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Login - WDP Job Card System{% endblock %}
+
+{% block content %}
+<div style="max-width: 450px; margin: 3rem auto;">
+    <div class="card">
+        <h2 style="text-align: center; margin-bottom: 1.5rem; color: var(--accent);">
+            <i class="fas fa-sign-in-alt"></i> User Login
+        </h2>
+
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;">
+                    <i class="fas fa-user"></i> Username
+                </label>
+                <input type="text" name="username" placeholder="Enter your username" required autofocus
+                       style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <input type="password" name="password" placeholder="Enter your password" required
+                       style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" style="margin-bottom: 1rem; padding: 0.75rem;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+
+        <hr style="border: 1px solid var(--border-color); margin: 1.5rem 0;">
+
+        <div style="text-align: center;">
+            <p style="color: var(--muted-text); margin-bottom: 0.5rem;">Don't have an account?</p>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-secondary w-100" style="padding: 0.75rem;">
+                <i class="fas fa-user-plus"></i> Create New Account
+            </a>
+        </div>
+    </div>
+
+    <!-- Demo Info -->
+    <div class="card" style="margin-top: 1.5rem; background-color: rgba(25, 169, 116, 0.1); border-left: 4px solid var(--success);">
+        <p style="color: var(--success); margin: 0 0 1rem 0;"><i class="fas fa-info-circle"></i> <strong>Demo Credentials for Testing</strong></p>
+        
+        <!-- Admin Account -->
+        <div style="background-color: rgba(234, 68, 90, 0.1); padding: 0.75rem; border-radius: 4px; margin-bottom: 0.75rem; border-left: 3px solid var(--danger);">
+            <p style="color: var(--danger); font-weight: bold; margin: 0 0 0.5rem 0;">
+                <i class="fas fa-crown"></i> Admin Account
+            </p>
+            <p style="color: var(--muted-text); font-size: 0.85rem; margin: 0.25rem 0;">
+                <strong>Username:</strong> <span style="background-color: var(--input-bg); padding: 0.25rem 0.5rem; border-radius: 3px; font-family: monospace;">admin</span>
+            </p>
+            <p style="color: var(--muted-text); font-size: 0.85rem; margin: 0.25rem 0;">
+                <strong>Password:</strong> <span style="background-color: var(--input-bg); padding: 0.25rem 0.5rem; border-radius: 3px; font-family: monospace;">admin123</span>
+            </p>
+        </div>
+
+        <!-- User Account -->
+        <div style="background-color: rgba(77, 212, 250, 0.1); padding: 0.75rem; border-radius: 4px; border-left: 3px solid var(--action);">
+            <p style="color: var(--action); font-weight: bold; margin: 0 0 0.5rem 0;">
+                <i class="fas fa-user"></i> User Account
+            </p>
+            <p style="color: var(--muted-text); font-size: 0.85rem; margin: 0.25rem 0;">
+                <strong>Username:</strong> <span style="background-color: var(--input-bg); padding: 0.25rem 0.5rem; border-radius: 3px; font-family: monospace;">testuser</span>
+            </p>
+            <p style="color: var(--muted-text); font-size: 0.85rem; margin: 0.25rem 0;">
+                <strong>Password:</strong> <span style="background-color: var(--input-bg); padding: 0.25rem 0.5rem; border-radius: 3px; font-family: monospace;">password123</span>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

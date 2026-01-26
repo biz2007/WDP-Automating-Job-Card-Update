@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, session
 import json
 import os
 import csv
+import re
 from io import BytesIO
 from werkzeug.utils import secure_filename
 try:
@@ -10,8 +11,14 @@ try:
 except ImportError:
     HAS_OPENPYXL = False
 
+from auth import auth, get_user_by_id
+from decorators import login_required, admin_required
+
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-in-production'
+
+# Register auth blueprint
+app.register_blueprint(auth)
 
 # Configure upload folder
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
@@ -131,13 +138,20 @@ def save_catalogue(catalogue):
         json.dump(catalogue, f, indent=2)
 
 @app.route("/", methods=["GET", "POST"])
+@login_required
 def home():
     global jobs
     jobs = load_jobs()
 
     search_query = request.args.get("search", "").strip().lower()
+    is_admin = session.get('role') == 'admin'
 
     if request.method == "POST":
+        # Only admins can create job cards
+        if not is_admin:
+            flash('Only admins can create job cards', 'danger')
+            return redirect(url_for("home"))
+        
         job_id = request.form.get("job_id", "").strip()
         status = request.form.get("status", "").strip()
         remarks = request.form.get("remarks", "").strip()
@@ -167,9 +181,10 @@ def home():
             or search_query in job.get("assigned_to", "").lower()
         ]
 
-    return render_template("index.html", jobs=filtered_jobs, search_query=search_query)
+    return render_template("index.html", jobs=filtered_jobs, search_query=search_query, is_admin=is_admin)
 
 @app.route("/update/<job_id>", methods=["GET", "POST"])
+@admin_required
 def update(job_id):
     global jobs
     jobs = load_jobs()
@@ -188,6 +203,7 @@ def update(job_id):
     return render_template("update.html", job=job)
 
 @app.route("/delete/<job_id>", methods=["POST"])
+@admin_required
 def delete(job_id):
     global jobs
     jobs = load_jobs()
@@ -196,6 +212,7 @@ def delete(job_id):
     return redirect(url_for("home"))
 
 @app.route("/rewards", methods=["GET", "POST"])
+@admin_required
 def rewards():
     customers = load_rewards()
     search_query = request.args.get("search", "").strip().lower()
@@ -273,6 +290,7 @@ def rewards():
     )
 
 @app.route("/rewards/redeem/<customer_id>", methods=["POST"])
+@admin_required
 def redeem_reward(customer_id):
     customers = load_rewards()
     cust = next((c for c in customers if c["customer_id"] == customer_id), None)
@@ -285,6 +303,7 @@ def redeem_reward(customer_id):
 # ==================== CATALOGUE ROUTES ====================
 
 @app.route("/catalogue", methods=["GET", "POST"])
+@login_required
 def catalogue():
     """Display and manage parts catalogue with images"""
     catalogue_items = load_catalogue()
@@ -432,6 +451,7 @@ def catalogue():
     )
 
 @app.route("/catalogue/edit/<part_id>", methods=["GET", "POST"])
+@admin_required
 def edit_catalogue_part(part_id):
     """Edit a catalogue part"""
     catalogue_items = load_catalogue()
@@ -474,6 +494,7 @@ def edit_catalogue_part(part_id):
     return render_template("edit_part.html", part=part)
 
 @app.route("/catalogue/export", methods=["GET"])
+@admin_required
 def export_catalogue():
     """Export catalogue to CSV"""
     from datetime import datetime
@@ -515,6 +536,7 @@ def export_catalogue():
     )
 
 @app.route("/catalogue/import", methods=["POST"])
+@admin_required
 def import_catalogue():
     """Import parts from CSV or Excel file"""
     try:
@@ -654,6 +676,7 @@ def import_catalogue():
 # ==================== ORDERS & CART ROUTES ====================
 
 @app.route("/orders", methods=["GET", "POST"])
+@admin_required
 def orders():
     """Display orders and shopping cart"""
     orders_list = load_orders()
@@ -793,6 +816,7 @@ def orders():
     )
 
 @app.route("/orders/delete/<order_id>", methods=["POST"])
+@admin_required
 def delete_order(order_id):
     """Delete an order"""
     orders_list = load_orders()
@@ -801,6 +825,7 @@ def delete_order(order_id):
     return redirect(url_for("orders"))
 
 @app.route("/orders/edit/<order_id>", methods=["GET", "POST"])
+@admin_required
 def edit_order(order_id):
     """Edit an existing order"""
     orders_list = load_orders()

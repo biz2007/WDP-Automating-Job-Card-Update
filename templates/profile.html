@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile - WDP Job Card System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-user-circle"></i> My Profile</h1>
+</div>
+
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="card">
+        <div style="margin-bottom: 2rem;">
+            <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-user-tag"></i> Account Information</h2>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: var(--muted-text); font-size: 0.9rem;">Username</label>
+                <p style="color: var(--text); font-size: 1.1rem; font-weight: 500; margin: 0.25rem 0 1rem 0;">
+                    {{ user.username }}
+                </p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: var(--muted-text); font-size: 0.9rem;">Email</label>
+                <p style="color: var(--text); font-size: 1.1rem; font-weight: 500; margin: 0.25rem 0 1rem 0;">
+                    {{ user.email }}
+                </p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: var(--muted-text); font-size: 0.9rem;">Role</label>
+                <p style="margin: 0.25rem 0 1rem 0;">
+                    <span class="badge" style="background-color: {% if user.role == 'admin' %}var(--danger){% else %}var(--action){% endif %}; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 500;">
+                        <i class="fas fa-{% if user.role == 'admin' %}crown{% else %}user{% endif %}"></i> 
+                        {{ user.role|upper }}
+                    </span>
+                </p>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="color: var(--muted-text); font-size: 0.9rem;">Member Since</label>
+                <p style="color: var(--text); font-size: 1.1rem; font-weight: 500; margin: 0.25rem 0 1rem 0;">
+                    {{ user.created_at[:10] }}
+                </p>
+            </div>
+        </div>
+
+        <hr style="border: 1px solid var(--border-color); margin: 2rem 0;">
+
+        <div style="text-align: center; display: flex; gap: 1rem; justify-content: center;">
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
