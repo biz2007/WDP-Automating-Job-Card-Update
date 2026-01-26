@@ -1,0 +1,74 @@
+[
+  {
+    "part_id": "P003",
+    "name": "Hoosier Tyre Rear Sand",
+    "category": "Tyres",
+    "price": 166.0,
+    "stock": 10,
+    "description": "The 110/100-19  is optimal as a rear tire for sand tracks and muddy racing conditions. The 110/100-19 has a unique tread pattern that will allow the tire to be used in sandy and muddy conditions but also will still perform in intermediate conditions. This tire helps get the holeshot but will still perform at a high level in multiple conditions. Optimal air pressure range is 13-14 psi.",
+    "image": "/static/uploads/P003_hoosier_tyre.jpg"
+  },
+  {
+    "part_id": "P002",
+    "name": "Dunlop Tyres X-MAX 300",
+    "category": "Tyres",
+    "price": 160.0,
+    "stock": 15,
+    "description": "X-MAX  Front: 120/70-15  Rear: 140/70-14",
+    "image": "/static/uploads/P002_xmax.jpg"
+  },
+  {
+    "part_id": "P011",
+    "name": "Rear Brake Pads Ecranger",
+    "category": "Brake Pads",
+    "price": 401.0,
+    "stock": 6,
+    "description": "",
+    "image": "/static/uploads/P011_brake_pads.jpg"
+  },
+  {
+    "part_id": "P012",
+    "name": "Brembo Racing Brake Pad",
+    "category": "Brake Pads",
+    "price": 167.0,
+    "stock": 6,
+    "description": "Brembo 07B36640 Motorcycle Z03 Racing Brake Pad",
+    "image": "/static/uploads/P012_brembo_brake_pad.jpg"
+  },
+  {
+    "part_id": "P001",
+    "name": "Dunlop Tyres-ADV 150",
+    "category": "Tyres",
+    "price": 130.0,
+    "stock": 10,
+    "description": "ADV 150  Front: 110/80-14  Rear: 130/70-13",
+    "image": "/static/uploads/P001_adv_tyre.jpg"
+  },
+  {
+    "part_id": "P004",
+    "name": "Hoosier Tyre Rear IMX30",
+    "category": "Tyres",
+    "price": 100.0,
+    "stock": 10,
+    "description": "The 90/100-14 IMX30 is the optimal rear tire for 85cc dirt bikes looking for an advantage over the competition. This tire is designed and developed with the same compound and performance that professional riders are using on the big stages. The intermediate tread pattern is optimal for all conditions and the IMX30 compound is a longer lasting compound with holeshot performance to finish on the podium.",
+    "image": "/static/uploads/P004_rear_tyre.jpg"
+  },
+  {
+    "part_id": "P013",
+    "name": "Streetbike Brake Pads",
+    "category": "Brake Pads",
+    "price": 100.0,
+    "stock": 10,
+    "description": "EBC Brakes\u2122 Organic OE quality replacement motorcycle brake pads are manufactured in the UK using high technology ECO friendly brake pad compounds that deliver fingertip stopping power.",
+    "image": "/static/uploads/P013_streetbike_brake_pads.jpg"
+  },
+  {
+    "part_id": "P031",
+    "name": "RK GOLD 428KLO (GS) O-RING CHAIN NT",
+    "category": "Chains",
+    "price": 50.0,
+    "stock": 25,
+    "description": "100% original RK TAKASAGO products MADE IN JAPAN RK 428 KLO GS O-RING GOLD CHAIN SIZE LONG: 132L",
+    "image": "/static/uploads/P031_O-RING_CHAIN.jpg"
+  }
+]
