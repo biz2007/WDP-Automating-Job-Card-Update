@@ -3,7 +3,7 @@
     "id": 1,
     "username": "admin",
     "email": "admin@example.com",
-    "password": "scrypt:32768:8:1$EO8vSogrXdLlaUcV$c1e511306bc4984e13f21962355fc9cf2b49c9536b19e113df93b8ba38bb01d9ba07171f40334ab1c700d0cbab4094a382cb8efe299b046886f8d971349d3795",
+    "password": "scrypt:32768:8:1$ptFbTPGP5NX94qmn$f2f1060b2a710dbb8d9631cd14f0fb7defe5d558e9846603d73d18fa9e29efb2030496e970c01b98465e3da21fe9c6a6ce0b805ffbcf50fecf1703725f8d4c8c",
     "role": "admin",
     "created_at": "2026-01-27T12:07:12.466192"
   },
