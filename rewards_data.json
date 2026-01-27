@@ -1,8 +1,16 @@
 [
   {
-    "customer_id": "12345678",
-    "name": "mai",
-    "purchases": 67,
-    "redeemed": 0
+    "phone_number": "98765432",
+    "license_plate": "SGX1234A",
+    "name": "Mai",
+    "total_cost": 450.5,
+    "vouchers_redeemed": 0
+  },
+  {
+    "phone_number": "12345678",
+    "license_plate": "JC1000",
+    "name": "Kim",
+    "total_cost": 9010.0,
+    "vouchers_redeemed": 2
   }
 ]

@@ -1,12 +1,16 @@
 [
   {
-    "job_id": "JC1234",
+    "license_plate": "JC1234",
     "status": "Closed",
     "remarks": "Completed",
-    "assigned_to": "Bobs"
+    "assigned_to": "Bobs",
+    "problem": "",
+    "parts_used": [
+      "P013"
+    ]
   },
   {
-    "job_id": "JC1235",
+    "license_plate": "JC1235",
     "status": "Open",
     "remarks": "",
     "assigned_to": "Alice"

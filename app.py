@@ -44,8 +44,8 @@ def load_jobs():
         with open(DATA_FILE, "r") as f:
             return json.load(f)
     return [
-        {"job_id": "JC1234", "status": "Open",   "remarks": "Initial review", "assigned_to": "Alice"},
-        {"job_id": "JC5678", "status": "Closed", "remarks": "Completed",      "assigned_to": "Bob"},
+        {"license_plate": "JC1234", "status": "Open",   "remarks": "Initial review", "assigned_to": "Alice"},
+        {"license_plate": "JC5678", "status": "Closed", "remarks": "Completed",      "assigned_to": "Bob"},
     ]
 
 def save_jobs(jobs):
@@ -113,12 +113,13 @@ def save_rewards(customers):
 
 def compute_reward_balance(customer):
     """
-    1 discount per 3 purchases.
-    balance = floor(purchases/3) - redeemed
+    Points-based rewards: $50 cost = 50 points, 50 points = $3 voucher
+    Balance in vouchers = floor(points / 50)
     """
-    earned = customer.get("purchases", 0) // 3
-    redeemed = customer.get("redeemed", 0)
-    return max(0, earned - redeemed)
+    points = customer.get("total_cost", 0)
+    vouchers_redeemed = customer.get("vouchers_redeemed", 0)
+    vouchers_earned = points // 50
+    return max(0, vouchers_earned - vouchers_redeemed)
 
 # Catalogue Storage
 CATALOGUE_FILE = "catalogue_data.json"
@@ -196,6 +197,7 @@ def load_status():
 def home():
     global jobs
     jobs = load_jobs()
+    catalogue = load_catalogue()
 
     search_query = request.args.get("search", "").strip().lower()
     is_admin = session.get('role') == 'admin'
@@ -206,20 +208,24 @@ def home():
             flash('Only admins can create job cards', 'danger')
             return redirect(url_for("home"))
         
-        job_id = request.form.get("job_id", "").strip()
+        license_plate = request.form.get("license_plate", "").strip()
         status = request.form.get("status", "").strip()
         remarks = request.form.get("remarks", "").strip()
         assigned_to = request.form.get("assigned_to", "").strip()
+        problem = request.form.get("problem", "").strip()
+        parts_used = request.form.getlist("parts_used")
 
-        if job_id and status:
-            # Prevent duplicate Job ID
-            if any(j.get("job_id") == job_id for j in jobs):
+        if license_plate and status:
+            # Prevent duplicate License Plate
+            if any(j.get("license_plate") == license_plate for j in jobs):
                 return redirect(url_for("home")) 
             jobs.append({
-                "job_id": job_id,
+                "license_plate": license_plate,
                 "status": status,
                 "remarks": remarks,
                 "assigned_to": assigned_to,
+                "problem": problem,
+                "parts_used": parts_used,
             })
             save_jobs(jobs)
 
@@ -229,21 +235,23 @@ def home():
     if search_query:
         filtered_jobs = [
             job for job in jobs
-            if search_query in job.get("job_id", "").lower()
+            if search_query in job.get("license_plate", "").lower()
             or search_query in job.get("status", "").lower()
             or search_query in job.get("remarks", "").lower()
             or search_query in job.get("assigned_to", "").lower()
+            or search_query in job.get("problem", "").lower()
         ]
 
-    return render_template("index.html", jobs=filtered_jobs, search_query=search_query, is_admin=is_admin)
+    return render_template("index.html", jobs=filtered_jobs, search_query=search_query, is_admin=is_admin, catalogue=catalogue)
 
-@app.route("/update/<job_id>", methods=["GET", "POST"])
+@app.route("/update/<license_plate>", methods=["GET", "POST"])
 @admin_required
-def update(job_id):
+def update(license_plate):
     global jobs
     jobs = load_jobs()
+    catalogue = load_catalogue()
 
-    job = next((j for j in jobs if j["job_id"] == job_id), None)
+    job = next((j for j in jobs if j["license_plate"] == license_plate), None)
     if not job:
         return redirect(url_for("home"))
 
@@ -251,17 +259,19 @@ def update(job_id):
         job["status"] = request.form.get("status", "").strip()
         job["remarks"] = request.form.get("remarks", "").strip()
         job["assigned_to"] = request.form.get("assigned_to", "").strip()
+        job["problem"] = request.form.get("problem", "").strip()
+        job["parts_used"] = request.form.getlist("parts_used")
         save_jobs(jobs)
         return redirect(url_for("home"))
 
-    return render_template("update.html", job=job)
+    return render_template("update.html", job=job, catalogue=catalogue)
 
-@app.route("/delete/<job_id>", methods=["POST"])
+@app.route("/delete/<license_plate>", methods=["POST"])
 @admin_required
-def delete(job_id):
+def delete(license_plate):
     global jobs
     jobs = load_jobs()
-    jobs = [j for j in jobs if j["job_id"] != job_id]
+    jobs = [j for j in jobs if j["license_plate"] != license_plate]
     save_jobs(jobs)
     return redirect(url_for("home"))
 
@@ -282,17 +292,20 @@ def rewards():
 
         # Create/Update customer
         if action == "create_customer":
-            customer_id = request.form.get("customer_id", "").strip()
+            phone_number = request.form.get("phone_number", "").strip()
+            license_plate = request.form.get("license_plate", "").strip()
             name = request.form.get("name", "").strip()
 
-            if customer_id:
-                existing = next((c for c in customers if c["customer_id"] == customer_id), None)
+            if phone_number and license_plate:
+                # Use phone_number and license_plate as composite key
+                existing = next((c for c in customers if c["phone_number"] == phone_number and c["license_plate"] == license_plate), None)
                 if not existing:
                     customers.append({
-                        "customer_id": customer_id,
+                        "phone_number": phone_number,
+                        "license_plate": license_plate,
                         "name": name,
-                        "purchases": 0,
-                        "redeemed": 0
+                        "total_cost": 0,
+                        "vouchers_redeemed": 0
                     })
                 else:
                     # allow updating name if provided
@@ -303,22 +316,23 @@ def rewards():
 
             return redirect(url_for("rewards"))
 
-        # Add purchase to a customer
-        if action == "add_purchase":
-            customer_id = request.form.get("customer_id", "").strip()
-            amount = request.form.get("amount", "1").strip()
+        # Add repair cost to a customer
+        if action == "add_cost":
+            phone_number = request.form.get("phone_number", "").strip()
+            license_plate = request.form.get("license_plate", "").strip()
+            cost = request.form.get("cost", "0").strip()
 
             try:
-                amount_int = int(amount)
+                cost_float = float(cost)
             except ValueError:
-                amount_int = 1
+                cost_float = 0
 
-            if amount_int < 1:
-                amount_int = 1
+            if cost_float < 0:
+                cost_float = 0
 
-            cust = next((c for c in customers if c["customer_id"] == customer_id), None)
+            cust = next((c for c in customers if c["phone_number"] == phone_number and c["license_plate"] == license_plate), None)
             if cust:
-                cust["purchases"] = int(cust.get("purchases", 0)) + amount_int
+                cust["total_cost"] = float(cust.get("total_cost", 0)) + cost_float
                 save_rewards(customers)
 
             return redirect(url_for("rewards"))
@@ -328,7 +342,8 @@ def rewards():
     if search_query:
         filtered = [
             c for c in customers
-            if search_query in c.get("customer_id", "").lower()
+            if search_query in c.get("phone_number", "").lower()
+            or search_query in c.get("license_plate", "").lower()
             or search_query in c.get("name", "").lower()
         ]
 
@@ -336,12 +351,14 @@ def rewards():
     display_customers = []
     for c in filtered:
         c2 = dict(c)
-        c2["reward_balance"] = compute_reward_balance(c)
-        c2["next_reward_at"] = ((c.get("purchases", 0) // 3) + 1) * 3  # next threshold
+        points = c.get("total_cost", 0)
+        c2["current_points"] = int(points)
+        c2["reward_balance"] = compute_reward_balance(c)  # vouchers available to redeem
+        c2["points_to_next_voucher"] = (((points // 50) + 1) * 50) - points if (points % 50) != 0 else 0
         display_customers.append(c2)
 
-    # sort by most purchases desc
-    display_customers.sort(key=lambda x: x.get("purchases", 0), reverse=True)
+    # sort by most cost desc
+    display_customers.sort(key=lambda x: x.get("total_cost", 0), reverse=True)
 
     return render_template(
         "rewards.html",
@@ -350,14 +367,14 @@ def rewards():
         is_admin=is_admin
     )
 
-@app.route("/rewards/redeem/<customer_id>", methods=["POST"])
+@app.route("/rewards/redeem/<phone_number>/<license_plate>", methods=["POST"])
 @admin_required
-def redeem_reward(customer_id):
+def redeem_reward(phone_number, license_plate):
     customers = load_rewards()
-    cust = next((c for c in customers if c["customer_id"] == customer_id), None)
+    cust = next((c for c in customers if c["phone_number"] == phone_number and c["license_plate"] == license_plate), None)
     if cust:
         if compute_reward_balance(cust) > 0:
-            cust["redeemed"] = int(cust.get("redeemed", 0)) + 1
+            cust["vouchers_redeemed"] = int(cust.get("vouchers_redeemed", 0)) + 1
             save_rewards(customers)
     return redirect(url_for("rewards"))
 
