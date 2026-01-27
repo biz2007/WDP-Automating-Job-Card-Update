@@ -563,13 +563,16 @@
                         <div class="cart-total-amount">${{ "%.2f"|format(cart_total) }}</div>
                     </div>
 
-                    <!-- Email Cart Form -->
-                    <form method="post" style="margin-top: 0.75rem; display:flex; gap:0.5rem; align-items:center;">
-                        <input type="hidden" name="action" value="email_cart" />
-                        <input type="email" name="recipient_email" class="form-input" placeholder="Email cart to..."
-                            required style="flex:1;" />
-                        <button type="submit" class="btn btn-primary">Email Cart</button>
-                    </form>
+                    <!-- Email Cart Form + Export -->
+                    <div style="margin-top: 0.75rem; display:flex; gap:0.5rem; align-items:center;">
+                        <form method="post" style="flex:1; display:flex; gap:0.5rem;">
+                            <input type="hidden" name="action" value="email_cart" />
+                            <input type="email" name="recipient_email" class="form-input" placeholder="Email cart to..."
+                                required style="flex:1;" />
+                            <button type="submit" class="btn btn-primary">Email Cart</button>
+                        </form>
+                        <a href="{{ url_for('export_cart') }}" class="btn btn-secondary">Export Cart</a>
+                    </div>
 
                     <!-- Checkout Form -->
                     <form class="checkout-form" method="post">
@@ -666,6 +669,10 @@
                                 <td>
                                     <a href="{{ url_for('edit_order', order_id=order.order_id) }}">
                                         <button class="btn btn-primary btn-sm">Edit</button>
+                                    </a>
+                                    <a href="{{ url_for('export_order', order_id=order.order_id) }}"
+                                        style="margin-left:0.25rem;">
+                                        <button class="btn btn-secondary btn-sm">Export</button>
                                     </a>
                                     <form method="post" action="{{ url_for('delete_order', order_id=order.order_id) }}"
                                         style="display: inline;"

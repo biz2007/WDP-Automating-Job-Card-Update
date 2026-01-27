@@ -984,6 +984,83 @@ def orders():
         is_admin=is_admin
     )
 
+
+@app.route('/orders/export/<order_id>', methods=['GET'])
+@admin_required
+def export_order(order_id):
+    """Export a single order to Excel (.xlsx)"""
+    if not HAS_OPENPYXL:
+        flash('openpyxl is required to export Excel files. Please install openpyxl.', 'danger')
+        return redirect(url_for('orders'))
+
+    orders_list = load_orders()
+    order = next((o for o in orders_list if o.get('order_id') == order_id), None)
+    if not order:
+        flash('Order not found', 'danger')
+        return redirect(url_for('orders'))
+
+    from openpyxl import Workbook
+    output = BytesIO()
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'Order'
+
+    # Header/meta
+    ws.append(['Order ID', order.get('order_id')])
+    ws.append(['Customer Name', order.get('customer_name')])
+    ws.append(['Customer Phone', order.get('customer_phone') or ''])
+    ws.append(['Customer Email', order.get('customer_email') or ''])
+    ws.append(['Date', order.get('date') or ''])
+    ws.append(['Status', order.get('status') or ''])
+    ws.append([])
+
+    # Items table header
+    ws.append(['Item Name', 'Quantity', 'Unit Price', 'Total'])
+    for it in order.get('items', []):
+        ws.append([it.get('item_name'), int(it.get('quantity', 0)), float(it.get('price', 0.0)), float(it.get('quantity', 0)) * float(it.get('price', 0.0))])
+
+    ws.append([])
+    ws.append(['Order Notes', order.get('order_notes') or ''])
+    ws.append(['Order Total', float(order.get('total', 0.0))])
+
+    wb.save(output)
+    output.seek(0)
+
+    filename = f"{order.get('order_id')}.xlsx"
+    return send_file(output, as_attachment=True, download_name=filename, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
+@app.route('/orders/export_cart', methods=['GET'])
+@admin_required
+def export_cart():
+    """Export current cart to Excel (.xlsx)"""
+    if not HAS_OPENPYXL:
+        flash('openpyxl is required to export Excel files. Please install openpyxl.', 'danger')
+        return redirect(url_for('orders'))
+
+    cart = load_cart()
+    from openpyxl import Workbook
+    output = BytesIO()
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'Cart'
+
+    ws.append(['Exported', datetime.now().strftime('%Y-%m-%d %H:%M:%S')])
+    ws.append([])
+    ws.append(['Item Name', 'Quantity', 'Unit Price', 'Total'])
+    for it in cart:
+        ws.append([it.get('item_name'), int(it.get('quantity', 0)), float(it.get('price', 0.0)), float(it.get('quantity', 0)) * float(it.get('price', 0.0))])
+
+    total = sum(float(i.get('price', 0.0)) * int(i.get('quantity', 0)) for i in cart)
+    ws.append([])
+    ws.append(['Cart Total', total])
+
+    wb.save(output)
+    output.seek(0)
+
+    filename = f"cart_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+    return send_file(output, as_attachment=True, download_name=filename, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
 @app.route("/orders/delete/<order_id>", methods=["POST"])
 @admin_required
 def delete_order(order_id):
