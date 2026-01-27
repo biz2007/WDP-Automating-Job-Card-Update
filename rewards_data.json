@@ -4,13 +4,13 @@
     "license_plate": "SGX1234A",
     "name": "Mai",
     "total_cost": 450.5,
-    "vouchers_redeemed": 0
+    "vouchers_redeemed": 9
   },
   {
     "phone_number": "12345678",
     "license_plate": "JC1000",
     "name": "Kim",
-    "total_cost": 9010.0,
-    "vouchers_redeemed": 2
+    "total_cost": 9045.5,
+    "vouchers_redeemed": 3
   }
 ]

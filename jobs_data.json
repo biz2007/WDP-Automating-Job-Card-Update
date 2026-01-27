@@ -13,6 +13,18 @@
     "license_plate": "JC1235",
     "status": "Open",
     "remarks": "",
-    "assigned_to": "Alice"
+    "assigned_to": "Alice",
+    "problem": "Brakes spoiled",
+    "parts_used": []
+  },
+  {
+    "license_plate": "JC1237",
+    "status": "Open",
+    "remarks": "",
+    "assigned_to": "Bobs",
+    "problem": "Brakes Spoiled",
+    "parts_used": [
+      "P011"
+    ]
   }
 ]
