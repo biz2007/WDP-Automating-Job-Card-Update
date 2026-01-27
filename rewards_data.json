@@ -1,19 +1,8 @@
 [
   {
-    "customer_id": "90009999",
-    "name": "Alex",
-<<<<<<< HEAD
-    "purchases": 1,
-    "redeemed": 0
-  },
-  {
-    "customer_id": "251481Y@mymail.nyp.edu.sg",
-    "name": "Mai Kei Cheong",
+    "customer_id": "12345678",
+    "name": "mai",
     "purchases": 67,
     "redeemed": 0
-=======
-    "purchases": 11,
-    "redeemed": 3
->>>>>>> 551b59d3783213598b653598e8bef52845411643
   }
 ]

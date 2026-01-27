@@ -594,9 +594,7 @@
             <h1>📦 Parts Catalogue</h1>
             <div class="nav-links">
                 <a href="{{ url_for('home') }}" class="nav-link">📋 Job Cards</a>
-                {% if session.get('role') == 'admin' %}
                 <a href="{{ url_for('rewards') }}" class="nav-link">🎁 Rewards</a>
-                {% endif %}
                 <a href="{{ url_for('catalogue') }}" class="nav-link">📦 Parts Catalogue</a>
                 {% if session.get('role') == 'admin' %}
                 <a href="{{ url_for('orders') }}" class="nav-link">🛒 Orders</a>

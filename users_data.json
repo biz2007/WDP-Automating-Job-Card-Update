@@ -3,40 +3,24 @@
     "id": 1,
     "username": "admin",
     "email": "admin@example.com",
-    "password": "scrypt:32768:8:1$z17bgZfb4arlh07L$d0aeb17030e20db9917e2b383d4e7cb6af922ab6da7a8371c245b690628db11fbfbe29f80ebaea1653ea2eccacbfdff5274ed8770d8578642352fb67f57b0c6b",
+    "password": "scrypt:32768:8:1$EO8vSogrXdLlaUcV$c1e511306bc4984e13f21962355fc9cf2b49c9536b19e113df93b8ba38bb01d9ba07171f40334ab1c700d0cbab4094a382cb8efe299b046886f8d971349d3795",
     "role": "admin",
-    "created_at": "2026-01-27T01:26:57.084594"
+    "created_at": "2026-01-27T12:07:12.466192"
   },
   {
     "id": 2,
-    "username": "testuser",
-    "email": "testuser@example.com",
-    "password": "scrypt:32768:8:1$dHftp2lxCCujmKMg$642ca4d40222244cdb1f9a1521c715a8413a6520f097742260ca0f7beaf54b8b1715c8c1b8b2e07704a81e6fb22582205825883cada5ae5f642fd20145b8aa93",
+    "username": "user",
+    "email": "user123@gmail.com",
+    "password": "scrypt:32768:8:1$v5FZASrNkNIJqnAB$1dd6cf20ef407e771408cd69d0b80658093694d0d3da049e9a6fe70d34c88e5ea6164025342fb2315dc732feb09e2ec2e871a38eeb624df7f8b90452d2fb3e4b",
     "role": "user",
-    "created_at": "2026-01-27T01:26:57.458109"
+    "created_at": "2026-01-27T12:14:40.904293"
   },
   {
     "id": 3,
-    "username": "KEICHEONG",
-    "email": "massivedogger@gmail.com",
-    "password": "scrypt:32768:8:1$QoBZKNJUHJknilHC$10dd5836745ba780c8a76280a9a62654b3974ad0ad0c1345661369d91018b85c965bef6ee8a7f66fe7ed934096269aaab614a587b95cde36be307af79d8ce1c7",
-    "role": "admin",
-    "created_at": "2026-01-27T04:01:48.907092"
-  },
-  {
-    "id": 4,
-<<<<<<< HEAD
     "username": "KEI CHEONG",
-    "email": "mai@gmail.com",
-    "password": "scrypt:32768:8:1$k85Z5npN0PiAmMnQ$0f7b4276a2a3c95f0fab6ea34b966b49f4ae8fddbdd0ee8759bd5dd8f575828a66baa0b666575ae5608aac522955c3cdb44ce3e07be335f2af08bfe36b1716c2",
-    "role": "admin",
-    "created_at": "2026-01-27T11:41:47.565215"
-=======
-    "username": "Jun",
-    "email": "tinydogger@gmail.com",
-    "password": "scrypt:32768:8:1$2fvN1a4XXUak3d1e$5702bb5c6967424daf16b8c370134dabd5b20867bfb80b893600d4c32a9b611ff45534eeabf326cfc0bb9df1456674b5f401625e9ca647ffb9338e5d27f8b078",
+    "email": "251481Y@mymail.nyp.edu.sg",
+    "password": "scrypt:32768:8:1$u15z3nleePAOuhNp$47823bd1251e3130cad4a608a110e4ab05908125e75561e497a97775ec65d3fa9188991a2b60dd2715fb8601c06253acbcd485a07f7debc5735adfbf61a3e85b",
     "role": "user",
-    "created_at": "2026-01-27T11:24:32.661387"
->>>>>>> 551b59d3783213598b653598e8bef52845411643
+    "created_at": "2026-01-27T12:07:12.466192"
   }
 ]
