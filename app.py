@@ -212,12 +212,17 @@ def delete(job_id):
     return redirect(url_for("home"))
 
 @app.route("/rewards", methods=["GET", "POST"])
-@admin_required
+@login_required
 def rewards():
     customers = load_rewards()
     search_query = request.args.get("search", "").strip().lower()
+    is_admin = session.get('role') == 'admin'
 
     if request.method == "POST":
+        # Only admins can perform actions
+        if not is_admin:
+            return redirect(url_for("rewards"))
+        
         action = request.form.get("action", "").strip()
 
         # Create/Update customer
@@ -286,12 +291,17 @@ def rewards():
     return render_template(
         "rewards.html",
         customers=display_customers,
-        search_query=search_query
+        search_query=search_query,
+        is_admin=is_admin
     )
 
 @app.route("/rewards/redeem/<customer_id>", methods=["POST"])
-@admin_required
+@login_required
 def redeem_reward(customer_id):
+    # Only admins can redeem rewards
+    if session.get('role') != 'admin':
+        return redirect(url_for("rewards"))
+    
     customers = load_rewards()
     cust = next((c for c in customers if c["customer_id"] == customer_id), None)
     if cust:
@@ -676,14 +686,19 @@ def import_catalogue():
 # ==================== ORDERS & CART ROUTES ====================
 
 @app.route("/orders", methods=["GET", "POST"])
-@admin_required
+@login_required
 def orders():
     """Display orders and shopping cart"""
     orders_list = load_orders()
     cart = load_cart()
     search_query = request.args.get("search", "").strip().lower()
+    is_admin = session.get('role') == 'admin'
 
     if request.method == "POST":
+        # Only admins can perform order management actions
+        if not is_admin:
+            return redirect(url_for("orders"))
+        
         action = request.form.get("action", "").strip()
 
         # Add item to cart
@@ -812,7 +827,8 @@ def orders():
         cart=cart,
         cart_total=round(cart_total, 2),
         cart_item_count=cart_item_count,
-        search_query=search_query
+        search_query=search_query,
+        is_admin=is_admin
     )
 
 @app.route("/orders/delete/<order_id>", methods=["POST"])

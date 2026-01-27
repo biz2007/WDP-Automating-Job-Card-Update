@@ -16,7 +16,8 @@
     </button>
 </form>
 
-<!-- Create Customer Section -->
+<!-- Create Customer Section (Admin Only) -->
+{% if is_admin %}
 <div class="card" style="margin-bottom: 2rem;">
     <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-user-plus"></i> Create Customer</h2>
     <form method="post" style="display: grid; gap: 1rem; grid-template-columns: 1fr 1fr auto;">
@@ -40,7 +41,7 @@
     </p>
 </div>
 
-<!-- Add Purchase Section -->
+<!-- Add Purchase Section (Admin Only) -->
 <div class="card" style="margin-bottom: 2rem;">
     <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-shopping-bag"></i> Add Purchase</h2>
     <form method="post" style="display: grid; gap: 1rem; grid-template-columns: 1fr 1fr auto;">
@@ -60,6 +61,7 @@
         </button>
     </form>
 </div>
+{% endif %}
 
 <!-- Customers Cards Grid -->
 <div style="margin-bottom: 2rem;">
