@@ -1,190 +1,185 @@
-<!-- templates/faq.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Frequently Asked Questions - Billing, Accounts, Products">
-  <title>FAQ - Customer Support</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <style>
-    :root {
-      --primary-bg: #1a2238;
-      --secondary-bg: #232946;
-      --card-bg: #282c34;
-      --accent: #ff6a3d;
-      --accent-hover: #e65c2a;
-      --action: #4dd4fa;
-      --success: #19a974;
-      --danger: #ea445a;
-      --warning: #ffa500;
-      --table-border: #6b7280;
-      --focus-ring: #ffe287;
-      --text: #fffffe;
-      --muted-text: #b7bfc9;
-      --button-radius: 8px;
-      --input-radius: 6px;
-      --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
-      --transition-speed: 0.3s;
-      font-size: 16px;
+{% extends "base.html" %}
+
+{% block title %}FAQ - WDP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+        color: var(--text);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid var(--accent);
     }
 
-    body { background: var(--primary-bg); color: var(--text); }
-    .navbar { background: var(--secondary-bg); }
-    
-    .page-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 3rem 0;
-      margin-bottom: 2rem;
+    .page-header h1 {
+        color: var(--text);
+        font-weight: bold;
+    }
+
+    .page-header .lead {
+        color: var(--muted-text);
     }
 
     .filter-sidebar {
-      position: sticky;
-      top: 20px;
+        position: sticky;
+        top: 100px;
     }
 
     .faq-item {
-      background: white;
-      border: none;
-      border-radius: 10px;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
     }
 
     .faq-question {
-      background: white;
-      padding: 1.5rem;
-      cursor: pointer;
-      border-radius: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.3s ease;
-      font-weight: 600;
-      color: #333;
+        padding: 1.5rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        transition: all var(--transition);
+        background-color: var(--card-bg);
+        color: var(--text);
+        border: none;
+        font-weight: 600;
+        width: 100%;
+        text-align: left;
     }
 
     .faq-question:hover {
-      background: #f8f9fa;
-      color: #0d6efd;
+        background-color: rgba(255, 106, 61, 0.1);
+        color: var(--accent);
     }
 
     .faq-answer {
-      padding: 1.5rem;
-      background: #f9f9f9;
-      border-top: 1px solid #eee;
-      border-radius: 0 0 10px 10px;
-      line-height: 1.8;
-      color: #555;
+        padding: 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-top: 1px solid var(--border-color);
+        color: var(--muted-text);
+        line-height: 1.8;
     }
 
     .badge-category {
-      display: inline-block;
-      padding: 0.35rem 0.75rem;
-      border-radius: 50px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
     }
 
-    .badge-billing { background: #ffeaa7; color: #d63031; }
-    .badge-account { background: #a8e6cf; color: #00b894; }
-    .badge-product { background: #dfe6e9; color: #2d3436; }
-    .badge-technical { background: #fab1a0; color: #e17055; }
-    .badge-general { background: #74b9ff; color: #0984e3; }
+    .badge-billing { background: rgba(255, 165, 0, 0.2); color: var(--accent); }
+    .badge-account { background: rgba(25, 169, 116, 0.2); color: var(--success); }
+    .badge-product { background: rgba(77, 212, 250, 0.2); color: var(--action); }
+    .badge-technical { background: rgba(234, 68, 90, 0.2); color: var(--danger); }
+    .badge-general { background: rgba(77, 212, 250, 0.2); color: var(--action); }
 
     .filter-btn {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 0.5rem 1rem;
-      border: 1px solid #ddd;
-      background: white;
-      margin-bottom: 0.5rem;
-      border-radius: 5px;
-      transition: all 0.2s ease;
-      cursor: pointer;
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        background: transparent;
+        margin-bottom: 0.5rem;
+        border-radius: 6px;
+        transition: all var(--transition);
+        cursor: pointer;
+        color: var(--text);
     }
 
     .filter-btn:hover, .filter-btn.active {
-      background: #0d6efd;
-      color: white;
-      border-color: #0d6efd;
+        background: var(--accent);
+        color: var(--primary-bg);
+        border-color: var(--accent);
     }
 
     .search-box {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-bottom: 2rem;
+        background: var(--card-bg);
+        padding: 1rem;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 1rem;
     }
 
     .search-box input {
-      border: 2px solid #e0e0e0;
-      border-radius: 50px;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      transition: all 0.3s ease;
+        background-color: var(--input-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text);
+        border-radius: 6px;
     }
 
     .search-box input:focus {
-      border-color: #0d6efd;
-      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.2rem rgba(255, 106, 61, 0.25);
+        background-color: var(--input-bg);
+        color: var(--text);
+    }
+
+    .search-box input::placeholder {
+        color: var(--muted-text);
     }
 
     .no-results {
-      background: white;
-      padding: 2rem;
-      text-align: center;
-      border-radius: 10px;
+        background: var(--card-bg);
+        padding: 2rem;
+        text-align: center;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
     }
 
     .breadcrumb {
-      background: transparent;
-      padding-top: 1rem;
+        background: transparent;
+        padding: 1rem 0;
     }
 
-    @media (max-width: 768px) {
-      .filter-sidebar {
-        position: static;
-        margin-bottom: 2rem;
-      }
+    .breadcrumb-item {
+        color: var(--muted-text);
     }
-  </style>
-</head>
-<body>
-  <a href="#main-content" class="visually-hidden">Skip to main content</a>
 
-  <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="/">🆘 Support Portal</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link active" href="/faq">❓ FAQ</a></li>
-          <li class="nav-item"><a class="nav-link" href="/knowledge-base">📚 Knowledge Base</a></li>
-          <li class="nav-item"><a class="nav-link" href="/tickets">📝 Submit Ticket</a></li>
-          <li class="nav-item"><a class="nav-link" href="/status">⚡ Status</a></li>
-          <li class="nav-item"><a class="nav-link" href="/contact">📞 Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+    .breadcrumb-item a {
+        color: var(--accent);
+        text-decoration: none;
+    }
 
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="container">
-      <h1 class="display-5 fw-bold">❓ Frequently Asked Questions</h1>
-      <p class="lead">Quick answers to the most common questions</p>
-    </div>
-  </div>
+    .breadcrumb-item a:hover {
+        color: var(--accent-hover);
+    }
+
+    .breadcrumb-item.active {
+        color: var(--text);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-question-circle"></i> Frequently Asked Questions</h1>
+    <p style="color: var(--muted-text); margin: 0.5rem 0 0 0;">Quick answers to the most common questions</p>
+</div>
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">FAQ</li>
+    </ol>
+</nav>
+
+<div class="row">
 
   <main id="main-content" class="container py-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">FAQ</li>
+      </ol>
+    </nav>
+
+    <div class="row">
+    <main id="main-content" class="container py-4">
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/">Home</a></li>
@@ -229,17 +224,17 @@
 
           {% for faq in faqs %}
             <div class="faq-item">
-              <div class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq-{{ faq.faq_id }}" role="button" aria-expanded="false" aria-controls="faq-{{ faq.faq_id }}">
-                <div>
+              <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq-{{ faq.faq_id }}" role="button" aria-expanded="false" aria-controls="faq-{{ faq.faq_id }}">
+                <div style="text-align: left;">
                   <span class="badge-category badge-{{ faq.category }}">{{ faq.category|upper }}</span>
                   <div class="mt-2">{{ faq.question }}</div>
                 </div>
-                <span style="font-size: 1.5rem;">▼</span>
-              </div>
+                <span style="font-size: 1.5rem; margin-left: 1rem;">▼</span>
+              </button>
               <div class="collapse" id="faq-{{ faq.faq_id }}">
                 <div class="faq-answer">
                   {{ faq.answer }}
-                  <div class="mt-3 pt-3 border-top">
+                  <div class="mt-3 pt-3" style="border-top: 1px solid var(--border-color);">
                     <small class="text-muted">Last updated: {{ faq.created_date }}</small>
                   </div>
                 </div>
@@ -254,32 +249,23 @@
             <a href="/faq" class="btn btn-primary mt-3">View All FAQs</a>
           </div>
         {% endif %}
-
-        <!-- CTA -->
-        {% if faqs %}
-          <div class="card border-0 bg-light mt-5">
-            <div class="card-body text-center">
-              <h5 class="card-title fw-bold">Didn't find your answer?</h5>
-              <p class="card-text text-muted">Check our Knowledge Base or submit a support ticket.</p>
-              <div class="d-flex gap-2 justify-content-center">
-                <a href="/knowledge-base" class="btn btn-outline-primary">📚 Knowledge Base</a>
-                <a href="/tickets" class="btn btn-primary">📝 Submit Ticket</a>
-              </div>
-            </div>
-          </div>
-        {% endif %}
       </div>
     </div>
   </main>
+{% endblock %}
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // Smooth expand/collapse for accessibility
+{% block extra_js %}
+<script>
     document.querySelectorAll('.faq-question').forEach(el => {
-      el.addEventListener('click', function() {
-        this.querySelector('span').style.transform = 'rotate(180deg)';
-      });
+        el.addEventListener('click', function() {
+            const arrow = this.querySelector('span');
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            if (isExpanded) {
+                arrow.style.transform = 'rotate(0deg)';
+            } else {
+                arrow.style.transform = 'rotate(180deg)';
+            }
+        });
     });
-  </script>
-</body>
-</html>
+</script>
+{% endblock %}

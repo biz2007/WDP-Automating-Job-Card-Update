@@ -1,284 +1,221 @@
-<!-- templates/knowledge_base.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Knowledge Base - Guides, Tutorials, and Troubleshooting">
-  <title>Knowledge Base - Customer Support</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <style>
-    :root {
-      --primary-bg: #1a2238;
-      --secondary-bg: #232946;
-      --card-bg: #282c34;
-      --accent: #ff6a3d;
-      --accent-hover: #e65c2a;
-      --action: #4dd4fa;
-      --success: #19a974;
-      --danger: #ea445a;
-      --warning: #ffa500;
-      --table-border: #6b7280;
-      --focus-ring: #ffe287;
-      --text: #fffffe;
-      --muted-text: #b7bfc9;
-      --button-radius: 8px;
-      --input-radius: 6px;
-      --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
-      --transition-speed: 0.3s;
-      font-size: 16px;
+{% extends "base.html" %}
+
+{% block title %}Knowledge Base - WDP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+        color: var(--text);
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid var(--accent);
     }
 
-    body { background: var(--primary-bg); color: var(--text); }
-    .navbar { background: var(--secondary-bg); }
-    
-    .page-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 3rem 0;
-      margin-bottom: 2rem;
+    .page-header h1 {
+        color: var(--text);
+        font-weight: bold;
     }
 
     .filter-sidebar {
-      position: sticky;
-      top: 20px;
+        position: sticky;
+        top: 100px;
     }
 
     .article-card {
-      background: white;
-      border: none;
-      border-radius: 10px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      transition: all 0.3s ease;
-      text-decoration: none;
-      color: inherit;
-      display: block;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all var(--transition);
+        text-decoration: none;
+        color: var(--text);
+        display: block;
     }
 
     .article-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.12);
-      color: inherit;
+        transform: translateY(-3px);
+        border-color: var(--accent);
+        color: var(--text);
     }
 
     .difficulty-badge {
-      display: inline-block;
-      padding: 0.35rem 0.75rem;
-      border-radius: 50px;
-      font-size: 0.8rem;
-      font-weight: 600;
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
     }
 
-    .difficulty-beginner { background: #a8e6cf; color: #00b894; }
-    .difficulty-intermediate { background: #ffeaa7; color: #d63031; }
-    .difficulty-advanced { background: #fab1a0; color: #e17055; }
+    .difficulty-beginner { background: rgba(25, 169, 116, 0.2); color: var(--success); }
+    .difficulty-intermediate { background: rgba(255, 165, 0, 0.2); color: var(--accent); }
+    .difficulty-advanced { background: rgba(234, 68, 90, 0.2); color: var(--danger); }
 
     .category-badge {
-      display: inline-block;
-      padding: 0.35rem 0.75rem;
-      border-radius: 50px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      background: #dfe6e9;
-      color: #2d3436;
-      margin-left: 0.5rem;
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(77, 212, 250, 0.2);
+        color: var(--action);
+        margin-left: 0.5rem;
     }
 
     .filter-btn {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 0.5rem 1rem;
-      border: 1px solid #ddd;
-      background: white;
-      margin-bottom: 0.5rem;
-      border-radius: 5px;
-      transition: all 0.2s ease;
-      cursor: pointer;
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        background: transparent;
+        margin-bottom: 0.5rem;
+        border-radius: 6px;
+        transition: all var(--transition);
+        cursor: pointer;
+        color: var(--text);
     }
 
     .filter-btn:hover, .filter-btn.active {
-      background: #0d6efd;
-      color: white;
-      border-color: #0d6efd;
+        background: var(--accent);
+        color: var(--primary-bg);
+        border-color: var(--accent);
     }
 
     .search-box {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-bottom: 2rem;
+        background: var(--card-bg);
+        padding: 1rem;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 1rem;
     }
 
     .search-box input {
-      border: 2px solid #e0e0e0;
-      border-radius: 50px;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      transition: all 0.3s ease;
+        background-color: var(--input-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text);
+        border-radius: 6px;
     }
 
     .search-box input:focus {
-      border-color: #0d6efd;
-      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.2rem rgba(255, 106, 61, 0.25);
+        background-color: var(--input-bg);
+        color: var(--text);
+    }
+
+    .search-box input::placeholder {
+        color: var(--muted-text);
     }
 
     .no-results {
-      background: white;
-      padding: 2rem;
-      text-align: center;
-      border-radius: 10px;
+        background: var(--card-bg);
+        padding: 2rem;
+        text-align: center;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
     }
 
-    .article-meta {
-      color: #999;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
+    .breadcrumb {
+        background: transparent;
+        padding: 1rem 0;
     }
 
-    @media (max-width: 768px) {
-      .filter-sidebar {
-        position: static;
-        margin-bottom: 2rem;
-      }
+    .breadcrumb-item {
+        color: var(--muted-text);
     }
-  </style>
-</head>
-<body>
-  <a href="#main-content" class="visually-hidden">Skip to main content</a>
 
-  <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="/">🆘 Support Portal</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="/faq">❓ FAQ</a></li>
-          <li class="nav-item"><a class="nav-link active" href="/knowledge-base">📚 Knowledge Base</a></li>
-          <li class="nav-item"><a class="nav-link" href="/tickets">📝 Submit Ticket</a></li>
-          <li class="nav-item"><a class="nav-link" href="/status">⚡ Status</a></li>
-          <li class="nav-item"><a class="nav-link" href="/contact">📞 Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+    .breadcrumb-item a {
+        color: var(--accent);
+        text-decoration: none;
+    }
 
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="container">
-      <h1 class="display-5 fw-bold">📚 Knowledge Base</h1>
-      <p class="lead">Guides, tutorials, and step-by-step instructions</p>
-    </div>
-  </div>
+    .breadcrumb-item a:hover {
+        color: var(--accent-hover);
+    }
 
-  <main id="main-content" class="container py-4">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
+    .breadcrumb-item.active {
+        color: var(--text);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-book"></i> Knowledge Base</h1>
+    <p style="color: var(--muted-text); margin: 0.5rem 0 0 0;">Guides, tutorials, and troubleshooting steps</p>
+</div>
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
         <li class="breadcrumb-item active" aria-current="page">Knowledge Base</li>
-      </ol>
-    </nav>
+    </ol>
+</nav>
 
-    <div class="row">
-      <!-- Sidebar Filters -->
-      <div class="col-lg-3">
+<div class="row">
+    <!-- Sidebar Filters -->
+    <div class="col-lg-3">
         <div class="filter-sidebar">
-          <div class="search-box mb-4">
-            <form action="/knowledge-base" method="get">
-              <input type="search" name="q" class="form-control" placeholder="🔍 Search articles..." value="{{ search_query }}" aria-label="Search knowledge base">
-            </form>
-          </div>
-
-          <div class="card border-0 shadow-sm mb-3">
-            <div class="card-header bg-light fw-bold">By Category</div>
-            <div class="card-body">
-              <a href="/knowledge-base" class="filter-btn {% if not selected_category %}active{% endif %}">All Categories</a>
-              {% for category in categories %}
-                <a href="/knowledge-base?category={{ category }}" class="filter-btn {% if category == selected_category %}active{% endif %}">
-                  {{ category|capitalize }}
-                </a>
-              {% endfor %}
+            <div class="search-box mb-4">
+                <form action="{{ url_for('knowledge_base') }}" method="get">
+                    <input type="search" name="q" class="form-control" placeholder="🔍 Search articles..." value="{{ search_query or '' }}" aria-label="Search articles">
+                </form>
             </div>
-          </div>
 
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light fw-bold">By Difficulty</div>
-            <div class="card-body">
-              <a href="/knowledge-base" class="filter-btn {% if not selected_difficulty %}active{% endif %}">All Levels</a>
-              {% for difficulty in difficulties %}
-                <a href="/knowledge-base?difficulty={{ difficulty }}" class="filter-btn {% if difficulty == selected_difficulty %}active{% endif %}">
-                  {{ difficulty|capitalize }}
-                </a>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Articles List -->
-      <div class="col-lg-9">
-        {% if articles %}
-          <div class="mb-4">
-            <p class="text-muted">
-              <strong>Showing {{ articles|length }} article{{ 's' if articles|length != 1 else '' }}</strong>
-              {% if search_query %} matching "{{ search_query }}"{% endif %}
-              {% if selected_category %} in {{ selected_category }}{% endif %}
-              {% if selected_difficulty %} at {{ selected_difficulty }} level{% endif %}
-            </p>
-          </div>
-
-          {% for article in articles %}
-            <a href="/article/{{ article.article_id }}" class="article-card">
-              <div class="d-flex justify-content-between align-items-start">
-                <div style="flex: 1;">
-                  <h5 class="fw-bold mb-2">{{ article.title }}</h5>
-                  <p class="text-muted mb-2" style="font-size: 0.95rem;">
-                    {{ article.content[:150] }}...
-                  </p>
-                  <div class="article-meta">
-                    <span class="difficulty-badge difficulty-{{ article.difficulty }}">{{ article.difficulty|upper }}</span>
-                    <span class="category-badge">{{ article.category|capitalize }}</span>
-                    <div class="mt-2 text-muted small">
-                      📅 {{ article.created_date }}
-                    </div>
-                  </div>
+            <div class="card border-0">
+                <div class="card-header" style="background: rgba(255, 106, 61, 0.1) !important; color: var(--accent);">Categories</div>
+                <div class="card-body" style="padding: 1rem;">
+                    <a href="{{ url_for('knowledge_base') }}" class="filter-btn {% if not selected_category %}active{% endif %}">All Categories</a>
+                    {% for category in categories %}
+                        <a href="{{ url_for('knowledge_base', category=category) }}" class="filter-btn {% if category == selected_category %}active{% endif %}">{{ category|capitalize }}</a>
+                    {% endfor %}
                 </div>
-                <div style="margin-left: 1rem; color: #999; font-size: 1.5rem;">→</div>
-              </div>
-            </a>
-          {% endfor %}
-        {% else %}
-          <div class="no-results">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
-            <h4>No Articles Found</h4>
-            <p class="text-muted">We couldn't find any articles matching your criteria. Try different filters or search terms.</p>
-            <a href="/knowledge-base" class="btn btn-primary mt-3">View All Articles</a>
-          </div>
-        {% endif %}
-
-        <!-- CTA -->
-        {% if articles %}
-          <div class="card border-0 bg-light mt-5">
-            <div class="card-body text-center">
-              <h5 class="card-title fw-bold">Still need help?</h5>
-              <p class="card-text text-muted">Check our FAQ or submit a support ticket for personalized assistance.</p>
-              <div class="d-flex gap-2 justify-content-center">
-                <a href="/faq" class="btn btn-outline-primary">❓ FAQ</a>
-                <a href="/tickets" class="btn btn-primary">📝 Submit Ticket</a>
-              </div>
             </div>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-  </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+            <div class="card border-0 mt-3">
+                <div class="card-header" style="background: rgba(255, 106, 61, 0.1) !important; color: var(--accent);">Difficulty</div>
+                <div class="card-body" style="padding: 1rem;">
+                    <a href="{{ url_for('knowledge_base') }}" class="filter-btn {% if not selected_difficulty %}active{% endif %}">All Levels</a>
+                    {% for difficulty in difficulties %}
+                        <a href="{{ url_for('knowledge_base', difficulty=difficulty) }}" class="filter-btn {% if difficulty == selected_difficulty %}active{% endif %}">{{ difficulty|capitalize }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Articles List -->
+    <div class="col-lg-9">
+        {% if articles %}
+            <div class="mb-4">
+                <p class="text-muted">
+                    <strong>Showing {{ articles|length }} article{{ 's' if articles|length != 1 else '' }}</strong>
+                </p>
+            </div>
+
+            {% for article in articles %}
+                <a href="{{ url_for('article_detail', article_id=article.article_id) }}" class="article-card">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <h5 style="color: var(--accent); margin-bottom: 0.75rem; font-weight: 600;">{{ article.title }}</h5>
+                            <p style="color: var(--muted-text); margin-bottom: 0.75rem;">{{ article.content[:150] }}...</p>
+                            <div>
+                                <span class="difficulty-badge difficulty-{{ article.difficulty }}">{{ article.difficulty|capitalize }}</span>
+                                <span class="category-badge">{{ article.category }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        {% else %}
+            <div class="no-results">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+                <h4>No Articles Found</h4>
+                <p class="text-muted">Try adjusting your filters or search terms.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
