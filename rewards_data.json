@@ -2,6 +2,7 @@
   {
     "customer_id": "90009999",
     "name": "Alex",
+<<<<<<< HEAD
     "purchases": 1,
     "redeemed": 0
   },
@@ -10,5 +11,9 @@
     "name": "Mai Kei Cheong",
     "purchases": 67,
     "redeemed": 0
+=======
+    "purchases": 11,
+    "redeemed": 3
+>>>>>>> 551b59d3783213598b653598e8bef52845411643
   }
 ]

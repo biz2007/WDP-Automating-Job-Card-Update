@@ -11,7 +11,7 @@
     "id": 2,
     "username": "testuser",
     "email": "testuser@example.com",
-    "password": "scrypt:32768:8:1$uE0cyy5quF7sGniz$15f8c78ca63ec9798f27198d116162d84430abb46fa36ef90fa92860673529f06922a9ebf49dc352cae1041d39f67f29c00e8976d4676073bdd9bb5d1a431d2c",
+    "password": "scrypt:32768:8:1$dHftp2lxCCujmKMg$642ca4d40222244cdb1f9a1521c715a8413a6520f097742260ca0f7beaf54b8b1715c8c1b8b2e07704a81e6fb22582205825883cada5ae5f642fd20145b8aa93",
     "role": "user",
     "created_at": "2026-01-27T01:26:57.458109"
   },
@@ -25,10 +25,18 @@
   },
   {
     "id": 4,
+<<<<<<< HEAD
     "username": "KEI CHEONG",
     "email": "mai@gmail.com",
     "password": "scrypt:32768:8:1$k85Z5npN0PiAmMnQ$0f7b4276a2a3c95f0fab6ea34b966b49f4ae8fddbdd0ee8759bd5dd8f575828a66baa0b666575ae5608aac522955c3cdb44ce3e07be335f2af08bfe36b1716c2",
     "role": "admin",
     "created_at": "2026-01-27T11:41:47.565215"
+=======
+    "username": "Jun",
+    "email": "tinydogger@gmail.com",
+    "password": "scrypt:32768:8:1$2fvN1a4XXUak3d1e$5702bb5c6967424daf16b8c370134dabd5b20867bfb80b893600d4c32a9b611ff45534eeabf326cfc0bb9df1456674b5f401625e9ca647ffb9338e5d27f8b078",
+    "role": "user",
+    "created_at": "2026-01-27T11:24:32.661387"
+>>>>>>> 551b59d3783213598b653598e8bef52845411643
   }
 ]
