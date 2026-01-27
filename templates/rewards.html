@@ -137,7 +137,9 @@
             <!-- Action Button -->
             {% if is_admin %}
                 {% if c.reward_balance > 0 %}
-                <form method="post" action="{{ url_for('redeem_reward', phone_number=c.phone_number, license_plate=c.license_plate) }}" style="display: inline; width: 100%;">
+                <form method="post" action="{{ url_for('redeem_reward') }}" style="display: inline; width: 100%;">
+                    <input type="hidden" name="phone_number" value="{{ c.phone_number }}">
+                    <input type="hidden" name="license_plate" value="{{ c.license_plate }}">
                     <button type="submit" class="btn btn-primary" style="background-color: var(--success); color: white; padding: 0.75rem; width: 100%; font-weight: 500;">
                         <i class="fas fa-ticket-alt"></i> Redeem Voucher ($3)
                     </button>

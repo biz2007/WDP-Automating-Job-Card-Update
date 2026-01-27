@@ -367,10 +367,12 @@ def rewards():
         is_admin=is_admin
     )
 
-@app.route("/rewards/redeem/<customer_id>", methods=["POST"])
+@app.route("/rewards/redeem", methods=["POST"])
 @admin_required
-def redeem_reward(customer_id):
+def redeem_reward():
     customers = load_rewards()
+    phone_number = request.form.get("phone_number", "").strip()
+    license_plate = request.form.get("license_plate", "").strip()
     cust = next((c for c in customers if c["phone_number"] == phone_number and c["license_plate"] == license_plate), None)
     if cust:
         if compute_reward_balance(cust) > 0:
