@@ -11,7 +11,7 @@
     "id": 2,
     "username": "testuser",
     "email": "testuser@example.com",
-    "password": "scrypt:32768:8:1$ulijgLAwI1nuDkqw$54ba2c8a56864c9178b11eb4634efa5b353ac199807f6d5a56b51c828033fb28f953d112168dbf1c70a60034f34b975f547a4c6b9dc2f3e45b4dd8d76793f7ed",
+    "password": "scrypt:32768:8:1$dHftp2lxCCujmKMg$642ca4d40222244cdb1f9a1521c715a8413a6520f097742260ca0f7beaf54b8b1715c8c1b8b2e07704a81e6fb22582205825883cada5ae5f642fd20145b8aa93",
     "role": "user",
     "created_at": "2026-01-27T01:26:57.458109"
   },
