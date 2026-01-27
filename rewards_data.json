@@ -1,5 +1,6 @@
 [
   {
+<<<<<<< Updated upstream
     "phone_number": "98765432",
     "license_plate": "SGX1234A",
     "name": "Mai",
@@ -12,5 +13,11 @@
     "name": "Kim",
     "total_cost": 9045.5,
     "vouchers_redeemed": 3
+=======
+    "customer_id": "12345678",
+    "name": "mai",
+    "purchases": 67,
+    "redeemed": 2
+>>>>>>> Stashed changes
   }
 ]

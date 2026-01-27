@@ -14,6 +14,9 @@ except ImportError:
 from auth import auth, get_user_by_id
 from decorators import login_required, admin_required
 from models import FAQ, KnowledgeBaseArticle, SupportTicket, StatusUpdate
+import smtplib
+import ssl
+from email.message import EmailMessage
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-in-production'
@@ -30,6 +33,46 @@ MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+
+
+def send_email(to_address, subject, body, html=False):
+    """Send a simple email using SMTP. Configure using env vars:
+    SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, EMAIL_FROM
+    If SMTP_USER/PASS are not set, attempt unauthenticated send (localhost).
+    """
+    smtp_host = os.environ.get('SMTP_HOST', 'localhost')
+    smtp_port = int(os.environ.get('SMTP_PORT', 25))
+    smtp_user = os.environ.get('SMTP_USER')
+    smtp_pass = os.environ.get('SMTP_PASS')
+    email_from = os.environ.get('EMAIL_FROM', smtp_user or f'noreply@{smtp_host}')
+
+    msg = EmailMessage()
+    msg['Subject'] = subject
+    msg['From'] = email_from
+    msg['To'] = to_address
+    if html:
+        msg.add_alternative(body, subtype='html')
+    else:
+        msg.set_content(body)
+
+    # Try SSL for port 465, otherwise use STARTTLS if possible
+    if smtp_port == 465:
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL(smtp_host, smtp_port, context=context) as server:
+            if smtp_user and smtp_pass:
+                server.login(smtp_user, smtp_pass)
+            server.send_message(msg)
+    else:
+        with smtplib.SMTP(smtp_host, smtp_port) as server:
+            server.ehlo()
+            try:
+                server.starttls(context=ssl.create_default_context())
+                server.ehlo()
+            except Exception:
+                pass
+            if smtp_user and smtp_pass:
+                server.login(smtp_user, smtp_pass)
+            server.send_message(msg)
 
 def allowed_file(filename):
     """Check if file extension is allowed"""
@@ -799,6 +842,26 @@ def orders():
 
             return redirect(url_for("orders"))
 
+        # Email cart contents to an email address
+        if action == "email_cart":
+            recipient = request.form.get("recipient_email", "").strip()
+            if recipient and cart:
+                # build plain text body
+                lines = [f"Shopping Cart ({sum(i['quantity'] for i in cart)} items):\n"]
+                for item in cart:
+                    lines.append(f"- {item['item_name']}: {item['quantity']} x ${item['price']:.2f} = ${item['quantity']*item['price']:.2f}")
+                lines.append(f"\nTotal: ${sum(i['quantity']*i['price'] for i in cart):.2f}")
+                body = "\n".join(lines)
+                subject = "Shopping Cart Contents"
+                try:
+                    send_email(recipient, subject, body)
+                    flash(f"Cart emailed to {recipient}", "success")
+                except Exception as e:
+                    print(f"Error sending cart email: {e}")
+                    flash(f"Failed to email cart: {str(e)}", "danger")
+
+            return redirect(url_for("orders"))
+
         # Remove item from cart
         if action == "remove_from_cart":
             item_name = request.form.get("item_name", "").strip()
@@ -859,6 +922,26 @@ def orders():
                 # Clear cart after checkout
                 save_cart([])
                 cart = []
+                # Send confirmation email to customer if email provided
+                if new_order.get("customer_email"):
+                    try:
+                        subject = f"Order Confirmation - {new_order['order_id']}"
+                        # compose simple text body
+                        lines = [f"Thank you for your order, {new_order.get('customer_name','Customer')}!\n",
+                                 f"Order ID: {new_order['order_id']}",
+                                 f"Date: {new_order['date']}",
+                                 "\nItems:"]
+                        for it in new_order['items']:
+                            lines.append(f"- {it['item_name']}: {it['quantity']} x ${it['price']:.2f} = ${it['quantity']*it['price']:.2f}")
+                        lines.append(f"\nTotal: ${new_order['total']:.2f}")
+                        if new_order.get('order_notes'):
+                            lines.append(f"\nNotes: {new_order.get('order_notes')}")
+                        body = "\n".join(lines)
+                        send_email(new_order.get('customer_email'), subject, body)
+                        flash("Order confirmation emailed to customer", "success")
+                    except Exception as e:
+                        print(f"Error sending order email: {e}")
+                        flash(f"Failed to send confirmation email: {str(e)}", "danger")
 
             return redirect(url_for("orders"))
 
