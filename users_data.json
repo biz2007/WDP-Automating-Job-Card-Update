@@ -22,5 +22,21 @@
     "password": "scrypt:32768:8:1$u15z3nleePAOuhNp$47823bd1251e3130cad4a608a110e4ab05908125e75561e497a97775ec65d3fa9188991a2b60dd2715fb8601c06253acbcd485a07f7debc5735adfbf61a3e85b",
     "role": "user",
     "created_at": "2026-01-27T12:07:12.466192"
+  },
+  {
+    "id": 4,
+    "username": "Jun",
+    "email": "tinydogger@gmail.com",
+    "password": "scrypt:32768:8:1$2fvN1a4XXUak3d1e$5702bb5c6967424daf16b8c370134dabd5b20867bfb80b893600d4c32a9b611ff45534eeabf326cfc0bb9df1456674b5f401625e9ca647ffb9338e5d27f8b078",
+    "role": "user",
+    "created_at": "2026-01-27T11:24:32.661387"
+  },
+  {
+    "id": 5,
+    "username": "WeakPass",
+    "email": "IHaveAWeakPassword@gmail.com",
+    "password": "scrypt:32768:8:1$ulijgLAwI1nuDkqw$54ba2c8a56864c9178b11eb4634efa5b353ac199807f6d5a56b51c828033fb28f953d112168dbf1c70a60034f34b975f547a4c6b9dc2f3e45b4dd8d76793f7ed",
+    "role": "user",
+    "created_at": "2026-01-27T12:01:44.938513"
   }
 ]

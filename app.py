@@ -13,6 +13,7 @@ except ImportError:
 
 from auth import auth, get_user_by_id
 from decorators import login_required, admin_required
+from models import FAQ, KnowledgeBaseArticle, SupportTicket, StatusUpdate
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-in-production'
@@ -136,6 +137,59 @@ def save_catalogue(catalogue):
     """Save catalogue items to JSON file"""
     with open(CATALOGUE_FILE, "w") as f:
         json.dump(catalogue, f, indent=2)
+
+# ==================== SUPPORT FEATURES STORAGE ====================
+
+# Support Tickets Storage
+TICKETS_FILE = "support_tickets_data.json"
+
+def load_support_tickets():
+    """Load support tickets from JSON file"""
+    if os.path.exists(TICKETS_FILE):
+        with open(TICKETS_FILE, "r") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return []
+    return []
+
+def save_support_tickets(tickets):
+    """Save support tickets to JSON file"""
+    with open(TICKETS_FILE, "w") as f:
+        json.dump(tickets, f, indent=2)
+
+# FAQs stored in memory
+faqs_data = [
+    FAQ(1, "How do I reset my password?", "Visit the login page and click 'Forgot Password'. Enter your email and follow the instructions sent to your inbox.", "account").to_dict(),
+    FAQ(2, "What are your support hours?", "We provide 24/7 support via email and ticket system. Live chat is available 9 AM - 5 PM EST.", "general").to_dict(),
+    FAQ(3, "How long does billing take to process?", "Invoices are processed within 1-2 business days. You'll receive a confirmation email.", "billing").to_dict(),
+    FAQ(4, "Can I cancel my subscription?", "Yes, you can cancel anytime from your account settings. Your access continues until the end of the billing period.", "billing").to_dict(),
+    FAQ(5, "Is my data secure?", "We use 256-bit SSL encryption and comply with GDPR and industry security standards.", "account").to_dict(),
+]
+
+# Knowledge Base articles stored in memory
+kb_data = [
+    KnowledgeBaseArticle(1, "Getting Started Guide", "Step 1: Create an account\nStep 2: Verify your email\nStep 3: Set up your profile\nStep 4: Explore the dashboard", "guide", "beginner").to_dict(),
+    KnowledgeBaseArticle(2, "Troubleshooting Login Issues", "If you can't login:\n1. Clear your browser cache\n2. Try incognito mode\n3. Check if caps lock is on\n4. Reset password if needed", "troubleshooting", "beginner").to_dict(),
+    KnowledgeBaseArticle(3, "Advanced Settings Configuration", "Configure API keys, webhooks, and integrations in your settings panel. Requires authentication.", "guide", "advanced").to_dict(),
+]
+
+# Status updates stored in memory
+status_data = [
+    StatusUpdate(1, "All Systems Operational", "All services running normally.", "operational", "low").to_dict(),
+]
+
+def load_faqs():
+    """In-Memory: Load FAQs"""
+    return faqs_data
+
+def load_kb():
+    """In-Memory: Load knowledge base articles"""
+    return kb_data
+
+def load_status():
+    """In-Memory: Load status updates"""
+    return status_data
 
 @app.route("/", methods=["GET", "POST"])
 @login_required
@@ -853,6 +907,90 @@ def edit_order(order_id):
         return redirect(url_for("orders"))
     
     return render_template("edit_order.html", order=order)
+
+# ==================== SUPPORT FEATURES ROUTES ====================
+
+@app.route("/faq")
+def faq():
+    """FAQ section"""
+    faqs = load_faqs()
+    search_query = request.args.get("q", "").lower()
+    category_filter = request.args.get("category", "")
+    
+    # Filtering logic
+    if search_query:
+        faqs = [f for f in faqs if search_query in f.get("question", "").lower() or search_query in f.get("answer", "").lower()]
+    if category_filter:
+        faqs = [f for f in faqs if f.get("category") == category_filter]
+    
+    categories = set(f.get("category") for f in load_faqs())
+    return render_template("faq.html", faqs=faqs, search_query=search_query, categories=categories, selected_category=category_filter)
+
+@app.route("/knowledge-base")
+def knowledge_base():
+    """Knowledge base section"""
+    articles = load_kb()
+    search_query = request.args.get("q", "").lower()
+    category_filter = request.args.get("category", "")
+    difficulty_filter = request.args.get("difficulty", "")
+    
+    # Filtering logic
+    if search_query:
+        articles = [a for a in articles if search_query in a.get("title", "").lower() or search_query in a.get("content", "").lower()]
+    if category_filter:
+        articles = [a for a in articles if a.get("category") == category_filter]
+    if difficulty_filter:
+        articles = [a for a in articles if a.get("difficulty") == difficulty_filter]
+    
+    categories = set(a.get("category") for a in load_kb())
+    difficulties = set(a.get("difficulty") for a in load_kb())
+    return render_template("knowledge_base.html", articles=articles, search_query=search_query, categories=categories, difficulties=difficulties, selected_category=category_filter, selected_difficulty=difficulty_filter)
+
+@app.route("/article/<int:article_id>")
+def article_detail(article_id):
+    """View single article"""
+    articles = load_kb()
+    article = next((a for a in articles if a.get("article_id") == article_id), None)
+    if not article:
+        flash("Article not found!", "danger")
+        return redirect(url_for("knowledge_base"))
+    return render_template("article_detail.html", article=article)
+
+@app.route("/tickets", methods=["GET", "POST"])
+def tickets():
+    """Support tickets page - Users can view and submit tickets only"""
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        phone = request.form.get("phone", "").strip()
+        issue_type = request.form.get("issue_type", "").strip()
+        description = request.form.get("description", "").strip()
+        
+        # Validation
+        if not name or not email or not issue_type or not description:
+            flash("Name, Email, Issue Type, and Description are required!", "danger")
+            return redirect(url_for("tickets"))
+        
+        ticket = SupportTicket(name, email, issue_type, description, phone)
+        tickets_list = load_support_tickets()
+        tickets_list.append(ticket.to_dict())
+        save_support_tickets(tickets_list)
+        flash(f"Support ticket {ticket.ticket_id} created successfully! We'll respond within 24 hours.", "success")
+        return redirect(url_for("tickets"))
+    
+    all_tickets = load_support_tickets()
+    return render_template("tickets.html", tickets=all_tickets)
+
+@app.route("/status")
+def status():
+    """Service status page"""
+    updates = load_status()
+    return render_template("status.html", updates=updates)
+
+@app.route("/contact")
+def contact():
+    """Contact page with multiple channels"""
+    return render_template("contact.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

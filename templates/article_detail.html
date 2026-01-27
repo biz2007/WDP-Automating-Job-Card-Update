@@ -1,0 +1,303 @@
+<!-- templates/article_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ article.title }} - Knowledge Base</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    :root {
+      --primary-bg: #1a2238;
+      --secondary-bg: #232946;
+      --card-bg: #282c34;
+      --accent: #ff6a3d;
+      --accent-hover: #e65c2a;
+      --action: #4dd4fa;
+      --success: #19a974;
+      --danger: #ea445a;
+      --warning: #ffa500;
+      --table-border: #6b7280;
+      --focus-ring: #ffe287;
+      --text: #fffffe;
+      --muted-text: #b7bfc9;
+      --button-radius: 8px;
+      --input-radius: 6px;
+      --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
+      --transition-speed: 0.3s;
+      font-size: 16px;
+    }
+
+    body { background: var(--primary-bg); color: var(--text); }
+    .navbar { background: var(--secondary-bg); }
+
+    .article-header {
+      background: var(--secondary-bg);
+      color: var(--text);
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+    }
+
+    .article-container {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .article-meta {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--table-border);
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .meta-item strong {
+      color: var(--text);
+    }
+
+    .difficulty-badge {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .difficulty-beginner { background: var(--success); color: white; }
+    .difficulty-intermediate { background: var(--warning); color: var(--primary-bg); }
+    .difficulty-advanced { background: var(--accent); color: white; }
+
+    .article-content h2 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .article-content h3 {
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--action);
+      font-weight: 600;
+    }
+
+    .article-content p {
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+
+    .article-content ul, .article-content ol {
+      color: var(--text);
+      margin-bottom: 1rem;
+      margin-left: 1.5rem;
+    }
+
+    .article-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .article-content code {
+      background: var(--secondary-bg);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      color: var(--accent);
+      font-family: 'Courier New', monospace;
+    }
+
+    .article-content pre {
+      background: var(--secondary-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    .tip-box {
+      background: var(--secondary-bg);
+      border-left: 4px solid var(--action);
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      color: var(--text);
+    }
+
+    .related-articles {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin-top: 2rem;
+    }
+
+    .related-item {
+      padding: 1rem;
+      border-bottom: 1px solid var(--table-border);
+      transition: all var(--transition-speed);
+    }
+
+    .related-item:last-child {
+      border-bottom: none;
+    }
+
+    .related-item:hover {
+      background: var(--secondary-bg);
+      border-radius: 8px;
+    }
+
+    .related-link {
+      color: var(--action);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .related-link:hover {
+      text-decoration: underline;
+    }
+
+    .breadcrumb {
+      background: transparent;
+      padding-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .article-container {
+        padding: 1.5rem;
+      }
+
+      .article-meta {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="/">🆘 Support Portal</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/faq">❓ FAQ</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/knowledge-base">📚 Knowledge Base</a></li>
+          <li class="nav-item"><a class="nav-link" href="/tickets">📝 Submit Ticket</a></li>
+          <li class="nav-item"><a class="nav-link" href="/status">⚡ Status</a></li>
+          <li class="nav-item"><a class="nav-link" href="/contact">📞 Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Article Header -->
+  <div class="article-header">
+    <div class="container">
+      <h1 class="display-5 fw-bold">{{ article.title }}</h1>
+    </div>
+  </div>
+
+  <main id="main-content" class="container py-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/knowledge-base">Knowledge Base</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ article.title }}</li>
+      </ol>
+    </nav>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <!-- Article Container -->
+        <div class="article-container">
+          <!-- Metadata -->
+          <div class="article-meta">
+            <div class="meta-item">
+                <span class="difficulty-badge difficulty-{{ article.difficulty }}">{{ article.difficulty|upper }}</span>
+              </div>
+              <div class="meta-item">
+                <span>📁</span>
+                <strong>{{ article.category|capitalize }}</strong>
+              </div>
+              <div class="meta-item">
+                <span>📅</span>
+                <span>{{ article.created_date }}</span>
+              </div>
+          </div>
+
+          <!-- Article Content -->
+          <div class="article-content">
+            <p style="font-size: 1.1rem; color: #555;">
+              {{ article.content }}
+            </p>
+
+            <!-- Tip Box Example -->
+            <div class="tip-box">
+              <strong>💡 Pro Tip:</strong> For more help, check our FAQ section or contact support if you encounter any issues.
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-top: 2rem;">
+            <h6 class="fw-bold mb-2">Need more help?</h6>
+            <p class="text-muted mb-3">Couldn't find what you're looking for? Our support team is ready to help.</p>
+            <a href="/tickets" class="btn btn-primary">📝 Submit Support Ticket</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <!-- Difficulty Info -->
+        <div class="card border-0 bg-light">
+          <div class="card-body">
+            <h6 class="card-title fw-bold mb-3">📚 About This Article</h6>
+            <ul class="list-unstyled small text-muted">
+              <li class="mb-2">
+                <strong>Difficulty:</strong><br>
+                <span class="difficulty-badge difficulty-{{ article.difficulty }}">{{ article.difficulty|capitalize }}</span>
+              </li>
+              <li class="mb-2">
+                <strong>Category:</strong><br>
+                {{ article.category|capitalize }}
+              </li>
+              <li class="mb-2">
+                <strong>Reading Time:</strong><br>
+                5-10 minutes
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Articles -->
+    <div class="related-articles">
+      <h5 class="fw-bold mb-4">📖 Related Articles</h5>
+      <div class="related-item">
+        <a href="/knowledge-base" class="related-link">Back to Knowledge Base →</a>
+      </div>
+      <div class="related-item">
+        <a href="/search?q={{ article.category }}" class="related-link">More articles in {{ article.category }} →</a>
+      </div>
+      <div class="related-item">
+        <a href="/contact" class="related-link">Need direct support? Contact us →</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
