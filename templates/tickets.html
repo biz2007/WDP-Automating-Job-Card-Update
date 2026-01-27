@@ -1,0 +1,320 @@
+<!-- templates/tickets.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Submit Support Tickets - Get Help from Our Team">
+  <title>Support Tickets - Customer Support</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    :root {
+      --primary-bg: #1a2238;
+      --secondary-bg: #232946;
+      --card-bg: #282c34;
+      --accent: #ff6a3d;
+      --accent-hover: #e65c2a;
+      --action: #4dd4fa;
+      --success: #19a974;
+      --danger: #ea445a;
+      --warning: #ffa500;
+      --table-border: #6b7280;
+      --focus-ring: #ffe287;
+      --text: #fffffe;
+      --muted-text: #b7bfc9;
+      --button-radius: 8px;
+      --input-radius: 6px;
+      --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
+      --transition-speed: 0.3s;
+      font-size: 16px;
+    }
+
+    body { background: var(--primary-bg); color: var(--text); }
+    .navbar { background: var(--secondary-bg); }
+    
+    .page-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 3rem 0;
+      margin-bottom: 2rem;
+    }
+
+    .form-card {
+      background: white;
+      border: none;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    .ticket-item {
+      background: white;
+      border-left: 4px solid #0d6efd;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .ticket-item.escalated {
+      border-left-color: #dc3545;
+    }
+
+    .ticket-id {
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      color: #0d6efd;
+      font-size: 1.1rem;
+    }
+
+    .badge-status-open { background: #fff3cd; color: #856404; }
+    .badge-status-in-progress { background: #d1ecf1; color: #0c5460; }
+    .badge-status-closed { background: #d4edda; color: #155724; }
+
+    .badge-type-billing { background: #ffeaa7; color: #d63031; }
+    .badge-type-technical { background: #fab1a0; color: #e17055; }
+    .badge-type-account { background: #a8e6cf; color: #00b894; }
+    .badge-type-general { background: #dfe6e9; color: #2d3436; }
+
+    .required-field::after {
+      content: " *";
+      color: #dc3545;
+    }
+
+    .info-box {
+      background: #e7f3ff;
+      border-left: 4px solid #0d6efd;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+
+    .no-tickets {
+      background: white;
+      padding: 2rem;
+      text-align: center;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .form-card {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="visually-hidden">Skip to main content</a>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="/">🆘 Support Portal</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/faq">❓ FAQ</a></li>
+          <li class="nav-item"><a class="nav-link" href="/knowledge-base">📚 Knowledge Base</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/tickets">📝 Submit Ticket</a></li>
+          <li class="nav-item"><a class="nav-link" href="/status">⚡ Status</a></li>
+          <li class="nav-item"><a class="nav-link" href="/contact">📞 Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1 class="display-5 fw-bold">📝 Support Tickets</h1>
+      <p class="lead">Submit an issue and we'll get back to you within 24 hours</p>
+    </div>
+  </div>
+
+  <main id="main-content" class="container py-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Support Tickets</li>
+      </ol>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="row">
+      <!-- Form Column -->
+      <div class="col-lg-6">
+        <div class="form-card">
+          <h3 class="fw-bold mb-4">Create New Ticket</h3>
+
+          <div class="info-box">
+            <strong>ℹ️ Info:</strong> Please provide as much detail as possible. This helps us resolve your issue faster.
+          </div>
+
+          <form method="post" class="needs-validation" novalidate>
+            <!-- Name Field -->
+            <div class="mb-3">
+              <label class="form-label required-field">Full Name</label>
+              <input type="text" name="name" class="form-control" placeholder="John Doe" required aria-label="Full Name">
+              <small class="form-text text-muted">Your full name</small>
+            </div>
+
+            <!-- Email Field -->
+            <div class="mb-3">
+              <label class="form-label required-field">Email Address</label>
+              <input type="email" name="email" class="form-control" placeholder="you@example.com" required aria-label="Email Address">
+              <small class="form-text text-muted">We'll send updates to this email</small>
+            </div>
+
+            <!-- Phone Field -->
+            <div class="mb-3">
+              <label class="form-label">Phone Number (Optional)</label>
+              <input type="tel" name="phone" class="form-control" placeholder="+1 (555) 000-0000" aria-label="Phone Number">
+              <small class="form-text text-muted">For urgent issues</small>
+            </div>
+
+            <!-- Issue Type -->
+            <div class="mb-3">
+              <label class="form-label required-field">Issue Type</label>
+              <select name="issue_type" class="form-select" required aria-label="Issue Type">
+                <option value="">Select an issue type...</option>
+                <option value="billing">💳 Billing & Payment</option>
+                <option value="technical">🔧 Technical Issue</option>
+                <option value="account">👤 Account & Access</option>
+                <option value="general">❓ General Inquiry</option>
+              </select>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+              <label class="form-label required-field">Description</label>
+              <textarea name="description" class="form-control" rows="5" placeholder="Please describe your issue in detail..." required aria-label="Issue Description"></textarea>
+              <small class="form-text text-muted">Be as specific as possible. Include any error messages if applicable.</small>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-lg w-100" style="border-radius: 8px;">
+              📤 Submit Ticket
+            </button>
+
+            <small class="d-block text-center text-muted mt-3">
+              All fields marked with <span style="color: #dc3545;">*</span> are required
+            </small>
+          </form>
+        </div>
+
+        <!-- Quick Links Card -->
+        <div class="card border-0 bg-light mt-4">
+          <div class="card-body">
+            <h6 class="card-title fw-bold">💡 Quick Tips</h6>
+            <ul class="small mb-0">
+              <li>Check our <a href="/faq" class="text-decoration-none">FAQ</a> first</li>
+              <li>Search the <a href="/knowledge-base" class="text-decoration-none">Knowledge Base</a></li>
+              <li>Include error codes or screenshots</li>
+              <li>Describe steps to reproduce the issue</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tickets List Column -->
+      <div class="col-lg-6">
+        <h3 class="fw-bold mb-4">Your Tickets</h3>
+
+        {% if tickets %}
+          {% for ticket in tickets %}
+            <div class="ticket-item">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <div class="ticket-id">🎫 {{ ticket.ticket_id }}</div>
+                  <small class="text-muted">Submitted: {{ ticket.created_date }}</small>
+                </div>
+              </div>
+
+              <div class="my-3">
+                <div class="mb-2">
+                  <strong>{{ ticket.name }}</strong> (<a href="mailto:{{ ticket.email }}">{{ ticket.email }}</a>)
+                </div>
+                {% if ticket.phone %}
+                  <div class="mb-2">
+                    <small class="text-muted">📞 {{ ticket.phone }}</small>
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="mb-3">
+                <span class="badge badge-type-{{ ticket.issue_type }}">{{ ticket.issue_type|capitalize }}</span>
+                <span class="badge badge-status-{{ ticket.status|lower|replace(' ', '-') }}">{{ ticket.status }}</span>
+              </div>
+
+              <p class="text-muted mb-0" style="font-size: 0.95rem;">
+                {{ ticket.description[:120] }}{% if ticket.description|length > 120 %}...{% endif %}
+              </p>
+            </div>
+          {% endfor %}
+
+          <div class="alert alert-info">
+            <strong>📧 Note:</strong> You'll receive email updates on your ticket status. Check your spam folder if you don't see our emails.
+          </div>
+        {% else %}
+          <div class="no-tickets">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+            <h5>No Tickets Yet</h5>
+            <p class="text-muted">You haven't submitted any support tickets yet. Fill out the form on the left to get started!</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Form validation
+    (function() {
+      'use strict';
+      window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+          form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+  </script>
+</body>
+</html>
