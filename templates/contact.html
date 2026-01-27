@@ -1,0 +1,333 @@
+<!-- templates/contact.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Contact Us - Multiple Support Channels">
+  <title>Contact Us - Customer Support</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    :root {
+      --primary-bg: #1a2238;
+      --secondary-bg: #232946;
+      --card-bg: #282c34;
+      --accent: #ff6a3d;
+      --accent-hover: #e65c2a;
+      --action: #4dd4fa;
+      --success: #19a974;
+      --danger: #ea445a;
+      --warning: #ffa500;
+      --table-border: #6b7280;
+      --focus-ring: #ffe287;
+      --text: #fffffe;
+      --muted-text: #b7bfc9;
+      --button-radius: 8px;
+      --input-radius: 6px;
+      --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
+      --transition-speed: 0.3s;
+      font-size: 16px;
+    }
+
+    body { background: var(--primary-bg); color: var(--text); }
+    .navbar { background: var(--secondary-bg); }
+    
+    .page-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 3rem 0;
+      margin-bottom: 2rem;
+    }
+
+    .contact-option {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .contact-option:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    }
+
+    .contact-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .contact-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .contact-info {
+      color: #0d6efd;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin: 1rem 0;
+      word-break: break-word;
+    }
+
+    .hours {
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      text-align: left;
+    }
+
+    .hours-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .hours-item:last-child {
+      border-bottom: none;
+    }
+
+    .cta-button {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .contact-comparison {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-top: 3rem;
+    }
+
+    .comparison-table {
+      font-size: 0.9rem;
+    }
+
+    .comparison-table th {
+      background: #f9f9f9;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .check { color: #28a745; font-weight: 700; }
+    .cross { color: #dc3545; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="visually-hidden">Skip to main content</a>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="/">🆘 Support Portal</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/faq">❓ FAQ</a></li>
+          <li class="nav-item"><a class="nav-link" href="/knowledge-base">📚 Knowledge Base</a></li>
+          <li class="nav-item"><a class="nav-link" href="/tickets">📝 Submit Ticket</a></li>
+          <li class="nav-item"><a class="nav-link" href="/status">⚡ Status</a></li>
+          <li class="nav-item"><a class="nav-link active" href="/contact">📞 Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1 class="display-5 fw-bold">📞 Contact Us</h1>
+      <p class="lead">Reach us through your preferred channel</p>
+    </div>
+  </div>
+
+  <main id="main-content" class="container py-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Contact Us</li>
+      </ol>
+    </nav>
+
+    <!-- Contact Options -->
+    <div class="row">
+      <!-- Email -->
+      <div class="col-md-6 col-lg-3">
+        <div class="contact-option">
+          <div class="contact-icon">✉️</div>
+          <div class="contact-title">Email Support</div>
+          <p class="text-muted">Send us a detailed message</p>
+          <div class="contact-info">support@company.com</div>
+          <div class="hours">
+            <p class="fw-bold mb-2">Response Time:</p>
+            <div class="hours-item">
+              <span>Weekday:</span>
+              <strong>2-4 hours</strong>
+            </div>
+            <div class="hours-item">
+              <span>Weekend:</span>
+              <strong>12-24 hours</strong>
+            </div>
+          </div>
+          <a href="mailto:support@company.com" class="cta-button btn-outline-primary">Send Email</a>
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="col-md-6 col-lg-3">
+        <div class="contact-option">
+          <div class="contact-icon">📞</div>
+          <div class="contact-title">Phone Support</div>
+          <p class="text-muted">Speak with our team directly</p>
+          <div class="contact-info">+1 (800) SUPPORT-1</div>
+          <div class="hours">
+            <p class="fw-bold mb-2">Available:</p>
+            <div class="hours-item">
+              <span>Mon - Fri:</span>
+              <strong>9 AM - 6 PM</strong>
+            </div>
+            <div class="hours-item">
+              <span>Sat - Sun:</span>
+              <strong>10 AM - 4 PM</strong>
+            </div>
+          </div>
+          <a href="tel:+18005878376" class="cta-button btn-outline-primary">Call Now</a>
+        </div>
+      </div>
+
+      <!-- Live Chat -->
+      <div class="col-md-6 col-lg-3">
+        <div class="contact-option">
+          <div class="contact-icon">💬</div>
+          <div class="contact-title">Live Chat</div>
+          <p class="text-muted">Instant messaging with support</p>
+          <div class="contact-info">Available Now</div>
+          <div class="hours">
+            <p class="fw-bold mb-2">Available:</p>
+            <div class="hours-item">
+              <span>Mon - Fri:</span>
+              <strong>9 AM - 8 PM</strong>
+            </div>
+            <div class="hours-item">
+              <span>Sat - Sun:</span>
+              <strong>Closed</strong>
+            </div>
+          </div>
+          <button class="cta-button btn-outline-primary" onclick="alert('Live chat would open here')">Start Chat</button>
+        </div>
+      </div>
+
+      <!-- Support Ticket -->
+      <div class="col-md-6 col-lg-3">
+        <div class="contact-option">
+          <div class="contact-icon">📝</div>
+          <div class="contact-title">Support Ticket</div>
+          <p class="text-muted">Submit detailed issue reports</p>
+          <div class="contact-info">Best for complex issues</div>
+          <div class="hours">
+            <p class="fw-bold mb-2">Response:</p>
+            <div class="hours-item">
+              <span>Standard:</span>
+              <strong>24 hours</strong>
+            </div>
+            <div class="hours-item">
+              <span>Priority:</span>
+              <strong>4 hours</strong>
+            </div>
+          </div>
+          <a href="/tickets" class="cta-button btn-outline-primary">Create Ticket</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="contact-comparison">
+      <h3 class="fw-bold mb-4">Choose the Right Channel</h3>
+      <div class="table-responsive">
+        <table class="table comparison-table">
+          <thead>
+            <tr>
+              <th>Channel</th>
+              <th class="text-center">Speed</th>
+              <th class="text-center">Best For</th>
+              <th class="text-center">24/7</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Email</strong></td>
+              <td class="text-center">2-4 hours</td>
+              <td>Detailed issues</td>
+              <td class="text-center"><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Phone</strong></td>
+              <td class="text-center">Instant</td>
+              <td>Urgent matters</td>
+              <td class="text-center"><span class="cross">✗</span></td>
+            </tr>
+            <tr>
+              <td><strong>Live Chat</strong></td>
+              <td class="text-center">Instant</td>
+              <td>Quick questions</td>
+              <td class="text-center"><span class="cross">✗</span></td>
+            </tr>
+            <tr>
+              <td><strong>Ticket</strong></td>
+              <td class="text-center">12-24 hours</td>
+              <td>Tracking & complex issues</td>
+              <td class="text-center"><span class="check">✓</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="row mt-5">
+      <div class="col-md-4">
+        <div class="card border-0 bg-light">
+          <div class="card-body text-center">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🌍</div>
+            <h6 class="fw-bold">Global Support</h6>
+            <p class="small text-muted">We support customers in 50+ countries worldwide.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 bg-light">
+          <div class="card-body text-center">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">🔒</div>
+            <h6 class="fw-bold">Secure & Private</h6>
+            <p class="small text-muted">Your information is encrypted and never shared.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card border-0 bg-light">
+          <div class="card-body text-center">
+            <div style="font-size: 2rem; margin-bottom: 1rem;">⚡</div>
+            <h6 class="fw-bold">Fast Response</h6>
+            <p class="small text-muted">Average response time: under 2 hours.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
