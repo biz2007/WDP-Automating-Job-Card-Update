@@ -9,29 +9,58 @@
 
 <!-- Search and Filter Bar -->
 <div class="card" style="margin-bottom: 2rem;">
-    <form method="get" action="{{ url_for('catalogue') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+    <!-- Main Search and Category Row -->
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1rem;">
         <div style="flex: 1; min-width: 200px;">
             <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem;">Search Parts</label>
-            <input type="search" name="search" placeholder="Search by part ID, name, or category…" value="{{ search_query or '' }}"
-                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+            <form method="get" action="{{ url_for('catalogue') }}" style="display: flex; gap: 0.5rem;">
+                <input type="search" name="search" placeholder="Search by part ID, name, or category…" value="{{ search_query or '' }}"
+                       style="flex: 1; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; white-space: nowrap;">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
         </div>
         <div style="flex: 1; min-width: 200px;">
             <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem;">Category</label>
-            <select name="category"
-                    style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
-                <option value="">All Categories</option>
-                {% for cat in categories %}
-                <option value="{{ cat }}" {% if cat == category_filter %}selected{% endif %}>{{ cat }}</option>
-                {% endfor %}
-            </select>
+            <form method="get" action="{{ url_for('catalogue') }}" style="display: flex; gap: 0.5rem;">
+                <select name="category"
+                        style="flex: 1; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if cat == category_filter %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; white-space: nowrap;">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+            </form>
         </div>
-        <button type="submit" class="btn btn-primary">
-            <i class="fas fa-search"></i> Search
-        </button>
-        <a href="{{ url_for('catalogue') }}" class="btn btn-secondary">
-            <i class="fas fa-redo"></i> Reset
-        </a>
-    </form>
+        <div>
+            <a href="{{ url_for('catalogue') }}" class="btn btn-secondary" style="padding: 0.75rem 1.5rem; text-decoration: none; display: inline-block; white-space: nowrap;">
+                <i class="fas fa-redo"></i> Reset
+            </a>
+        </div>
+    </div>
+    
+    <!-- Export and Import Buttons (Admin Only) -->
+    {% if session.get('role') == 'admin' %}
+    <div style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <a href="{{ url_for('export_catalogue') }}" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-download"></i> Export CSV
+            </a>
+            <div style="flex: 1; min-width: 250px; display: flex; gap: 0.5rem;">
+                <form method="post" action="{{ url_for('import_catalogue') }}" enctype="multipart/form-data" style="display: flex; gap: 0.5rem; align-items: center; flex: 1;">
+                    <input type="file" name="file" accept=".csv,.xlsx,.xls" required style="flex: 1; padding: 0.5rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text); font-size: 0.9rem;">
+                    <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; white-space: nowrap;">
+                        <i class="fas fa-upload"></i> Import
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Add Part Form (Admin Only) -->
@@ -48,12 +77,12 @@
         </div>
         <div>
             <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Part Name</label>
-            <input type="text" name="name" placeholder="Part name" required
+            <input type="text" name="name" placeholder="Part Name" required
                    style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
         </div>
         <div>
             <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Category</label>
-            <input type="text" name="category" placeholder="e.g. Electronic" required
+            <input type="text" name="category" placeholder="e.g. Brakes" required
                    style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
         </div>
         <div>
@@ -126,7 +155,7 @@
                         </div>
                         <div style="text-align: right;">
                             <div style="color: var(--muted-text); font-size: 0.85rem;">Stock</div>
-                            <div style="background-color: {% if part.stock > 10 %}rgba(25, 169, 116, 0.2); color: var(--success){% elif part.stock > 0 %}rgba(255, 165, 0, 0.2); color: var(--accent){% else %}rgba(234, 68, 90, 0.2); color: var(--danger){% endif %}; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">
+                            <div class="{% if part.stock > 10 %}stock-high{% elif part.stock > 0 %}stock-low{% else %}stock-empty{% endif %}" style="padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500;">
                                 {{ part.stock }}
                             </div>
                         </div>
@@ -146,6 +175,19 @@
                         </form>
                     </div>
                     {% endif %}
+                    
+                    <!-- Add to Cart -->
+                    <form method="post" action="{{ url_for('catalogue') }}" style="margin-top: 0.75rem;">
+                        <input type="hidden" name="action" value="add_to_cart_from_catalogue">
+                        <input type="hidden" name="part_id" value="{{ part.part_id }}">
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="number" name="quantity" value="1" min="1" max="{{ part.stock }}" 
+                                   style="width: 60px; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--input-bg); color: var(--text); text-align: center;">
+                            <button type="submit" class="btn btn-small" style="background-color: var(--success); color: white; padding: 0.5rem 0.75rem; flex: 1; font-size: 0.9rem;" {% if part.stock == 0 %}disabled{% endif %}>
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -159,633 +201,3 @@
     {% endif %}
 </div>
 {% endblock %}
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>Parts Catalogue</title>
-    <style>
-        :root {
-            --primary-bg: #1a2238;
-            --secondary-bg: #232946;
-            --card-bg: #282c34;
-            --accent: #ff6a3d;
-            --accent-hover: #e65c2a;
-            --action: #4dd4fa;
-            --success: #19a974;
-            --danger: #ea445a;
-            --warning: #ffa500;
-            --table-border: #6b7280;
-            --focus-ring: #ffe287;
-            --text: #fffffe;
-            --muted-text: #b7bfc9;
-            --button-radius: 8px;
-            --input-radius: 6px;
-            --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
-            --transition-speed: 0.3s;
-            font-size: 16px;
-        }
-
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            background: var(--primary-bg);
-            color: var(--text);
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-
-        h1,
-        h2 {
-            color: var(--accent);
-            margin-top: 0;
-        }
-
-        a {
-            color: var(--action);
-            text-decoration: none;
-        }
-
-        main {
-            padding: 2rem 0.75rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .nav-link {
-            padding: 0.6em 1.2em;
-            background: var(--secondary-bg);
-            border-radius: var(--button-radius);
-            transition: background var(--transition-speed);
-        }
-
-        .nav-link:hover {
-            background: var(--card-bg);
-        }
-
-        .filters {
-            background: var(--card-bg);
-            padding: 1rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            align-items: end;
-        }
-
-        .form-group {
-            flex: 1;
-            min-width: 200px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            margin-bottom: 0.3rem;
-            font-size: 0.9em;
-            color: var(--muted-text);
-        }
-
-        .form-input,
-        .form-select {
-            padding: 0.7em;
-            border-radius: var(--input-radius);
-            border: 2px solid var(--accent);
-            background: var(--secondary-bg);
-            color: var(--text);
-            font-size: 1em;
-        }
-
-        .form-input:focus,
-        .form-select:focus {
-            border-color: var(--action);
-            outline: none;
-            box-shadow: 0 0 0 3px var(--focus-ring);
-        }
-
-        .btn {
-            padding: 0.75em 1.5em;
-            border-radius: var(--button-radius);
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all var(--transition-speed);
-            font-size: 1em;
-        }
-
-        .btn-primary {
-            background: var(--action);
-            color: var(--primary-bg);
-        }
-
-        .btn-primary:hover {
-            background: var(--accent);
-            transform: scale(1.05);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #157a57;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-            padding: 0.5em 1em;
-            font-size: 0.9em;
-        }
-
-        .btn-danger:hover {
-            background: #c7354a;
-        }
-
-        .btn-sm {
-            padding: 0.5em 1em;
-            font-size: 0.9em;
-        }
-
-        .flash-message {
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .flash-message.flash-success {
-            background: #1d4c2f;
-            color: #19a974;
-            border: 1px solid #19a974;
-        }
-
-        .flash-message.flash-error {
-            background: #5c2029;
-            color: #ea445a;
-            border: 1px solid #ea445a;
-        }
-
-        .flash-message.flash-warning {
-            background: #664d00;
-            color: #ffa500;
-            border: 1px solid #ffa500;
-        }
-
-        .flash-message button {
-            background: none;
-            border: none;
-            color: inherit;
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 0;
-            margin-left: 1rem;
-        }
-
-        .flash-message button:hover {
-            opacity: 0.7;
-        }
-
-        .catalogue-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .part-card {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
-        }
-
-        .part-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 32px 0 rgba(255, 106, 61, 0.2);
-        }
-
-        .part-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 1rem;
-        }
-
-        .part-id {
-            background: var(--accent);
-            color: var(--primary-bg);
-            padding: 0.3em 0.7em;
-            border-radius: 6px;
-            font-size: 0.85em;
-            font-weight: bold;
-        }
-
-        .category-badge {
-            background: var(--action);
-            color: var(--primary-bg);
-            padding: 0.3em 0.7em;
-            border-radius: 6px;
-            font-size: 0.85em;
-        }
-
-        .part-name {
-            font-size: 1.3em;
-            font-weight: bold;
-            margin: 0.5rem 0;
-            color: var(--text);
-        }
-
-        .part-description {
-            color: var(--muted-text);
-            font-size: 0.9em;
-            margin-bottom: 1rem;
-            min-height: 2.5em;
-        }
-
-        .part-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .part-price {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .part-stock {
-            padding: 0.3em 0.7em;
-            border-radius: 6px;
-            font-size: 0.9em;
-        }
-
-        .in-stock {
-            background: var(--success);
-            color: white;
-        }
-
-        .low-stock {
-            background: var(--warning);
-            color: var(--primary-bg);
-        }
-
-        .out-of-stock {
-            background: var(--danger);
-            color: white;
-        }
-
-        .part-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .part-actions .edit-btn {
-            grid-column: 1;
-        }
-
-        .part-actions .delete-btn {
-            grid-column: 2;
-        }
-
-        .part-actions .add-to-cart-form {
-            grid-column: 1 / -1;
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .qty-input {
-            width: 60px;
-            padding: 0.5em;
-            border-radius: var(--input-radius);
-            border: 2px solid var(--accent);
-            background: var(--secondary-bg);
-            color: var(--text);
-            text-align: center;
-        }
-
-        .add-part-section {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .add-part-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--muted-text);
-        }
-
-        .empty-state-icon {
-            font-size: 3em;
-            margin-bottom: 0.5rem;
-        }
-
-        .part-image {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            background: var(--secondary-bg);
-            border: 2px solid var(--table-border);
-        }
-
-        .part-image-placeholder {
-            width: 100%;
-            height: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            background: var(--secondary-bg);
-            border: 2px dashed var(--table-border);
-            color: var(--muted-text);
-            font-size: 3em;
-        }
-
-        .image-upload-area {
-            margin: 1rem 0;
-        }
-
-        .image-upload-area label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--muted-text);
-            font-size: 0.9em;
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .file-input-wrapper input[type=file] {
-            position: absolute;
-            left: -9999px;
-        }
-
-        .file-input-label {
-            display: block;
-            padding: 0.7em;
-            border-radius: var(--input-radius);
-            border: 2px dashed var(--accent);
-            text-align: center;
-            background: var(--secondary-bg);
-            color: var(--accent);
-            cursor: pointer;
-            transition: all var(--transition-speed);
-        }
-
-        .file-input-label:hover {
-            background: var(--card-bg);
-            border-color: var(--action);
-            color: var(--action);
-        }
-
-        .file-input-wrapper input[type=file]:focus + .file-input-label {
-            border-color: var(--action);
-            box-shadow: 0 0 0 3px var(--focus-ring);
-        }
-    </style>
-</head>
-
-<body>
-    <main>
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-message flash-{{ category }}">
-                        <span>{{ message }}</span>
-                        <button onclick="this.parentElement.style.display='none';">✕</button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <header>
-            <h1>📦 Parts Catalogue</h1>
-            <div class="nav-links">
-                <a href="{{ url_for('home') }}" class="nav-link">📋 Job Cards</a>
-                <a href="{{ url_for('rewards') }}" class="nav-link">🎁 Rewards</a>
-                <a href="{{ url_for('catalogue') }}" class="nav-link">📦 Parts Catalogue</a>
-                {% if session.get('role') == 'admin' %}
-                <a href="{{ url_for('orders') }}" class="nav-link">🛒 Orders</a>
-                {% endif %}
-            </div>
-        </header>
-
-        <!-- Filters -->
-        <form class="filters" method="get">
-            <div class="form-group">
-                <label>Search Parts</label>
-                <input type="search" name="search" class="form-input" placeholder="Search by name, ID, category..."
-                    value="{{ search_query or '' }}" />
-            </div>
-            <div class="form-group">
-                <label>Category</label>
-                <select name="category" class="form-select" onchange="this.form.submit()">
-                    <option value="">All Categories</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat }}" {% if category_filter==cat %}selected{% endif %}>{{ cat }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Search</button>
-            <a href="{{ url_for('export_catalogue') }}" style="display: inline-block; text-decoration: none;">
-                <button type="button" class="btn btn-primary">📥 Export CSV</button>
-            </a>
-        </form>
-
-        <!-- Import Catalogue -->
-        <form method="post" action="{{ url_for('import_catalogue') }}" enctype="multipart/form-data" class="import-form" style="margin-bottom: 2rem;">
-            <div style="display: flex; gap: 0.5rem; align-items: flex-end; flex-wrap: wrap;">
-                <div style="flex: 1; min-width: 250px;">
-                    <label for="import-file" style="display: block; font-size: 0.9em; color: var(--muted-text); margin-bottom: 0.3rem;">📤 Import from Excel/CSV</label>
-                    <input type="file" id="import-file" name="file" accept=".csv,.xlsx,.xls" required style="padding: 0.5em; border-radius: 6px; border: 2px solid var(--accent); background: var(--secondary-bg); color: var(--text); width: 100%;" />
-                </div>
-                <button type="submit" class="btn btn-primary">Import</button>
-            </div>
-            <small style="display: block; margin-top: 0.5rem; color: var(--muted-text);">Format: Part ID, Name, Category, Price, Stock, Description, Image (optional)</small>
-        </form>
-
-        <!-- Add New Part -->
-        <div class="add-part-section">
-            <h2>➕ Add New Part</h2>
-            <form class="add-part-form" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="action" value="add_part" />
-                <div class="form-group">
-                    <label>Part ID *</label>
-                    <input type="text" name="part_id" class="form-input" placeholder="P006" required />
-                </div>
-                <div class="form-group">
-                    <label>Part Name *</label>
-                    <input type="text" name="name" class="form-input" placeholder="Brake Disc" required />
-                </div>
-                <div class="form-group">
-                    <label>Category *</label>
-                    <input type="text" name="category" class="form-input" placeholder="Brakes" required />
-                </div>
-                <div class="form-group">
-                    <label>Price ($) *</label>
-                    <input type="number" name="price" class="form-input" placeholder="0.00" step="0.01" min="0"
-                        required />
-                </div>
-                <div class="form-group">
-                    <label>Stock *</label>
-                    <input type="number" name="stock" class="form-input" value="0" min="0" required />
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <input type="text" name="description" class="form-input" placeholder="Part description..." />
-                </div>
-                <div class="form-group" style="grid-column: span 2;">
-                    <label for="image-upload">📷 Upload Image (PNG, JPG, GIF, WebP)</label>
-                    <div class="file-input-wrapper">
-                        <input type="file" id="image-upload" name="image" class="form-input" accept="image/*" />
-                        <label for="image-upload" class="file-input-label">Click to select an image or drag & drop</label>
-                    </div>
-                </div>
-                <div class="form-group" style="display: flex; align-items: end;">
-                    <button type="submit" class="btn btn-success" style="width: 100%;">Add Part</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Parts Catalogue Grid -->
-        {% if catalogue %}
-        <div class="catalogue-grid">
-            {% for part in catalogue %}
-            <div class="part-card">
-                {% if part.image %}
-                <img src="{{ part.image }}" alt="{{ part.name }}" class="part-image" />
-                {% else %}
-                <div class="part-image-placeholder">📦</div>
-                {% endif %}
-                
-                <div class="part-header">
-                    <span class="part-id">{{ part.part_id }}</span>
-                    <span class="category-badge">{{ part.category or 'Other' }}</span>
-                </div>
-                <div class="part-name">{{ part.name }}</div>
-                <div class="part-description">{{ part.description or 'No description' }}</div>
-                <div class="part-info">
-                    <div class="part-price">${{ "%.2f"|format(part.price) }}</div>
-                    <div
-                        class="part-stock {% if part.stock == 0 %}out-of-stock{% elif part.stock < 5 %}low-stock{% else %}in-stock{% endif %}">
-                        Stock: {{ part.stock }}
-                    </div>
-                </div>
-
-                <!-- Update Stock -->
-                <form method="post" style="margin-bottom: 0.75rem;">
-                    <input type="hidden" name="action" value="update_stock" />
-                    <input type="hidden" name="part_id" value="{{ part.part_id }}" />
-                    <div style="display: flex; gap: 0.5rem;">
-                        <input type="number" name="stock" value="{{ part.stock }}" min="0" class="qty-input"
-                            style="flex: 1;" />
-                        <button type="submit" class="btn btn-primary btn-sm">Update Stock</button>
-                    </div>
-                </form>
-
-                <!-- Add to Cart -->
-                <div class="part-actions">
-                    <a href="{{ url_for('edit_catalogue_part', part_id=part.part_id) }}" class="edit-btn">
-                        <button type="button" class="btn btn-primary btn-sm" style="width: 100%;">Edit</button>
-                    </a>
-                    <form method="post" class="delete-btn">
-                        <input type="hidden" name="action" value="delete_part" />
-                        <input type="hidden" name="part_id" value="{{ part.part_id }}" />
-                        <button type="submit" class="btn btn-danger btn-sm" style="width: 100%;"
-                            onclick="return confirm('Delete {{ part.name }}?');">Delete</button>
-                    </form>
-                    <form method="post" class="add-to-cart-form">
-                        <input type="hidden" name="action" value="add_to_cart_from_catalogue" />
-                        <input type="hidden" name="part_id" value="{{ part.part_id }}" />
-                        <input type="number" name="quantity" value="1" min="1" max="{{ part.stock }}"
-                            class="qty-input" />
-                        <button type="submit" class="btn btn-success btn-sm" style="flex: 1;" {% if part.stock==0
-                            %}disabled{% endif %}>
-                            Add to Cart
-                        </button>
-                    </form>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <div class="empty-state-icon">📦</div>
-            <p>No parts found</p>
-        </div>
-        {% endif %}
-    </main>
-
-    <script>
-        // Handle drag and drop for file input
-        const fileInput = document.getElementById('image-upload');
-        const fileLabel = document.querySelector('.file-input-label');
-
-        if (fileLabel) {
-            fileLabel.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                fileLabel.style.borderColor = 'var(--action)';
-                fileLabel.style.backgroundColor = 'var(--card-bg)';
-            });
-
-            fileLabel.addEventListener('dragleave', () => {
-                fileLabel.style.borderColor = 'var(--accent)';
-                fileLabel.style.backgroundColor = 'var(--secondary-bg)';
-            });
-
-            fileLabel.addEventListener('drop', (e) => {
-                e.preventDefault();
-                fileLabel.style.borderColor = 'var(--accent)';
-                fileLabel.style.backgroundColor = 'var(--secondary-bg)';
-                
-                if (e.dataTransfer.files.length > 0) {
-                    fileInput.files = e.dataTransfer.files;
-                    fileLabel.textContent = e.dataTransfer.files[0].name;
-                }
-            });
-
-            // Update label text when file is selected
-            if (fileInput) {
-                fileInput.addEventListener('change', (e) => {
-                    if (e.target.files.length > 0) {
-                        fileLabel.textContent = e.target.files[0].name;
-                    }
-                });
-            }
-        }
-    </script>
-</body>
-
-</html>

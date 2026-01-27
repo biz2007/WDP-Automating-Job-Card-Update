@@ -283,7 +283,7 @@ def rewards():
     is_admin = session.get('role') == 'admin'
 
     if request.method == "POST":
-        # Only admins can perform edits
+        # Only admins can perform actions
         if not is_admin:
             flash('Only admins can modify reward data', 'danger')
             return redirect(url_for("rewards"))
@@ -367,9 +367,9 @@ def rewards():
         is_admin=is_admin
     )
 
-@app.route("/rewards/redeem/<phone_number>/<license_plate>", methods=["POST"])
+@app.route("/rewards/redeem/<customer_id>", methods=["POST"])
 @admin_required
-def redeem_reward(phone_number, license_plate):
+def redeem_reward(customer_id):
     customers = load_rewards()
     cust = next((c for c in customers if c["phone_number"] == phone_number and c["license_plate"] == license_plate), None)
     if cust:
@@ -754,14 +754,19 @@ def import_catalogue():
 # ==================== ORDERS & CART ROUTES ====================
 
 @app.route("/orders", methods=["GET", "POST"])
-@admin_required
+@login_required
 def orders():
     """Display orders and shopping cart"""
     orders_list = load_orders()
     cart = load_cart()
     search_query = request.args.get("search", "").strip().lower()
+    is_admin = session.get('role') == 'admin'
 
     if request.method == "POST":
+        # Only admins can perform order management actions
+        if not is_admin:
+            return redirect(url_for("orders"))
+        
         action = request.form.get("action", "").strip()
 
         # Add item to cart
@@ -890,7 +895,8 @@ def orders():
         cart=cart,
         cart_total=round(cart_total, 2),
         cart_item_count=cart_item_count,
-        search_query=search_query
+        search_query=search_query,
+        is_admin=is_admin
     )
 
 @app.route("/orders/delete/<order_id>", methods=["POST"])

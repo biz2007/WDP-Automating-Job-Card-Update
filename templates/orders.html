@@ -490,7 +490,8 @@
             <div class="section-card">
                 <h2>� Order Lists ({{ cart_item_count }} items)</h2>
 
-                <!-- Add Item to Cart Form -->
+                <!-- Add Item to Cart Form (Admin Only) -->
+                {% if is_admin %}
                 <form class="add-cart-form" method="post">
                     <input type="hidden" name="action" value="add_to_cart" />
 
@@ -513,6 +514,7 @@
 
                     <button type="submit" class="btn btn-primary">Add to Cart</button>
                 </form>
+                {% endif %}
 
                 <!-- Cart Items -->
                 {% if cart %}
@@ -582,7 +584,8 @@
                 {% endif %}
             </div>
 
-            <!-- Order Management Section -->
+            <!-- Order Management Section (Admin Only) -->
+            {% if is_admin %}
             <div class="section-card">
                 <h2>📦 Order Management</h2>
 
@@ -675,6 +678,7 @@
                 </div>
                 {% endif %}
             </div>
+            {% endif %}
         </div>
     </main>
 </body>
