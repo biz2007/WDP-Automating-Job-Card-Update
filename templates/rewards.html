@@ -16,7 +16,8 @@
     </button>
 </form>
 
-<!-- Create Customer Section -->
+<!-- Admin Only: Create Customer Section -->
+{% if is_admin %}
 <div class="card" style="margin-bottom: 2rem;">
     <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-user-plus"></i> Create Customer</h2>
     <form method="post" style="display: grid; gap: 1rem; grid-template-columns: 1fr 1fr auto;">
@@ -40,7 +41,7 @@
     </p>
 </div>
 
-<!-- Add Purchase Section -->
+<!-- Admin Only: Add Purchase Section -->
 <div class="card" style="margin-bottom: 2rem;">
     <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-shopping-bag"></i> Add Purchase</h2>
     <form method="post" style="display: grid; gap: 1rem; grid-template-columns: 1fr 1fr auto;">
@@ -60,6 +61,13 @@
         </button>
     </form>
 </div>
+{% else %}
+<div style="padding: 1.5rem; background-color: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 10px; margin-bottom: 2rem;">
+    <p style="color: var(--muted-text); margin: 0;">
+        <i class="fas fa-info-circle"></i> <strong>View Only:</strong> You can view reward information. Contact an admin to add customers or purchases.
+    </p>
+</div>
+{% endif %}
 
 <!-- Customers Cards Grid -->
 <div style="margin-bottom: 2rem;">
@@ -111,16 +119,22 @@
             </div>
 
             <!-- Action Button -->
-            {% if c.reward_balance > 0 %}
-            <form method="post" action="{{ url_for('redeem_reward', customer_id=c.customer_id) }}" style="display: inline; width: 100%;">
-                <button type="submit" class="btn btn-primary" style="background-color: var(--success); color: white; padding: 0.75rem; width: 100%; font-weight: 500;">
-                    <i class="fas fa-ticket-alt"></i> Redeem Reward
+            {% if is_admin %}
+                {% if c.reward_balance > 0 %}
+                <form method="post" action="{{ url_for('redeem_reward', customer_id=c.customer_id) }}" style="display: inline; width: 100%;">
+                    <button type="submit" class="btn btn-primary" style="background-color: var(--success); color: white; padding: 0.75rem; width: 100%; font-weight: 500;">
+                        <i class="fas fa-ticket-alt"></i> Redeem Reward
+                    </button>
+                </form>
+                {% else %}
+                <button type="button" disabled class="btn" style="background-color: var(--input-bg); color: var(--muted-text); padding: 0.75rem; width: 100%; font-weight: 500; cursor: not-allowed;">
+                    <i class="fas fa-lock"></i> No Rewards Available
                 </button>
-            </form>
+                {% endif %}
             {% else %}
-            <button type="button" disabled class="btn" style="background-color: var(--input-bg); color: var(--muted-text); padding: 0.75rem; width: 100%; font-weight: 500; cursor: not-allowed;">
-                <i class="fas fa-lock"></i> No Rewards Available
-            </button>
+                <div style="padding: 0.75rem; text-align: center; background-color: rgba(183, 191, 201, 0.2); border-radius: 6px; color: var(--muted-text); font-size: 0.9rem;">
+                    <i class="fas fa-eye"></i> View Only
+                </div>
             {% endif %}
         </div>
         {% endfor %}

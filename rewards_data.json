@@ -4,5 +4,11 @@
     "name": "Alex",
     "purchases": 1,
     "redeemed": 0
+  },
+  {
+    "customer_id": "251481Y@mymail.nyp.edu.sg",
+    "name": "Mai Kei Cheong",
+    "purchases": 67,
+    "redeemed": 0
   }
 ]

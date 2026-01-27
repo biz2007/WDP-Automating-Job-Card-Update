@@ -212,12 +212,18 @@ def delete(job_id):
     return redirect(url_for("home"))
 
 @app.route("/rewards", methods=["GET", "POST"])
-@admin_required
+@login_required
 def rewards():
     customers = load_rewards()
     search_query = request.args.get("search", "").strip().lower()
+    is_admin = session.get('role') == 'admin'
 
     if request.method == "POST":
+        # Only admins can perform edits
+        if not is_admin:
+            flash('Only admins can modify reward data', 'danger')
+            return redirect(url_for("rewards"))
+        
         action = request.form.get("action", "").strip()
 
         # Create/Update customer
@@ -286,7 +292,8 @@ def rewards():
     return render_template(
         "rewards.html",
         customers=display_customers,
-        search_query=search_query
+        search_query=search_query,
+        is_admin=is_admin
     )
 
 @app.route("/rewards/redeem/<customer_id>", methods=["POST"])

@@ -20,7 +20,15 @@
     "username": "KEICHEONG",
     "email": "massivedogger@gmail.com",
     "password": "scrypt:32768:8:1$QoBZKNJUHJknilHC$10dd5836745ba780c8a76280a9a62654b3974ad0ad0c1345661369d91018b85c965bef6ee8a7f66fe7ed934096269aaab614a587b95cde36be307af79d8ce1c7",
-    "role": "user",
+    "role": "admin",
     "created_at": "2026-01-27T04:01:48.907092"
+  },
+  {
+    "id": 4,
+    "username": "KEI CHEONG",
+    "email": "mai@gmail.com",
+    "password": "scrypt:32768:8:1$k85Z5npN0PiAmMnQ$0f7b4276a2a3c95f0fab6ea34b966b49f4ae8fddbdd0ee8759bd5dd8f575828a66baa0b666575ae5608aac522955c3cdb44ce3e07be335f2af08bfe36b1716c2",
+    "role": "admin",
+    "created_at": "2026-01-27T11:41:47.565215"
   }
 ]
