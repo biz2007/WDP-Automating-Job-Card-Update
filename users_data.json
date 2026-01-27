@@ -11,7 +11,7 @@
     "id": 2,
     "username": "user",
     "email": "user123@gmail.com",
-    "password": "scrypt:32768:8:1$v5FZASrNkNIJqnAB$1dd6cf20ef407e771408cd69d0b80658093694d0d3da049e9a6fe70d34c88e5ea6164025342fb2315dc732feb09e2ec2e871a38eeb624df7f8b90452d2fb3e4b",
+    "password": "scrypt:32768:8:1$V45aanFsdN14rUI9$1fa28dbc7a715e04632101cf1646bc4ca36916e3c4c5bbdace104c357e1eb13e3529fe79243f9d47d197b610fd7c69491029d09add35eda15bd3d31f990521b1",
     "role": "user",
     "created_at": "2026-01-27T12:14:40.904293"
   },
