@@ -14,9 +14,6 @@ except ImportError:
 from auth import auth, get_user_by_id
 from decorators import login_required, admin_required
 from models import FAQ, KnowledgeBaseArticle, SupportTicket, StatusUpdate
-import smtplib
-import ssl
-from email.message import EmailMessage
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-in-production'
@@ -34,46 +31,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 
-
-def send_email(to_address, subject, body, html=False):
-    """Send a simple email using SMTP. Configure using env vars:
-    SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, EMAIL_FROM
-    If SMTP_USER/PASS are not set, attempt unauthenticated send (localhost).
-    """
-    smtp_host = os.environ.get('SMTP_HOST', 'localhost')
-    smtp_port = int(os.environ.get('SMTP_PORT', 25))
-    smtp_user = os.environ.get('SMTP_USER')
-    smtp_pass = os.environ.get('SMTP_PASS')
-    email_from = os.environ.get('EMAIL_FROM', smtp_user or f'noreply@{smtp_host}')
-
-    msg = EmailMessage()
-    msg['Subject'] = subject
-    msg['From'] = email_from
-    msg['To'] = to_address
-    if html:
-        msg.add_alternative(body, subtype='html')
-    else:
-        msg.set_content(body)
-
-    # Try SSL for port 465, otherwise use STARTTLS if possible
-    if smtp_port == 465:
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL(smtp_host, smtp_port, context=context) as server:
-            if smtp_user and smtp_pass:
-                server.login(smtp_user, smtp_pass)
-            server.send_message(msg)
-    else:
-        with smtplib.SMTP(smtp_host, smtp_port) as server:
-            server.ehlo()
-            try:
-                server.starttls(context=ssl.create_default_context())
-                server.ehlo()
-            except Exception:
-                pass
-            if smtp_user and smtp_pass:
-                server.login(smtp_user, smtp_pass)
-            server.send_message(msg)
-
 def allowed_file(filename):
     """Check if file extension is allowed"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -87,8 +44,8 @@ def load_jobs():
         with open(DATA_FILE, "r") as f:
             return json.load(f)
     return [
-        {"license_plate": "JC1234", "status": "Open",   "remarks": "Initial review", "assigned_to": "Alice"},
-        {"license_plate": "JC5678", "status": "Closed", "remarks": "Completed",      "assigned_to": "Bob"},
+        {"job_id": "JC1234", "status": "Open",   "remarks": "Initial review", "assigned_to": "Alice"},
+        {"job_id": "JC5678", "status": "Closed", "remarks": "Completed",      "assigned_to": "Bob"},
     ]
 
 def save_jobs(jobs):
@@ -156,13 +113,12 @@ def save_rewards(customers):
 
 def compute_reward_balance(customer):
     """
-    Points-based rewards: $50 cost = 50 points, 50 points = $3 voucher
-    Balance in vouchers = floor(points / 50)
+    1 discount per 3 purchases.
+    balance = floor(purchases/3) - redeemed
     """
-    points = customer.get("total_cost", 0)
-    vouchers_redeemed = customer.get("vouchers_redeemed", 0)
-    vouchers_earned = points // 50
-    return max(0, vouchers_earned - vouchers_redeemed)
+    earned = customer.get("purchases", 0) // 3
+    redeemed = customer.get("redeemed", 0)
+    return max(0, earned - redeemed)
 
 # Catalogue Storage
 CATALOGUE_FILE = "catalogue_data.json"
@@ -240,7 +196,6 @@ def load_status():
 def home():
     global jobs
     jobs = load_jobs()
-    catalogue = load_catalogue()
 
     search_query = request.args.get("search", "").strip().lower()
     is_admin = session.get('role') == 'admin'
@@ -251,24 +206,20 @@ def home():
             flash('Only admins can create job cards', 'danger')
             return redirect(url_for("home"))
         
-        license_plate = request.form.get("license_plate", "").strip()
+        job_id = request.form.get("job_id", "").strip()
         status = request.form.get("status", "").strip()
         remarks = request.form.get("remarks", "").strip()
         assigned_to = request.form.get("assigned_to", "").strip()
-        problem = request.form.get("problem", "").strip()
-        parts_used = request.form.getlist("parts_used")
 
-        if license_plate and status:
-            # Prevent duplicate License Plate
-            if any(j.get("license_plate") == license_plate for j in jobs):
+        if job_id and status:
+            # Prevent duplicate Job ID
+            if any(j.get("job_id") == job_id for j in jobs):
                 return redirect(url_for("home")) 
             jobs.append({
-                "license_plate": license_plate,
+                "job_id": job_id,
                 "status": status,
                 "remarks": remarks,
                 "assigned_to": assigned_to,
-                "problem": problem,
-                "parts_used": parts_used,
             })
             save_jobs(jobs)
 
@@ -278,23 +229,21 @@ def home():
     if search_query:
         filtered_jobs = [
             job for job in jobs
-            if search_query in job.get("license_plate", "").lower()
+            if search_query in job.get("job_id", "").lower()
             or search_query in job.get("status", "").lower()
             or search_query in job.get("remarks", "").lower()
             or search_query in job.get("assigned_to", "").lower()
-            or search_query in job.get("problem", "").lower()
         ]
 
-    return render_template("index.html", jobs=filtered_jobs, search_query=search_query, is_admin=is_admin, catalogue=catalogue)
+    return render_template("index.html", jobs=filtered_jobs, search_query=search_query, is_admin=is_admin)
 
-@app.route("/update/<license_plate>", methods=["GET", "POST"])
+@app.route("/update/<job_id>", methods=["GET", "POST"])
 @admin_required
-def update(license_plate):
+def update(job_id):
     global jobs
     jobs = load_jobs()
-    catalogue = load_catalogue()
 
-    job = next((j for j in jobs if j["license_plate"] == license_plate), None)
+    job = next((j for j in jobs if j["job_id"] == job_id), None)
     if not job:
         return redirect(url_for("home"))
 
@@ -302,53 +251,42 @@ def update(license_plate):
         job["status"] = request.form.get("status", "").strip()
         job["remarks"] = request.form.get("remarks", "").strip()
         job["assigned_to"] = request.form.get("assigned_to", "").strip()
-        job["problem"] = request.form.get("problem", "").strip()
-        job["parts_used"] = request.form.getlist("parts_used")
         save_jobs(jobs)
         return redirect(url_for("home"))
 
-    return render_template("update.html", job=job, catalogue=catalogue)
+    return render_template("update.html", job=job)
 
-@app.route("/delete/<license_plate>", methods=["POST"])
+@app.route("/delete/<job_id>", methods=["POST"])
 @admin_required
-def delete(license_plate):
+def delete(job_id):
     global jobs
     jobs = load_jobs()
-    jobs = [j for j in jobs if j["license_plate"] != license_plate]
+    jobs = [j for j in jobs if j["job_id"] != job_id]
     save_jobs(jobs)
     return redirect(url_for("home"))
 
 @app.route("/rewards", methods=["GET", "POST"])
-@login_required
+@admin_required
 def rewards():
     customers = load_rewards()
     search_query = request.args.get("search", "").strip().lower()
-    is_admin = session.get('role') == 'admin'
 
     if request.method == "POST":
-        # Only admins can perform actions
-        if not is_admin:
-            flash('Only admins can modify reward data', 'danger')
-            return redirect(url_for("rewards"))
-        
         action = request.form.get("action", "").strip()
 
         # Create/Update customer
         if action == "create_customer":
-            phone_number = request.form.get("phone_number", "").strip()
-            license_plate = request.form.get("license_plate", "").strip()
+            customer_id = request.form.get("customer_id", "").strip()
             name = request.form.get("name", "").strip()
 
-            if phone_number and license_plate:
-                # Use phone_number and license_plate as composite key
-                existing = next((c for c in customers if c["phone_number"] == phone_number and c["license_plate"] == license_plate), None)
+            if customer_id:
+                existing = next((c for c in customers if c["customer_id"] == customer_id), None)
                 if not existing:
                     customers.append({
-                        "phone_number": phone_number,
-                        "license_plate": license_plate,
+                        "customer_id": customer_id,
                         "name": name,
-                        "total_cost": 0,
-                        "vouchers_redeemed": 0
+                        "purchases": 0,
+                        "redeemed": 0
                     })
                 else:
                     # allow updating name if provided
@@ -359,23 +297,22 @@ def rewards():
 
             return redirect(url_for("rewards"))
 
-        # Add repair cost to a customer
-        if action == "add_cost":
-            phone_number = request.form.get("phone_number", "").strip()
-            license_plate = request.form.get("license_plate", "").strip()
-            cost = request.form.get("cost", "0").strip()
+        # Add purchase to a customer
+        if action == "add_purchase":
+            customer_id = request.form.get("customer_id", "").strip()
+            amount = request.form.get("amount", "1").strip()
 
             try:
-                cost_float = float(cost)
+                amount_int = int(amount)
             except ValueError:
-                cost_float = 0
+                amount_int = 1
 
-            if cost_float < 0:
-                cost_float = 0
+            if amount_int < 1:
+                amount_int = 1
 
-            cust = next((c for c in customers if c["phone_number"] == phone_number and c["license_plate"] == license_plate), None)
+            cust = next((c for c in customers if c["customer_id"] == customer_id), None)
             if cust:
-                cust["total_cost"] = float(cust.get("total_cost", 0)) + cost_float
+                cust["purchases"] = int(cust.get("purchases", 0)) + amount_int
                 save_rewards(customers)
 
             return redirect(url_for("rewards"))
@@ -385,8 +322,7 @@ def rewards():
     if search_query:
         filtered = [
             c for c in customers
-            if search_query in c.get("phone_number", "").lower()
-            or search_query in c.get("license_plate", "").lower()
+            if search_query in c.get("customer_id", "").lower()
             or search_query in c.get("name", "").lower()
         ]
 
@@ -394,32 +330,27 @@ def rewards():
     display_customers = []
     for c in filtered:
         c2 = dict(c)
-        points = c.get("total_cost", 0)
-        c2["current_points"] = int(points)
-        c2["reward_balance"] = compute_reward_balance(c)  # vouchers available to redeem
-        c2["points_to_next_voucher"] = (((points // 50) + 1) * 50) - points if (points % 50) != 0 else 0
+        c2["reward_balance"] = compute_reward_balance(c)
+        c2["next_reward_at"] = ((c.get("purchases", 0) // 3) + 1) * 3  # next threshold
         display_customers.append(c2)
 
-    # sort by most cost desc
-    display_customers.sort(key=lambda x: x.get("total_cost", 0), reverse=True)
+    # sort by most purchases desc
+    display_customers.sort(key=lambda x: x.get("purchases", 0), reverse=True)
 
     return render_template(
         "rewards.html",
         customers=display_customers,
-        search_query=search_query,
-        is_admin=is_admin
+        search_query=search_query
     )
 
-@app.route("/rewards/redeem", methods=["POST"])
+@app.route("/rewards/redeem/<customer_id>", methods=["POST"])
 @admin_required
-def redeem_reward():
+def redeem_reward(customer_id):
     customers = load_rewards()
-    phone_number = request.form.get("phone_number", "").strip()
-    license_plate = request.form.get("license_plate", "").strip()
-    cust = next((c for c in customers if c["phone_number"] == phone_number and c["license_plate"] == license_plate), None)
+    cust = next((c for c in customers if c["customer_id"] == customer_id), None)
     if cust:
         if compute_reward_balance(cust) > 0:
-            cust["vouchers_redeemed"] = int(cust.get("vouchers_redeemed", 0)) + 1
+            cust["redeemed"] = int(cust.get("redeemed", 0)) + 1
             save_rewards(customers)
     return redirect(url_for("rewards"))
 
@@ -799,19 +730,14 @@ def import_catalogue():
 # ==================== ORDERS & CART ROUTES ====================
 
 @app.route("/orders", methods=["GET", "POST"])
-@login_required
+@admin_required
 def orders():
     """Display orders and shopping cart"""
     orders_list = load_orders()
     cart = load_cart()
     search_query = request.args.get("search", "").strip().lower()
-    is_admin = session.get('role') == 'admin'
 
     if request.method == "POST":
-        # Only admins can perform order management actions
-        if not is_admin:
-            return redirect(url_for("orders"))
-        
         action = request.form.get("action", "").strip()
 
         # Add item to cart
@@ -839,26 +765,6 @@ def orders():
                         "quantity": quantity_int
                     })
                 save_cart(cart)
-
-            return redirect(url_for("orders"))
-
-        # Email cart contents to an email address
-        if action == "email_cart":
-            recipient = request.form.get("recipient_email", "").strip()
-            if recipient and cart:
-                # build plain text body
-                lines = [f"Shopping Cart ({sum(i['quantity'] for i in cart)} items):\n"]
-                for item in cart:
-                    lines.append(f"- {item['item_name']}: {item['quantity']} x ${item['price']:.2f} = ${item['quantity']*item['price']:.2f}")
-                lines.append(f"\nTotal: ${sum(i['quantity']*i['price'] for i in cart):.2f}")
-                body = "\n".join(lines)
-                subject = "Shopping Cart Contents"
-                try:
-                    send_email(recipient, subject, body)
-                    flash(f"Cart emailed to {recipient}", "success")
-                except Exception as e:
-                    print(f"Error sending cart email: {e}")
-                    flash(f"Failed to email cart: {str(e)}", "danger")
 
             return redirect(url_for("orders"))
 
@@ -922,26 +828,6 @@ def orders():
                 # Clear cart after checkout
                 save_cart([])
                 cart = []
-                # Send confirmation email to customer if email provided
-                if new_order.get("customer_email"):
-                    try:
-                        subject = f"Order Confirmation - {new_order['order_id']}"
-                        # compose simple text body
-                        lines = [f"Thank you for your order, {new_order.get('customer_name','Customer')}!\n",
-                                 f"Order ID: {new_order['order_id']}",
-                                 f"Date: {new_order['date']}",
-                                 "\nItems:"]
-                        for it in new_order['items']:
-                            lines.append(f"- {it['item_name']}: {it['quantity']} x ${it['price']:.2f} = ${it['quantity']*it['price']:.2f}")
-                        lines.append(f"\nTotal: ${new_order['total']:.2f}")
-                        if new_order.get('order_notes'):
-                            lines.append(f"\nNotes: {new_order.get('order_notes')}")
-                        body = "\n".join(lines)
-                        send_email(new_order.get('customer_email'), subject, body)
-                        flash("Order confirmation emailed to customer", "success")
-                    except Exception as e:
-                        print(f"Error sending order email: {e}")
-                        flash(f"Failed to send confirmation email: {str(e)}", "danger")
 
             return redirect(url_for("orders"))
 
@@ -980,8 +866,7 @@ def orders():
         cart=cart,
         cart_total=round(cart_total, 2),
         cart_item_count=cart_item_count,
-        search_query=search_query,
-        is_admin=is_admin
+        search_query=search_query
     )
 
 @app.route("/orders/delete/<order_id>", methods=["POST"])
