@@ -29,7 +29,7 @@
         50% { box-shadow: 0 0 20px rgba(255, 106, 61, 0.6); }
     }
     .stat-card {
-        background: linear-gradient(135deg, var(--card-bg) 0%, var(--secondary-bg) 100%);
+        background-color: var(--card-bg);
         border: 1px solid var(--border-color);
         border-radius: 12px;
         padding: 1.25rem;
@@ -72,7 +72,7 @@
         transition: width 1s ease;
     }
     .recommendation-card {
-        background: linear-gradient(135deg, rgba(77, 212, 250, 0.08) 0%, rgba(255, 106, 61, 0.08) 100%);
+        background-color: var(--card-bg);
         border: 1px solid rgba(77, 212, 250, 0.3);
         border-radius: 12px;
         padding: 1rem;
@@ -85,7 +85,7 @@
         box-shadow: 0 6px 20px rgba(255, 106, 61, 0.15);
     }
     .ai-badge {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-color: #667eea;
         color: white;
         padding: 0.3rem 0.7rem;
         border-radius: 20px;
@@ -128,7 +128,7 @@
     }
     .low-stock-alert {
         animation: pulse 2s infinite;
-        background: linear-gradient(135deg, rgba(234, 68, 90, 0.15) 0%, rgba(255, 165, 0, 0.15) 100%);
+        background-color: rgba(234, 68, 90, 0.15);
         border: 1px solid var(--danger);
         border-radius: 10px;
         padding: 1rem;
@@ -169,74 +169,12 @@
     </div>
 </div>
 
-<!-- ==================== AI ANALYTICS DASHBOARD ==================== -->
-<div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, var(--card-bg) 0%, rgba(35, 41, 70, 0.8) 100%);">
-    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem;">
-        <span class="ai-badge"><i class="fas fa-chart-line"></i> ANALYTICS</span>
-        <h2 style="color: var(--accent); margin: 0; font-size: 1.1rem;">Inventory Intelligence Dashboard</h2>
-    </div>
-    
-    <!-- Stats Cards Row -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-        <div class="stat-card" style="animation-delay: 0.1s;">
-            <div style="color: var(--action); margin-bottom: 0.5rem;"><i class="fas fa-boxes" style="font-size: 1.5rem;"></i></div>
-            <div class="stat-number" style="color: var(--accent);">{{ total_parts }}</div>
-            <div style="color: var(--muted-text); font-size: 0.8rem; margin-top: 0.25rem;">Total Parts</div>
-        </div>
-        <div class="stat-card" style="animation-delay: 0.2s;">
-            <div style="color: var(--success); margin-bottom: 0.5rem;"><i class="fas fa-warehouse" style="font-size: 1.5rem;"></i></div>
-            <div class="stat-number" style="color: var(--success);">{{ total_stock }}</div>
-            <div style="color: var(--muted-text); font-size: 0.8rem; margin-top: 0.25rem;">Units in Stock</div>
-        </div>
-        <div class="stat-card" style="animation-delay: 0.3s;">
-            <div style="color: var(--accent); margin-bottom: 0.5rem;"><i class="fas fa-dollar-sign" style="font-size: 1.5rem;"></i></div>
-            <div class="stat-number" style="color: var(--accent);">${{ "%.0f" | format(total_value) }}</div>
-            <div style="color: var(--muted-text); font-size: 0.8rem; margin-top: 0.25rem;">Inventory Value</div>
-        </div>
-        <div class="stat-card" style="animation-delay: 0.4s;">
-            <div style="color: var(--action); margin-bottom: 0.5rem;"><i class="fas fa-tag" style="font-size: 1.5rem;"></i></div>
-            <div class="stat-number" style="color: var(--action);">${{ "%.0f" | format(avg_price) }}</div>
-            <div style="color: var(--muted-text); font-size: 0.8rem; margin-top: 0.25rem;">Avg Price</div>
-        </div>
-        <div class="stat-card" style="animation-delay: 0.5s;">
-            <div style="margin-bottom: 0.5rem;">
-                {% if low_stock_parts|length > 0 %}
-                <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; color: var(--danger);"></i>
-                {% else %}
-                <i class="fas fa-check-circle" style="font-size: 1.5rem; color: var(--success);"></i>
-                {% endif %}
-            </div>
-            <div class="stat-number" style="color: {% if low_stock_parts|length > 0 %}var(--danger){% else %}var(--success){% endif %};">{{ low_stock_parts|length }}</div>
-            <div style="color: var(--muted-text); font-size: 0.8rem; margin-top: 0.25rem;">Low Stock Alerts</div>
-        </div>
-    </div>
-
-    <!-- Category Distribution Chart -->
-    {% if category_stats %}
-    <div style="background-color: rgba(0,0,0,0.2); border-radius: 10px; padding: 1.25rem;">
-        <h3 style="color: var(--action); font-size: 0.95rem; margin-bottom: 1rem;"><i class="fas fa-chart-bar"></i> Category Distribution</h3>
-        {% set max_count = category_stats.values()|map(attribute='count')|max %}
-        {% for cat, stats in category_stats.items() %}
-        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; animation: slideIn 0.5s ease forwards; animation-delay: {{ loop.index * 0.1 }}s; opacity: 0;">
-            <div style="min-width: 100px; font-size: 0.85rem; color: var(--muted-text); text-align: right;">{{ cat }}</div>
-            <div style="flex: 1; position: relative;">
-                <div class="category-chart-bar" style="width: {{ (stats.count / max_count * 100)|int }}%; background: linear-gradient(90deg, var(--accent), var(--action));">
-                    {{ stats.count }}
-                </div>
-            </div>
-            <div style="min-width: 80px; font-size: 0.8rem; color: var(--muted-text);">{{ stats.total_stock }} units</div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-</div>
-
 <!-- ==================== LOW STOCK ALERTS ==================== -->
 {% if low_stock_parts and session.get('role') == 'admin' %}
 <div class="low-stock-alert" style="margin-bottom: 2rem;">
     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
         <i class="fas fa-exclamation-triangle" style="color: var(--danger); font-size: 1.2rem;"></i>
-        <span class="ai-badge" style="background: linear-gradient(135deg, #ea445a 0%, #ff6a3d 100%);"><i class="fas fa-bell"></i> STOCK ALERT</span>
+        <span class="ai-badge" style="background-color: #ea445a;"><i class="fas fa-bell"></i> STOCK ALERT</span>
         <strong style="color: var(--danger);">{{ low_stock_parts|length }} part{{ 's' if low_stock_parts|length > 1 }} running low!</strong>
     </div>
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
@@ -308,7 +246,7 @@
 
 <!-- ==================== SMART SEARCH SUGGESTIONS ==================== -->
 {% if search_suggestions and search_query %}
-<div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border-color: rgba(102, 126, 234, 0.3);">
+<div class="card" style="margin-bottom: 2rem;  border-color: rgba(102, 126, 234, 0.3);">
     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
         <span class="ai-badge"><i class="fas fa-lightbulb"></i> AI SUGGESTION</span>
         <span style="color: var(--muted-text); font-size: 0.9rem;">No exact matches for "<strong style="color: var(--action);">{{ search_query }}</strong>". Did you mean:</span>
@@ -318,44 +256,6 @@
         <a href="{{ url_for('catalogue', search=suggestion) }}" class="search-suggestion">
             <i class="fas fa-search"></i> {{ suggestion }}
         </a>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
-
-<!-- ==================== AI RECOMMENDATIONS ==================== -->
-{% if recommendations and not search_query %}
-<div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, rgba(77, 212, 250, 0.05) 0%, rgba(255, 106, 61, 0.05) 100%); border-color: rgba(77, 212, 250, 0.3);">
-    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-        <span class="ai-badge"><i class="fas fa-magic"></i> RECOMMENDED</span>
-        <h3 style="color: var(--action); margin: 0; font-size: 1rem;">
-            {% if cart_item_count > 0 %}
-            <i class="fas fa-brain"></i> Based on Your Cart â€” You Might Also Need
-            {% else %}
-            <i class="fas fa-star"></i> Popular Parts â€” Highest Availability
-            {% endif %}
-        </h3>
-    </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem;">
-        {% for part in recommendations %}
-        <div class="recommendation-card" style="animation-delay: {{ loop.index * 0.15 }}s;">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                <span style="color: var(--action); font-size: 0.8rem; font-weight: 600;">{{ part.part_id }}</span>
-                <span style="background-color: rgba(77, 212, 250, 0.2); color: var(--action); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem;">{{ part.category }}</span>
-            </div>
-            <h4 style="color: var(--text); margin: 0 0 0.5rem 0; font-size: 0.95rem;">{{ part.name }}</h4>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: var(--success); font-weight: bold; font-size: 1.1rem;">${{ "%.2f" | format(part.price) }}</span>
-                <form method="post" action="{{ url_for('catalogue') }}" style="display: inline;">
-                    <input type="hidden" name="action" value="add_to_cart_from_catalogue">
-                    <input type="hidden" name="part_id" value="{{ part.part_id }}">
-                    <input type="hidden" name="quantity" value="1">
-                    <button type="submit" class="btn btn-small" style="background-color: var(--success); color: white; padding: 0.4rem 0.6rem; font-size: 0.8rem;">
-                        <i class="fas fa-cart-plus"></i> Add
-                    </button>
-                </form>
-            </div>
-        </div>
         {% endfor %}
     </div>
 </div>
@@ -407,6 +307,44 @@
             <i class="fas fa-plus"></i> Add Part
         </button>
     </form>
+</div>
+{% endif %}
+
+<!-- ==================== AI RECOMMENDATIONS ==================== -->
+{% if recommendations and not search_query %}
+<div class="card" style="margin-bottom: 2rem; border-color: rgba(77, 212, 250, 0.3);">
+    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+        <span class="ai-badge"><i class="fas fa-magic"></i> RECOMMENDED</span>
+        <h3 style="color: var(--action); margin: 0; font-size: 1rem;">
+            {% if cart_item_count > 0 %}
+            <i class="fas fa-brain"></i> Recommended Parts Based On Your Cart
+            {% else %}
+            <i class="fas fa-star"></i> Recommended Parts Based On Availability
+            {% endif %}
+        </h3>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem;">
+        {% for part in recommendations %}
+        <div class="recommendation-card" style="animation-delay: {{ loop.index * 0.15 }}s;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                <span style="color: var(--action); font-size: 0.8rem; font-weight: 600;">{{ part.part_id }}</span>
+                <span style="background-color: rgba(77, 212, 250, 0.2); color: var(--action); padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.7rem;">{{ part.category }}</span>
+            </div>
+            <h4 style="color: var(--text); margin: 0 0 0.5rem 0; font-size: 0.95rem;">{{ part.name }}</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--success); font-weight: bold; font-size: 1.1rem;">${{ "%.2f" | format(part.price) }}</span>
+                <form method="post" action="{{ url_for('catalogue') }}" style="display: inline;">
+                    <input type="hidden" name="action" value="add_to_cart_from_catalogue">
+                    <input type="hidden" name="part_id" value="{{ part.part_id }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn btn-small" style="background-color: var(--success); color: white; padding: 0.4rem 0.6rem; font-size: 0.8rem;">
+                        <i class="fas fa-cart-plus"></i> Add
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endif %}
 
@@ -553,4 +491,69 @@
     </div>
     {% endif %}
 </div>
+
+<!-- ==================== AI ANALYTICS DASHBOARD (Admin Only) ==================== -->
+{% if session.get('role') == 'admin' %}
+<div class="card" style="margin-bottom: 2rem; ">
+    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.25rem;">
+        <span class="ai-badge"><i class="fas fa-chart-line"></i> ANALYTICS</span>
+        <h2 style="color: var(--accent); margin: 0; font-size: 1.1rem;">Inventory Intelligence Dashboard</h2>
+    </div>
+    
+    <!-- Stats Cards Row -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="stat-card" style="animation-delay: 0.1s;">
+            <div style="color: var(--action); margin-bottom: 0.5rem;"><i class="fas fa-boxes" style="font-size: 1.5rem;"></i></div>
+            <div class="stat-number" style="color: var(--accent);">{{ total_parts }}</div>
+            <div style="color: var(--muted-text); font-size: 0.8rem; margin-top: 0.25rem;">Total Parts</div>
+        </div>
+        <div class="stat-card" style="animation-delay: 0.2s;">
+            <div style="color: var(--success); margin-bottom: 0.5rem;"><i class="fas fa-warehouse" style="font-size: 1.5rem;"></i></div>
+            <div class="stat-number" style="color: var(--success);">{{ total_stock }}</div>
+            <div style="color: var(--muted-text); font-size: 0.8rem; margin-top: 0.25rem;">Units in Stock</div>
+        </div>
+        <div class="stat-card" style="animation-delay: 0.3s;">
+            <div style="color: var(--accent); margin-bottom: 0.5rem;"><i class="fas fa-dollar-sign" style="font-size: 1.5rem;"></i></div>
+            <div class="stat-number" style="color: var(--accent);">${{ "%.0f" | format(total_value) }}</div>
+            <div style="color: var(--muted-text); font-size: 0.8rem; margin-top: 0.25rem;">Inventory Value</div>
+        </div>
+        <div class="stat-card" style="animation-delay: 0.4s;">
+            <div style="color: var(--action); margin-bottom: 0.5rem;"><i class="fas fa-tag" style="font-size: 1.5rem;"></i></div>
+            <div class="stat-number" style="color: var(--action);">${{ "%.0f" | format(avg_price) }}</div>
+            <div style="color: var(--muted-text); font-size: 0.8rem; margin-top: 0.25rem;">Avg Price</div>
+        </div>
+        <div class="stat-card" style="animation-delay: 0.5s;">
+            <div style="margin-bottom: 0.5rem;">
+                {% if low_stock_parts|length > 0 %}
+                <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; color: var(--danger);"></i>
+                {% else %}
+                <i class="fas fa-check-circle" style="font-size: 1.5rem; color: var(--success);"></i>
+                {% endif %}
+            </div>
+            <div class="stat-number" style="color: {% if low_stock_parts|length > 0 %}var(--danger){% else %}var(--success){% endif %};">{{ low_stock_parts|length }}</div>
+            <div style="color: var(--muted-text); font-size: 0.8rem; margin-top: 0.25rem;">Low Stock Alerts</div>
+        </div>
+    </div>
+
+    <!-- Category Distribution Chart -->
+    {% if category_stats %}
+    <div style="background-color: rgba(0,0,0,0.2); border-radius: 10px; padding: 1.25rem;">
+        <h3 style="color: var(--action); font-size: 0.95rem; margin-bottom: 1rem;"><i class="fas fa-chart-bar"></i> Category Distribution</h3>
+        {% set max_count = category_stats.values()|map(attribute='count')|max %}
+        {% for cat, stats in category_stats.items() %}
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; animation: slideIn 0.5s ease forwards; animation-delay: {{ loop.index * 0.1 }}s; opacity: 0;">
+            <div style="min-width: 100px; font-size: 0.85rem; color: var(--muted-text); text-align: right;">{{ cat }}</div>
+            <div style="flex: 1; position: relative;">
+                <div class="category-chart-bar" style="width: {{ (stats.count / max_count * 100)|int }}%; background-color: var(--accent);">
+                    {{ stats.count }}
+                </div>
+            </div>
+            <div style="min-width: 80px; font-size: 0.8rem; color: var(--muted-text);">{{ stats.total_stock }} units</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+{% endif %}
 {% endblock %}
