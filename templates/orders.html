@@ -10,7 +10,7 @@
 <!-- Search Bar -->
 <form style="display: flex; gap: 1rem; margin-bottom: 2rem;">
     <input type="search" name="search" placeholder="Search orders…" value="{{ search_query or '' }}"
-           style="flex: 1; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        style="flex: 1; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
     <button type="submit" class="btn btn-primary">
         <i class="fas fa-search"></i> Search
     </button>
@@ -18,7 +18,8 @@
 
 <!-- Shopping Cart Section -->
 <div class="card" style="margin-bottom: 2rem;">
-    <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-cart-plus"></i> Shopping Cart ({{ cart_item_count }} items)</h2>
+    <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-cart-plus"></i> Shopping Cart ({{
+        cart_item_count }} items)</h2>
     {% if cart %}
     <div style="overflow-x: auto; margin-bottom: 1.5rem;">
         <table style="width: 100%; border-collapse: collapse;">
@@ -37,12 +38,14 @@
                     <td style="padding: 1rem;">{{ item.item_name }}</td>
                     <td style="padding: 1rem; color: var(--success);">${{ "%.2f" | format(item.price) }}</td>
                     <td style="padding: 1rem;">{{ item.quantity }}</td>
-                    <td style="padding: 1rem; color: var(--accent); font-weight: bold;">${{ "%.2f" | format(item.price * item.quantity) }}</td>
+                    <td style="padding: 1rem; color: var(--accent); font-weight: bold;">${{ "%.2f" | format(item.price *
+                        item.quantity) }}</td>
                     <td style="padding: 1rem;">
                         <form method="post" action="{{ url_for('orders') }}" style="display: inline;">
                             <input type="hidden" name="action" value="remove_from_cart">
                             <input type="hidden" name="item_name" value="{{ item.item_name }}">
-                            <button type="submit" class="btn btn-small" style="background-color: var(--danger); color: white; padding: 0.5rem 0.75rem;">
+                            <button type="submit" class="btn btn-small"
+                                style="background-color: var(--danger); color: white; padding: 0.5rem 0.75rem;">
                                 <i class="fas fa-trash"></i> Remove
                             </button>
                         </form>
@@ -52,17 +55,19 @@
             </tbody>
         </table>
     </div>
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: rgba(25, 169, 116, 0.1); border-radius: 6px;">
+    <div
+        style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: rgba(25, 169, 116, 0.1); border-radius: 6px;">
         <div>
             <p style="color: var(--muted-text); margin: 0;">Cart Total:</p>
-            <p style="color: var(--success); font-size: 1.5rem; font-weight: bold; margin: 0;">${{ "%.2f" | format(cart_total) }}</p>
+            <p style="color: var(--success); font-size: 1.5rem; font-weight: bold; margin: 0;">${{ "%.2f" |
+                format(cart_total) }}</p>
         </div>
         <form method="post" action="{{ url_for('orders') }}" style="display: flex; gap: 1rem;">
             <input type="hidden" name="action" value="checkout">
             <input type="text" name="customer_name" placeholder="Customer Name" required
-                   style="padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+                style="padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
             <input type="email" name="customer_email" placeholder="Email" required
-                   style="padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+                style="padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-check"></i> Checkout
             </button>
@@ -82,32 +87,40 @@
     {% if orders %}
     <div style="display: grid; gap: 1rem;">
         {% for order in orders %}
-        <div style="background-color: rgba(77, 212, 250, 0.05); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
+        <div
+            style="background-color: rgba(77, 212, 250, 0.05); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;">
             <div style="flex: 1;">
-                <div style="color: var(--action); font-size: 0.85rem; font-weight: 500;">Order {{ order.order_id }}</div>
-                <h3 style="color: var(--text); margin: 0.25rem 0 0.5rem 0; font-size: 1.1rem;">{{ order.customer_name }}</h3>
+                <div style="color: var(--action); font-size: 0.85rem; font-weight: 500;">Order {{ order.order_id }}
+                </div>
+                <h3 style="color: var(--text); margin: 0.25rem 0 0.5rem 0; font-size: 1.1rem;">{{ order.customer_name }}
+                </h3>
                 <div style="color: var(--muted-text); font-size: 0.9rem;">
                     <i class="fas fa-calendar"></i> {{ order.date }}
                 </div>
             </div>
-            
+
             <div style="text-align: center; margin: 0 2rem;">
                 <div style="color: var(--muted-text); font-size: 0.85rem;">Total</div>
-                <div style="color: var(--success); font-size: 1.5rem; font-weight: bold;">${{ "%.2f" | format(order.total) }}</div>
+                <div style="color: var(--success); font-size: 1.5rem; font-weight: bold;">${{ "%.2f" |
+                    format(order.total) }}</div>
             </div>
 
             <div style="text-align: center; margin: 0 2rem;">
-                <span style="background-color: {% if 'Pending' in order.status %}rgba(255, 165, 0, 0.2); color: var(--accent){% elif 'Processing' in order.status %}rgba(77, 212, 250, 0.2); color: var(--action){% else %}rgba(25, 169, 116, 0.2); color: var(--success){% endif %}; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 500;">
+                <span
+                    style="background-color: {% if 'Pending' in order.status %}rgba(255, 165, 0, 0.2); color: var(--accent){% elif 'Processing' in order.status %}rgba(77, 212, 250, 0.2); color: var(--action){% else %}rgba(25, 169, 116, 0.2); color: var(--success){% endif %}; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.9rem; font-weight: 500;">
                     {{ order.status }}
                 </span>
             </div>
 
             <div style="display: flex; gap: 0.5rem;">
-                <a href="{{ url_for('edit_order', order_id=order.order_id) }}" class="btn btn-small" style="background-color: var(--action); color: var(--primary-bg); text-decoration: none; padding: 0.5rem 1rem; font-size: 0.9rem;">
+                <a href="{{ url_for('edit_order', order_id=order.order_id) }}" class="btn btn-small"
+                    style="background-color: var(--action); color: var(--primary-bg); text-decoration: none; padding: 0.5rem 1rem; font-size: 0.9rem;">
                     <i class="fas fa-edit"></i> Edit
                 </a>
-                <form method="post" action="{{ url_for('delete_order', order_id=order.order_id) }}" style="display: inline;" onsubmit="return confirm('Delete order?');">
-                    <button type="submit" class="btn btn-small" style="background-color: var(--danger); color: white; padding: 0.5rem 1rem; font-size: 0.9rem;">
+                <form method="post" action="{{ url_for('delete_order', order_id=order.order_id) }}"
+                    style="display: inline;" onsubmit="return confirm('Delete order?');">
+                    <button type="submit" class="btn btn-small"
+                        style="background-color: var(--danger); color: white; padding: 0.5rem 1rem; font-size: 0.9rem;">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </form>
@@ -116,357 +129,359 @@
         {% endfor %}
     </div>
     {% else %}
-    <div style="padding: 3rem 2rem; text-align: center; background-color: rgba(77, 212, 250, 0.05); border: 1px dashed var(--border-color); border-radius: 10px;">
-        <i class="fas fa-inbox" style="font-size: 3rem; color: var(--muted-text); margin-bottom: 1rem; display: block;"></i>
+    <div
+        style="padding: 3rem 2rem; text-align: center; background-color: rgba(77, 212, 250, 0.05); border: 1px dashed var(--border-color); border-radius: 10px;">
+        <i class="fas fa-inbox"
+            style="font-size: 3rem; color: var(--muted-text); margin-bottom: 1rem; display: block;"></i>
         <p style="color: var(--muted-text); font-size: 1.1rem;">No orders yet.</p>
     </div>
     {% endif %}
 </div>
 {% endblock %}
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>Orders & Shopping Cart</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Orders & Shopping Cart</title>
 
-    <style>
-        :root {
-            --primary-bg: #1a2238;
-            --secondary-bg: #232946;
-            --card-bg: #282c34;
-            --accent: #ff6a3d;
-            --accent-hover: #e65c2a;
-            --action: #4dd4fa;
-            --success: #19a974;
-            --danger: #ea445a;
-            --warning: #ffa500;
-            --table-border: #6b7280;
-            --focus-ring: #ffe287;
-            --text: #fffffe;
-            --muted-text: #b7bfc9;
-            --button-radius: 8px;
-            --input-radius: 6px;
-            --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
-            --transition-speed: 0.3s;
-            font-size: 16px;
-        }
+<style>
+    :root {
+        --primary-bg: #1a2238;
+        --secondary-bg: #232946;
+        --card-bg: #282c34;
+        --accent: #ff6a3d;
+        --accent-hover: #e65c2a;
+        --action: #4dd4fa;
+        --success: #19a974;
+        --danger: #ea445a;
+        --warning: #ffa500;
+        --table-border: #6b7280;
+        --focus-ring: #ffe287;
+        --text: #fffffe;
+        --muted-text: #b7bfc9;
+        --button-radius: 8px;
+        --input-radius: 6px;
+        --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12);
+        --transition-speed: 0.3s;
+        font-size: 16px;
+    }
 
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-        }
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
 
-        body {
-            margin: 0;
-            background: var(--primary-bg);
-            color: var(--text);
-            font-family: 'Segoe UI', Arial, sans-serif;
-            font-size: 1rem;
-        }
+    body {
+        margin: 0;
+        background: var(--primary-bg);
+        color: var(--text);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 1rem;
+    }
 
-        h1,
-        h2,
-        h3 {
-            color: var(--accent);
-            margin-top: 0;
-        }
+    h1,
+    h2,
+    h3 {
+        color: var(--accent);
+        margin-top: 0;
+    }
 
-        a {
-            color: var(--action);
-            text-decoration: none;
-        }
+    a {
+        color: var(--action);
+        text-decoration: none;
+    }
 
-        main {
-            padding: 2rem 0.75rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+    main {
+        padding: 2rem 0.75rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
 
-        .nav-links {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
+    .nav-links {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
 
-        .nav-link {
-            padding: 0.6em 1.2em;
-            background: var(--secondary-bg);
-            border-radius: var(--button-radius);
-            transition: background var(--transition-speed);
-        }
+    .nav-link {
+        padding: 0.6em 1.2em;
+        background: var(--secondary-bg);
+        border-radius: var(--button-radius);
+        transition: background var(--transition-speed);
+    }
 
-        .nav-link:hover {
-            background: var(--card-bg);
-        }
+    .nav-link:hover {
+        background: var(--card-bg);
+    }
 
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 1024px) {
         .content-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
+            grid-template-columns: 1fr;
         }
+    }
 
-        @media (max-width: 1024px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+    .section-card {
+        background: var(--card-bg);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+    }
 
-        .section-card {
-            background: var(--card-bg);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-        }
+    /* Add to Cart Form */
+    .add-cart-form {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        align-items: end;
+    }
 
-        /* Add to Cart Form */
+    @media (max-width: 768px) {
         .add-cart-form {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            align-items: end;
+            grid-template-columns: 1fr;
         }
+    }
 
-        @media (max-width: 768px) {
-            .add-cart-form {
-                grid-template-columns: 1fr;
-            }
-        }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
+    .form-group label {
+        margin-bottom: 0.3rem;
+        font-size: 0.9em;
+        color: var(--muted-text);
+    }
 
-        .form-group label {
-            margin-bottom: 0.3rem;
-            font-size: 0.9em;
-            color: var(--muted-text);
-        }
+    .form-input {
+        padding: 0.7em;
+        border-radius: var(--input-radius);
+        border: 2px solid var(--accent);
+        background: var(--secondary-bg);
+        color: var(--text);
+        font-size: 1em;
+    }
 
-        .form-input {
-            padding: 0.7em;
-            border-radius: var(--input-radius);
-            border: 2px solid var(--accent);
-            background: var(--secondary-bg);
-            color: var(--text);
-            font-size: 1em;
-        }
+    .form-input:focus {
+        border-color: var(--action);
+        outline: none;
+        box-shadow: 0 0 0 3px var(--focus-ring);
+    }
 
-        .form-input:focus {
-            border-color: var(--action);
-            outline: none;
-            box-shadow: 0 0 0 3px var(--focus-ring);
-        }
+    .btn {
+        padding: 0.75em 1.5em;
+        border-radius: var(--button-radius);
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all var(--transition-speed);
+        font-size: 1em;
+    }
 
-        .btn {
-            padding: 0.75em 1.5em;
-            border-radius: var(--button-radius);
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all var(--transition-speed);
-            font-size: 1em;
-        }
+    .btn-primary {
+        background: var(--action);
+        color: var(--primary-bg);
+    }
 
-        .btn-primary {
-            background: var(--action);
-            color: var(--primary-bg);
-        }
+    .btn-primary:hover {
+        background: var(--accent);
+        transform: scale(1.05);
+    }
 
-        .btn-primary:hover {
-            background: var(--accent);
-            transform: scale(1.05);
-        }
+    .btn-success {
+        background: var(--success);
+        color: white;
+    }
 
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
+    .btn-success:hover {
+        background: #157a57;
+        transform: scale(1.05);
+    }
 
-        .btn-success:hover {
-            background: #157a57;
-            transform: scale(1.05);
-        }
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+        padding: 0.5em 1em;
+        font-size: 0.9em;
+    }
 
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-            padding: 0.5em 1em;
-            font-size: 0.9em;
-        }
+    .btn-danger:hover {
+        background: #c7354a;
+    }
 
-        .btn-danger:hover {
-            background: #c7354a;
-        }
+    .btn-sm {
+        padding: 0.5em 1em;
+        font-size: 0.9em;
+    }
 
-        .btn-sm {
-            padding: 0.5em 1em;
-            font-size: 0.9em;
-        }
+    /* Cart Items */
+    .cart-items {
+        margin: 1rem 0;
+    }
 
-        /* Cart Items */
-        .cart-items {
-            margin: 1rem 0;
-        }
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: var(--secondary-bg);
+        border-radius: var(--input-radius);
+        margin-bottom: 0.75rem;
+    }
 
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: var(--secondary-bg);
-            border-radius: var(--input-radius);
-            margin-bottom: 0.75rem;
-        }
+    .cart-item-info {
+        flex: 1;
+    }
 
-        .cart-item-info {
-            flex: 1;
-        }
+    .cart-item-name {
+        font-weight: bold;
+        color: var(--text);
+        margin-bottom: 0.25rem;
+    }
 
-        .cart-item-name {
-            font-weight: bold;
-            color: var(--text);
-            margin-bottom: 0.25rem;
-        }
+    .cart-item-price {
+        color: var(--muted-text);
+        font-size: 0.9em;
+    }
 
-        .cart-item-price {
-            color: var(--muted-text);
-            font-size: 0.9em;
-        }
+    .cart-item-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
 
-        .cart-item-actions {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
+    .qty-input {
+        width: 60px;
+        padding: 0.4em;
+        border-radius: var(--input-radius);
+        border: 2px solid var(--accent);
+        background: var(--card-bg);
+        color: var(--text);
+        text-align: center;
+    }
 
-        .qty-input {
-            width: 60px;
-            padding: 0.4em;
-            border-radius: var(--input-radius);
-            border: 2px solid var(--accent);
-            background: var(--card-bg);
-            color: var(--text);
-            text-align: center;
-        }
+    .cart-total {
+        background: var(--primary-bg);
+        padding: 1rem;
+        border-radius: var(--input-radius);
+        margin-top: 1rem;
+        text-align: right;
+    }
 
-        .cart-total {
-            background: var(--primary-bg);
-            padding: 1rem;
-            border-radius: var(--input-radius);
-            margin-top: 1rem;
-            text-align: right;
-        }
+    .cart-total-label {
+        color: var(--muted-text);
+        font-size: 1.1em;
+    }
 
-        .cart-total-label {
-            color: var(--muted-text);
-            font-size: 1.1em;
-        }
+    .cart-total-amount {
+        color: var(--accent);
+        font-size: 1.8em;
+        font-weight: bold;
+    }
 
-        .cart-total-amount {
-            color: var(--accent);
-            font-size: 1.8em;
-            font-weight: bold;
-        }
+    .checkout-form {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--primary-bg);
+        border-radius: var(--input-radius);
+    }
 
-        .checkout-form {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: var(--primary-bg);
-            border-radius: var(--input-radius);
-        }
+    /* Orders Table */
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
 
-        /* Orders Table */
-        .orders-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
+    .orders-table th,
+    .orders-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--table-border);
+    }
 
-        .orders-table th,
-        .orders-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--table-border);
-        }
+    .orders-table th {
+        background: var(--accent);
+        color: var(--primary-bg);
+        font-weight: bold;
+    }
 
-        .orders-table th {
-            background: var(--accent);
-            color: var(--primary-bg);
-            font-weight: bold;
-        }
+    .orders-table tr:hover {
+        background: var(--secondary-bg);
+    }
 
-        .orders-table tr:hover {
-            background: var(--secondary-bg);
-        }
+    .status-badge {
+        display: inline-block;
+        padding: 0.4em 0.8em;
+        border-radius: 12px;
+        font-size: 0.85em;
+        font-weight: bold;
+    }
 
-        .status-badge {
-            display: inline-block;
-            padding: 0.4em 0.8em;
-            border-radius: 12px;
-            font-size: 0.85em;
-            font-weight: bold;
-        }
+    .status-pending {
+        background: var(--warning);
+        color: var(--primary-bg);
+    }
 
-        .status-pending {
-            background: var(--warning);
-            color: var(--primary-bg);
-        }
+    .status-processing {
+        background: var(--action);
+        color: var(--primary-bg);
+    }
 
-        .status-processing {
-            background: var(--action);
-            color: var(--primary-bg);
-        }
+    .status-completed {
+        background: var(--success);
+        color: white;
+    }
 
-        .status-completed {
-            background: var(--success);
-            color: white;
-        }
+    .status-cancelled {
+        background: var(--danger);
+        color: white;
+    }
 
-        .status-cancelled {
-            background: var(--danger);
-            color: white;
-        }
+    .order-items-list {
+        font-size: 0.9em;
+        color: var(--muted-text);
+        margin: 0.25rem 0;
+    }
 
-        .order-items-list {
-            font-size: 0.9em;
-            color: var(--muted-text);
-            margin: 0.25rem 0;
-        }
+    .search-bar {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
 
-        .search-bar {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
+    .search-input {
+        flex: 1;
+        padding: 0.7em;
+        border-radius: var(--input-radius);
+        border: 2px solid var(--accent);
+        background: var(--secondary-bg);
+        color: var(--text);
+    }
 
-        .search-input {
-            flex: 1;
-            padding: 0.7em;
-            border-radius: var(--input-radius);
-            border: 2px solid var(--accent);
-            background: var(--secondary-bg);
-            color: var(--text);
-        }
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--muted-text);
+    }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--muted-text);
-        }
+    .empty-state-icon {
+        font-size: 3em;
+        margin-bottom: 0.5rem;
+    }
 
-        .empty-state-icon {
-            font-size: 3em;
-            margin-bottom: 0.5rem;
-        }
-
-        .action-forms {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-    </style>
+    .action-forms {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+</style>
 </head>
 
 <body>
@@ -475,9 +490,13 @@
             <h1>🛒 Orders & Shopping Cart</h1>
             <div class="nav-links">
                 <a href="{{ url_for('home') }}" class="nav-link">📋 Job Cards</a>
+                {% if session.get('role') == 'admin' %}
                 <a href="{{ url_for('rewards') }}" class="nav-link">🎁 Rewards</a>
+                {% endif %}
                 <a href="{{ url_for('catalogue') }}" class="nav-link">📦 Parts Catalogue</a>
+                {% if session.get('role') == 'admin' %}
                 <a href="{{ url_for('orders') }}" class="nav-link">🛒 Orders</a>
+                {% endif %}
             </div>
         </header>
 
@@ -486,7 +505,8 @@
             <div class="section-card">
                 <h2>� Order Lists ({{ cart_item_count }} items)</h2>
 
-                <!-- Add Item to Cart Form -->
+                <!-- Add Item to Cart Form (Admin Only) -->
+                {% if is_admin %}
                 <form class="add-cart-form" method="post">
                     <input type="hidden" name="action" value="add_to_cart" />
 
@@ -509,6 +529,7 @@
 
                     <button type="submit" class="btn btn-primary">Add to Cart</button>
                 </form>
+                {% endif %}
 
                 <!-- Cart Items -->
                 {% if cart %}
@@ -540,6 +561,17 @@
                     <div class="cart-total">
                         <div class="cart-total-label">Total:</div>
                         <div class="cart-total-amount">${{ "%.2f"|format(cart_total) }}</div>
+                    </div>
+
+                    <!-- Email Cart Form + Export -->
+                    <div style="margin-top: 0.75rem; display:flex; gap:0.5rem; align-items:center;">
+                        <form method="post" style="flex:1; display:flex; gap:0.5rem;">
+                            <input type="hidden" name="action" value="email_cart" />
+                            <input type="email" name="recipient_email" class="form-input" placeholder="Email cart to..."
+                                required style="flex:1;" />
+                            <button type="submit" class="btn btn-primary">Email Cart</button>
+                        </form>
+                        <a href="{{ url_for('export_cart') }}" class="btn btn-secondary">Export Cart</a>
                     </div>
 
                     <!-- Checkout Form -->
@@ -578,7 +610,8 @@
                 {% endif %}
             </div>
 
-            <!-- Order Management Section -->
+            <!-- Order Management Section (Admin Only) -->
+            {% if is_admin %}
             <div class="section-card">
                 <h2>📦 Order Management</h2>
 
@@ -637,6 +670,10 @@
                                     <a href="{{ url_for('edit_order', order_id=order.order_id) }}">
                                         <button class="btn btn-primary btn-sm">Edit</button>
                                     </a>
+                                    <a href="{{ url_for('export_order', order_id=order.order_id) }}"
+                                        style="margin-left:0.25rem;">
+                                        <button class="btn btn-secondary btn-sm">Export</button>
+                                    </a>
                                     <form method="post" action="{{ url_for('delete_order', order_id=order.order_id) }}"
                                         style="display: inline;"
                                         onsubmit="return confirm('Delete order {{ order.order_id }}?');">
@@ -671,6 +708,7 @@
                 </div>
                 {% endif %}
             </div>
+            {% endif %}
         </div>
     </main>
 </body>
