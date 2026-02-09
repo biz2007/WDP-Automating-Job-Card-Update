@@ -9,9 +9,9 @@
   },
   {
     "id": 2,
-    "username": "testuser",
-    "email": "testuser@example.com",
-    "password": "scrypt:32768:8:1$dHftp2lxCCujmKMg$642ca4d40222244cdb1f9a1521c715a8413a6520f097742260ca0f7beaf54b8b1715c8c1b8b2e07704a81e6fb22582205825883cada5ae5f642fd20145b8aa93",
+    "username": "user",
+    "email": "user@example.com",
+    "password": "scrypt:32768:8:1$H1pRMk151RXN4iJR$534d24f06c9d25f5d8a1bed466d6cbee8df9db7a61b5010d951121b5321fb5401000575b59e9d61324c0d65098a4a99ff080257c0dbc75323da9fc26b2ce799c",
     "role": "user",
     "created_at": "2026-01-27T01:26:57.458109"
   },

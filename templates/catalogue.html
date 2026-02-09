@@ -132,8 +132,25 @@
                         </div>
                     </div>
 
+                    <!-- Add to Cart (all users) -->
+                    {% if part.stock > 0 %}
+                    <form method="post" action="{{ url_for('catalogue') }}" style="display: flex; gap: 0.5rem; margin-top: 0.75rem; align-items: center;">
+                        <input type="hidden" name="action" value="add_to_cart_from_catalogue">
+                        <input type="hidden" name="part_id" value="{{ part.part_id }}">
+                        <input type="number" name="quantity" value="1" min="1" max="{{ part.stock }}"
+                               style="width: 60px; padding: 0.5rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text); text-align: center;">
+                        <button type="submit" class="btn btn-small" style="background-color: var(--success); color: white; padding: 0.5rem 0.75rem; flex: 1; font-size: 0.9rem;">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </form>
+                    {% else %}
+                    <div style="margin-top: 0.75rem; text-align: center; padding: 0.5rem; background-color: rgba(234, 68, 90, 0.1); border-radius: 6px; color: var(--danger); font-size: 0.9rem;">
+                        <i class="fas fa-ban"></i> Out of Stock
+                    </div>
+                    {% endif %}
+
                     {% if session.get('role') == 'admin' %}
-                    <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
                         <a href="{{ url_for('edit_catalogue_part', part_id=part.part_id) }}" class="btn btn-small" style="background-color: var(--action); color: var(--primary-bg); text-decoration: none; padding: 0.5rem 0.75rem; flex: 1; text-align: center; font-size: 0.9rem;">
                             <i class="fas fa-edit"></i> Edit
                         </a>

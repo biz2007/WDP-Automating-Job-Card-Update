@@ -466,6 +466,7 @@ def catalogue():
                         "quantity": quantity_int
                     })
                 save_cart(cart)
+                flash(f'Added {quantity_int}x {part["name"]} to cart!', 'success')
         
         return redirect(url_for("catalogue", search=search_query, category=category_filter))
     
@@ -730,7 +731,7 @@ def import_catalogue():
 # ==================== ORDERS & CART ROUTES ====================
 
 @app.route("/orders", methods=["GET", "POST"])
-@admin_required
+@login_required
 def orders():
     """Display orders and shopping cart"""
     orders_list = load_orders()
@@ -870,7 +871,7 @@ def orders():
     )
 
 @app.route("/orders/delete/<order_id>", methods=["POST"])
-@admin_required
+@login_required
 def delete_order(order_id):
     """Delete an order"""
     orders_list = load_orders()
@@ -879,7 +880,7 @@ def delete_order(order_id):
     return redirect(url_for("orders"))
 
 @app.route("/orders/edit/<order_id>", methods=["GET", "POST"])
-@admin_required
+@login_required
 def edit_order(order_id):
     """Edit an existing order"""
     orders_list = load_orders()

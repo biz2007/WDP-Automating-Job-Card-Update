@@ -334,11 +334,11 @@
                             <li><a href="{{ url_for('contact') }}"><i class="fas fa-envelope"></i> Contact</a></li>
                         </ul>
                     </li>
+                    <li><a href="{{ url_for('catalogue') }}" class="nav-link"><i class="fas fa-box"></i> Catalogue</a></li>
+                    <li><a href="{{ url_for('orders') }}" class="nav-link"><i class="fas fa-shopping-cart"></i> Orders</a></li>
                     {% if session.get('role') == 'admin' %}
                         <li><a href="{{ url_for('rewards') }}" class="nav-link"><i class="fas fa-gift"></i> Rewards</a></li>
-                        <li><a href="{{ url_for('orders') }}" class="nav-link"><i class="fas fa-shopping-cart"></i> Orders</a></li>
                     {% endif %}
-                    <li><a href="{{ url_for('catalogue') }}" class="nav-link"><i class="fas fa-box"></i> Catalogue</a></li>
                     <li><a href="{{ url_for('auth.profile') }}" class="nav-link"><i class="fas fa-user"></i> Profile</a></li>
                     <li><a href="{{ url_for('auth.logout') }}" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                     <li>
