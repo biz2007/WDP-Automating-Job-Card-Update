@@ -121,12 +121,9 @@
 {% endblock %}
 
 {% block content %}
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Contact Us</li>
-      </ol>
-    </nav>
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-headset"></i> Contact Us</h1>
+    </div>
 
     <!-- Contact Options -->
     <div class="row">
@@ -135,7 +132,7 @@
         <div class="contact-option">
           <div class="contact-icon">✉️</div>
           <div class="contact-title">Email Support</div>
-          <p class="text-muted">Send us a detailed message</p>
+          <p style="color: var(--muted-text);">Send us a detailed message</p>
           <div class="contact-info">support@company.com</div>
           <div class="hours">
             <p class="fw-bold mb-2">Response Time:</p>
@@ -157,7 +154,7 @@
         <div class="contact-option">
           <div class="contact-icon">📞</div>
           <div class="contact-title">Phone Support</div>
-          <p class="text-muted">Speak with our team directly</p>
+          <p style="color: var(--muted-text);">Speak with our team directly</p>
           <div class="contact-info">+1 (800) SUPPORT-1</div>
           <div class="hours">
             <p class="fw-bold mb-2">Available:</p>
@@ -179,7 +176,7 @@
         <div class="contact-option">
           <div class="contact-icon">💬</div>
           <div class="contact-title">Live Chat</div>
-          <p class="text-muted">Instant messaging with support</p>
+          <p style="color: var(--muted-text);">Instant messaging with support</p>
           <div class="contact-info">Available Now</div>
           <div class="hours">
             <p class="fw-bold mb-2">Available:</p>
@@ -201,7 +198,7 @@
         <div class="contact-option">
           <div class="contact-icon">📝</div>
           <div class="contact-title">Support Ticket</div>
-          <p class="text-muted">Submit detailed issue reports</p>
+          <p style="color: var(--muted-text);">Submit detailed issue reports</p>
           <div class="contact-info">Best for complex issues</div>
           <div class="hours">
             <p class="fw-bold mb-2">Response:</p>
@@ -214,14 +211,14 @@
               <strong>4 hours</strong>
             </div>
           </div>
-          <a href="/tickets" class="cta-button btn-outline-primary">Create Ticket</a>
+          <a href="{{ url_for('tickets') }}" class="cta-button btn-outline-primary">Create Ticket</a>
         </div>
       </div>
     </div>
 
     <!-- Comparison Table -->
     <div class="contact-comparison">
-      <h3 class="fw-bold mb-4">Choose the Right Channel</h3>
+      <h3 style="color: var(--accent); font-weight: 700; margin-bottom: 1.5rem;">Choose the Right Channel</h3>
       <div class="table-responsive">
         <table class="table comparison-table">
           <thead>
@@ -265,30 +262,24 @@
     <!-- Additional Info -->
     <div class="row mt-5">
       <div class="col-md-4">
-        <div class="card border-0 bg-light">
-          <div class="card-body text-center">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">🌍</div>
-            <h6 class="fw-bold">Global Support</h6>
-            <p class="small text-muted">We support customers in 50+ countries worldwide.</p>
-          </div>
+        <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 1rem;"><i class="fas fa-globe" style="color: var(--action);"></i></div>
+            <h6 style="color: var(--accent); font-weight: 600;">Global Support</h6>
+            <p style="color: var(--muted-text); font-size: 0.9rem;">Supporting customers in 50+ countries.</p>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card border-0 bg-light">
-          <div class="card-body text-center">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">🔒</div>
-            <h6 class="fw-bold">Secure & Private</h6>
-            <p class="small text-muted">Your information is encrypted and never shared.</p>
-          </div>
+        <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 1rem;"><i class="fas fa-lock" style="color: var(--action);"></i></div>
+            <h6 style="color: var(--accent); font-weight: 600;">Secure & Private</h6>
+            <p style="color: var(--muted-text); font-size: 0.9rem;">Your information is encrypted and never shared.</p>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card border-0 bg-light">
-          <div class="card-body text-center">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">⚡</div>
-            <h6 class="fw-bold">Fast Response</h6>
-            <p class="small text-muted">Average response time: under 2 hours.</p>
-          </div>
+        <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 1rem;"><i class="fas fa-bolt" style="color: var(--action);"></i></div>
+            <h6 style="color: var(--accent); font-weight: 600;">Fast Response</h6>
+            <p style="color: var(--muted-text); font-size: 0.9rem;">Average response time: under 2 hours.</p>
         </div>
       </div>
     </div>

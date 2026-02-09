@@ -14,7 +14,7 @@ except ImportError:
 
 from auth import auth, get_user_by_id
 from decorators import login_required, admin_required
-from models import FAQ, KnowledgeBaseArticle, SupportTicket, StatusUpdate
+from models import FAQ, KnowledgeBaseArticle, SupportTicket, StatusUpdate, SupportJobCard, EscalatedJobCard
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-in-production'
@@ -1116,6 +1116,59 @@ def status():
 def contact():
     """Contact page with multiple channels"""
     return render_template("contact.html")
+
+
+@app.route("/self-service")
+@login_required
+def self_service():
+    """Self-service tools page"""
+    return render_template("self_service.html")
+
+
+@app.route("/search")
+@login_required
+def search():
+    """Global search across FAQs, KB, and other content"""
+    query = request.args.get("q", "").lower()
+    faqs = load_faqs()
+    articles = load_kb()
+
+    results = {
+        "faqs": [f for f in faqs if query in f.get("question", "").lower() or query in f.get("answer", "").lower()] if query else [],
+        "articles": [a for a in articles if query in a.get("title", "").lower() or query in a.get("content", "").lower()] if query else []
+    }
+
+    return render_template("search_results.html", query=query, results=results)
+
+
+@app.route("/tickets/edit/<ticket_id>", methods=["GET", "POST"])
+@login_required
+def edit_ticket(ticket_id):
+    """Edit an existing support ticket"""
+    tickets_list = load_support_tickets()
+    ticket = next((t for t in tickets_list if t.get("ticket_id") == ticket_id), None)
+    if not ticket:
+        flash("Ticket not found!", "danger")
+        return redirect(url_for("tickets"))
+
+    if request.method == "POST":
+        ticket["name"] = request.form.get("name", "").strip()
+        ticket["email"] = request.form.get("email", "").strip()
+        ticket["phone"] = request.form.get("phone", "").strip()
+        ticket["issue_type"] = request.form.get("issue_type", "").strip()
+        ticket["description"] = request.form.get("description", "").strip()
+
+        save_support_tickets(tickets_list)
+        flash(f"Support ticket {ticket_id} updated successfully!", "success")
+        return redirect(url_for("tickets"))
+
+    return render_template("edit_ticket.html", ticket=ticket)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """Custom 404 error page"""
+    return render_template("404.html"), 404
 
 
 # ==================== DELIVERY MANAGEMENT ====================

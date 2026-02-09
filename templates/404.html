@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - WDP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        text-align: center;
+        padding: 4rem 1rem;
+    }
+
+    .error-code {
+        font-size: 6rem;
+        font-weight: 800;
+        color: var(--danger);
+        margin-bottom: 1rem;
+        line-height: 1;
+    }
+
+    .error-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .error-message {
+        font-size: 1.3rem;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+    }
+
+    .error-description {
+        color: var(--muted-text);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-icon"><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i></div>
+    <div class="error-code">404</div>
+    <div class="error-message">Oops! Page Not Found</div>
+    <div class="error-description">
+        The page you're looking for doesn't exist or has been moved.<br>
+        Check the URL or navigate to one of the links below.
+    </div>
+    <div class="error-actions">
+        <a href="{{ url_for('home') }}" class="btn btn-primary"><i class="fas fa-home"></i> Go Home</a>
+        <a href="{{ url_for('faq') }}" class="btn btn-secondary"><i class="fas fa-question-circle"></i> FAQ</a>
+        <a href="{{ url_for('tickets') }}" class="btn btn-secondary"><i class="fas fa-ticket-alt"></i> Submit Ticket</a>
+        <a href="{{ url_for('contact') }}" class="btn btn-secondary"><i class="fas fa-envelope"></i> Contact Us</a>
+    </div>
+</div>
+{% endblock %}

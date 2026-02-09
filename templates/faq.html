@@ -4,23 +4,6 @@
 
 {% block extra_css %}
 <style>
-    .page-header {
-        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-        color: var(--text);
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-        border-bottom: 2px solid var(--accent);
-    }
-
-    .page-header h1 {
-        color: var(--text);
-        font-weight: bold;
-    }
-
-    .page-header .lead {
-        color: var(--muted-text);
-    }
-
     .filter-sidebar {
         position: sticky;
         top: 100px;
@@ -131,127 +114,78 @@
         border: 1px solid var(--border-color);
     }
 
-    .breadcrumb {
-        background: transparent;
-        padding: 1rem 0;
-    }
-
-    .breadcrumb-item {
-        color: var(--muted-text);
-    }
-
-    .breadcrumb-item a {
-        color: var(--accent);
-        text-decoration: none;
-    }
-
-    .breadcrumb-item a:hover {
-        color: var(--accent-hover);
-    }
-
-    .breadcrumb-item.active {
-        color: var(--text);
-    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
     <h1 class="page-title"><i class="fas fa-question-circle"></i> Frequently Asked Questions</h1>
-    <p style="color: var(--muted-text); margin: 0.5rem 0 0 0;">Quick answers to the most common questions</p>
 </div>
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">FAQ</li>
-    </ol>
-</nav>
-
 <div class="row">
-
-  <main id="main-content" class="container py-4">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">FAQ</li>
-      </ol>
-    </nav>
-
-    <div class="row">
-    <main id="main-content" class="container py-4">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">FAQ</li>
-      </ol>
-    </nav>
-
-    <div class="row">
-      <!-- Sidebar Filters -->
-      <div class="col-lg-3">
+    <!-- Sidebar Filters -->
+    <div class="col-lg-3">
         <div class="filter-sidebar">
-          <div class="search-box mb-4">
-            <form action="/faq" method="get">
-              <input type="search" name="q" class="form-control" placeholder="🔍 Search FAQs..." value="{{ search_query }}" aria-label="Search FAQs">
-            </form>
-          </div>
-
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light fw-bold">Filter by Category</div>
-            <div class="card-body">
-              <a href="/faq" class="filter-btn {% if not selected_category %}active{% endif %}">All Categories</a>
-              {% for category in categories %}
-                <a href="/faq?category={{ category }}" class="filter-btn {% if category == selected_category %}active{% endif %}">
-                  {{ category|capitalize }}
-                </a>
-              {% endfor %}
+            <div class="search-box mb-4">
+                <form action="{{ url_for('faq') }}" method="get">
+                    <input type="search" name="q" class="form-control" placeholder="Search FAQs..." value="{{ search_query }}" aria-label="Search FAQs">
+                </form>
             </div>
-          </div>
+
+            <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+                <div style="background: rgba(255, 106, 61, 0.1); padding: 0.75rem 1rem; color: var(--accent); font-weight: 600;">Filter by Category</div>
+                <div style="padding: 1rem;">
+                    <a href="{{ url_for('faq') }}" class="filter-btn {% if not selected_category %}active{% endif %}">All Categories</a>
+                    {% for category in categories %}
+                        <a href="{{ url_for('faq', category=category) }}" class="filter-btn {% if category == selected_category %}active{% endif %}">
+                            {{ category|capitalize }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
-      </div>
-
-      <!-- FAQs List -->
-      <div class="col-lg-9">
-        {% if faqs %}
-          <div class="mb-4">
-            <p class="text-muted">
-              <strong>Showing {{ faqs|length }} FAQ{{ 's' if faqs|length != 1 else '' }}</strong>
-              {% if search_query %} matching "{{ search_query }}"{% endif %}
-              {% if selected_category %} in "{{ selected_category }}"{% endif %}
-            </p>
-          </div>
-
-          {% for faq in faqs %}
-            <div class="faq-item">
-              <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq-{{ faq.faq_id }}" role="button" aria-expanded="false" aria-controls="faq-{{ faq.faq_id }}">
-                <div style="text-align: left;">
-                  <span class="badge-category badge-{{ faq.category }}">{{ faq.category|upper }}</span>
-                  <div class="mt-2">{{ faq.question }}</div>
-                </div>
-                <span style="font-size: 1.5rem; margin-left: 1rem;">▼</span>
-              </button>
-              <div class="collapse" id="faq-{{ faq.faq_id }}">
-                <div class="faq-answer">
-                  {{ faq.answer }}
-                  <div class="mt-3 pt-3" style="border-top: 1px solid var(--border-color);">
-                    <small class="text-muted">Last updated: {{ faq.created_date }}</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          {% endfor %}
-        {% else %}
-          <div class="no-results">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
-            <h4>No FAQs Found</h4>
-            <p class="text-muted">We couldn't find any FAQs matching your search. Try different keywords or browse all categories.</p>
-            <a href="/faq" class="btn btn-primary mt-3">View All FAQs</a>
-          </div>
-        {% endif %}
-      </div>
     </div>
-  </main>
+
+    <!-- FAQs List -->
+    <div class="col-lg-9">
+        {% if faqs %}
+            <div class="mb-4">
+                <p style="color: var(--muted-text);">
+                    <strong style="color: var(--text);">Showing {{ faqs|length }} FAQ{{ 's' if faqs|length != 1 else '' }}</strong>
+                    {% if search_query %} matching "{{ search_query }}"{% endif %}
+                    {% if selected_category %} in "{{ selected_category }}"{% endif %}
+                </p>
+            </div>
+
+            {% for faq in faqs %}
+                <div class="faq-item">
+                    <button class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq-{{ faq.faq_id }}" role="button" aria-expanded="false" aria-controls="faq-{{ faq.faq_id }}">
+                        <div style="text-align: left;">
+                            <span class="badge-category badge-{{ faq.category }}">{{ faq.category|upper }}</span>
+                            <div class="mt-2">{{ faq.question }}</div>
+                        </div>
+                        <span style="font-size: 1.5rem; margin-left: 1rem; transition: transform 0.3s;">&#9660;</span>
+                    </button>
+                    <div class="collapse" id="faq-{{ faq.faq_id }}">
+                        <div class="faq-answer">
+                            {{ faq.answer }}
+                            <div class="mt-3 pt-3" style="border-top: 1px solid var(--border-color);">
+                                <small style="color: var(--muted-text);">Last updated: {{ faq.created_date }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-results">
+                <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="fas fa-search"></i></div>
+                <h4 style="color: var(--text);">No FAQs Found</h4>
+                <p style="color: var(--muted-text);">Try different keywords or browse all categories.</p>
+                <a href="{{ url_for('faq') }}" class="btn btn-primary mt-3">View All FAQs</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}

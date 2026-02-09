@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Ticket - WDP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+    }
+
+    .form-card h3 {
+        color: var(--accent);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: var(--accent);
+        font-weight: 500;
+    }
+
+    .form-control, .form-select {
+        background-color: var(--input-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text);
+        border-radius: 6px;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: var(--input-bg);
+        border-color: var(--accent);
+        color: var(--text);
+        box-shadow: 0 0 0 0.2rem rgba(255, 106, 61, 0.25);
+    }
+
+    .form-control::placeholder {
+        color: var(--muted-text);
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-edit"></i> Edit Support Ticket</h1>
+</div>
+
+<div style="max-width: 700px; margin: 0 auto;">
+    <div class="form-card">
+        <h3><i class="fas fa-ticket-alt"></i> Ticket: {{ ticket.ticket_id }}</h3>
+
+        <form method="post" action="{{ url_for('edit_ticket', ticket_id=ticket.ticket_id) }}">
+            <div class="mb-3">
+                <label for="name" class="form-label">Full Name *</label>
+                <input type="text" id="name" name="name" class="form-control" value="{{ ticket.name }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email Address *</label>
+                <input type="email" id="email" name="email" class="form-control" value="{{ ticket.email }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number (Optional)</label>
+                <input type="tel" id="phone" name="phone" class="form-control" value="{{ ticket.phone }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="issue_type" class="form-label">Issue Type *</label>
+                <select id="issue_type" name="issue_type" class="form-select" required>
+                    <option value="billing" {% if ticket.issue_type == 'billing' %}selected{% endif %}>💳 Billing & Payment</option>
+                    <option value="technical" {% if ticket.issue_type == 'technical' %}selected{% endif %}>🔧 Technical Issue</option>
+                    <option value="account" {% if ticket.issue_type == 'account' %}selected{% endif %}>👤 Account & Access</option>
+                    <option value="general" {% if ticket.issue_type == 'general' %}selected{% endif %}>❓ General Inquiry</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="description" class="form-label">Description *</label>
+                <textarea id="description" name="description" class="form-control" rows="6" required>{{ ticket.description }}</textarea>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="{{ url_for('tickets') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

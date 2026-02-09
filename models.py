@@ -1,6 +1,70 @@
 # models.py
+from abc import ABC, abstractmethod
 from datetime import datetime
 import uuid
+
+
+class JobCard(ABC):
+    """Abstract base class for all job cards (Abstraction)."""
+    def __init__(self, job_id, status, remarks, assigned_to):
+        self.job_id = job_id
+        self.status = status
+        self.remarks = remarks
+        self.assigned_to = assigned_to
+        self.created_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    @abstractmethod
+    def display_info(self):
+        pass
+
+    @abstractmethod
+    def get_priority_level(self):
+        """Abstraction: Different card types have different priority levels"""
+        pass
+
+
+class SupportJobCard(JobCard):
+    """Encapsulation: job details are wrapped inside the class."""
+
+    def display_info(self):
+        return f"[{self.job_id}] {self.status} - {self.assigned_to}"
+
+    def get_priority_level(self):
+        """Polymorphism: Standard support has normal priority"""
+        return "Normal"
+
+    def to_dict(self):
+        """Convert object to dictionary for JSON storage"""
+        return {
+            "job_id": self.job_id,
+            "status": self.status,
+            "remarks": self.remarks,
+            "assigned_to": self.assigned_to,
+            "created_date": self.created_date,
+            "card_type": "SupportJobCard",
+            "priority": self.get_priority_level()
+        }
+
+
+class EscalatedJobCard(SupportJobCard):
+    """Inheritance: EscalatedJobCard inherits from SupportJobCard."""
+    def __init__(self, job_id, status, remarks, assigned_to, priority):
+        super().__init__(job_id, status, remarks, assigned_to)
+        self.priority = priority
+
+    def display_info(self):
+        return f"[{self.job_id}] {self.status} (Priority: {self.priority}) - {self.assigned_to}"
+
+    def get_priority_level(self):
+        """Polymorphism: Returns the custom priority level"""
+        return self.priority
+
+    def to_dict(self):
+        """Convert object to dictionary for JSON storage"""
+        data = super().to_dict()
+        data["card_type"] = "EscalatedJobCard"
+        data["priority"] = self.priority
+        return data
 
 
 class FAQ:

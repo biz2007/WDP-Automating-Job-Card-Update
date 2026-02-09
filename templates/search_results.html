@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - WDP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-bar-container {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+    }
+
+    .search-bar-container input {
+        background-color: var(--input-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 50px;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        color: var(--text);
+        transition: all var(--transition);
+    }
+
+    .search-bar-container input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.2rem rgba(255, 106, 61, 0.25);
+        background-color: var(--input-bg);
+        color: var(--text);
+    }
+
+    .search-bar-container input::placeholder {
+        color: var(--muted-text);
+    }
+
+    .result-item {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--accent);
+        transition: all var(--transition);
+    }
+
+    .result-item:hover {
+        border-color: var(--accent);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .result-type {
+        display: inline-block;
+        background: rgba(255, 106, 61, 0.2);
+        color: var(--accent);
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+    }
+
+    .result-snippet {
+        color: var(--muted-text);
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .result-meta {
+        color: var(--muted-text);
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    a.result-link {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    a.result-link:hover {
+        color: var(--accent-hover);
+        text-decoration: underline;
+    }
+
+    .no-results {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 3rem;
+        text-align: center;
+    }
+
+    .no-results h4 {
+        color: var(--text);
+    }
+
+    .no-results p, .no-results li {
+        color: var(--muted-text);
+    }
+
+    .section-heading {
+        color: var(--accent);
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .stats-text {
+        color: var(--muted-text);
+        margin-bottom: 1.5rem;
+    }
+
+    .stats-text strong {
+        color: var(--text);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-search"></i> Search Results</h1>
+</div>
+
+<!-- Search Bar -->
+<div class="search-bar-container">
+    <form action="{{ url_for('search') }}" method="get" style="display: flex; gap: 0.75rem;">
+        <input type="search" name="q" value="{{ query }}" placeholder="Search FAQs, articles, and guides..." style="flex: 1;" required>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i> Search
+        </button>
+    </form>
+</div>
+
+{% if query %}
+    {% if results.faqs or results.articles %}
+        <!-- Results Stats -->
+        <div class="stats-text">
+            <p>
+                Found <strong>{{ results.faqs|length + results.articles|length }} result{{ 's' if (results.faqs|length + results.articles|length) != 1 else '' }}</strong>
+            </p>
+        </div>
+
+        <!-- FAQs Section -->
+        {% if results.faqs %}
+            <h4 class="section-heading"><i class="fas fa-question-circle"></i> FAQs</h4>
+            {% for faq in results.faqs %}
+                <div class="result-item">
+                    <span class="result-type">FAQ</span>
+                    <div class="result-title">{{ faq.question }}</div>
+                    <div class="result-snippet">{{ faq.answer[:200] }}{% if faq.answer|length > 200 %}...{% endif %}</div>
+                    <div class="result-meta">
+                        Category: <strong>{{ faq.category|capitalize }}</strong>
+                    </div>
+                    <a href="{{ url_for('faq', q=faq.question[:20]) }}" class="result-link"><i class="fas fa-arrow-right"></i> Read more</a>
+                </div>
+            {% endfor %}
+            <hr style="border-color: var(--border-color); margin: 2rem 0;">
+        {% endif %}
+
+        <!-- Articles Section -->
+        {% if results.articles %}
+            <h4 class="section-heading"><i class="fas fa-book"></i> Knowledge Base Articles</h4>
+            {% for article in results.articles %}
+                <div class="result-item">
+                    <span class="result-type">ARTICLE</span>
+                    <div class="result-title">{{ article.title }}</div>
+                    <div class="result-snippet">{{ article.content[:200] }}{% if article.content|length > 200 %}...{% endif %}</div>
+                    <div class="result-meta">
+                        <strong>{{ article.difficulty|capitalize }}</strong> &bull; {{ article.category|capitalize }}
+                    </div>
+                    <a href="{{ url_for('article_detail', article_id=article.article_id) }}" class="result-link"><i class="fas fa-arrow-right"></i> Read more</a>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% else %}
+        <!-- No Results -->
+        <div class="no-results">
+            <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="fas fa-search"></i></div>
+            <h4>No Results Found</h4>
+            <p>We couldn't find anything matching "{{ query }}". Try:</p>
+            <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem;">
+                <li><i class="fas fa-check" style="color: var(--success);"></i> Checking your spelling</li>
+                <li><i class="fas fa-check" style="color: var(--success);"></i> Using different keywords</li>
+                <li><i class="fas fa-check" style="color: var(--success);"></i> Being less specific</li>
+            </ul>
+            <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ url_for('faq') }}" class="btn btn-secondary"><i class="fas fa-question-circle"></i> Browse FAQs</a>
+                <a href="{{ url_for('knowledge_base') }}" class="btn btn-secondary"><i class="fas fa-book"></i> Knowledge Base</a>
+                <a href="{{ url_for('tickets') }}" class="btn btn-primary"><i class="fas fa-ticket-alt"></i> Submit Ticket</a>
+            </div>
+        </div>
+    {% endif %}
+{% else %}
+    <!-- No Search Query -->
+    <div class="no-results">
+        <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="fas fa-search"></i></div>
+        <h4>Start Your Search</h4>
+        <p>Use the search bar above to find FAQs, articles, and guides.</p>
+    </div>
+{% endif %}
+{% endblock %}

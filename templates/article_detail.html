@@ -159,13 +159,9 @@
 {% endblock %}
 
 {% block content %}
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item"><a href="/knowledge-base">Knowledge Base</a></li>
-        <li class="breadcrumb-item active" aria-current="page">{{ article.title }}</li>
-      </ol>
-    </nav>
+    <div class="page-header">
+        <h1 class="page-title"><i class="fas fa-newspaper"></i> {{ article.title }}</h1>
+    </div>
 
     <div class="row">
       <div class="col-lg-8">
@@ -188,61 +184,57 @@
 
           <!-- Article Content -->
           <div class="article-content">
-            <p style="font-size: 1.1rem; color: #555;">
+            <p style="font-size: 1.1rem; color: var(--text);">
               {{ article.content }}
             </p>
 
-            <!-- Tip Box Example -->
             <div class="tip-box">
-              <strong>💡 Pro Tip:</strong> For more help, check our FAQ section or contact support if you encounter any issues.
+              <strong><i class="fas fa-lightbulb" style="color: var(--accent);"></i> Tip:</strong> Check our FAQ or contact support for further help.
             </div>
           </div>
 
           <!-- CTA -->
-          <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-top: 2rem;">
-            <h6 class="fw-bold mb-2">Need more help?</h6>
-            <p class="text-muted mb-3">Couldn't find what you're looking for? Our support team is ready to help.</p>
-            <a href="/tickets" class="btn btn-primary">📝 Submit Support Ticket</a>
+          <div style="background: var(--secondary-bg); padding: 1.5rem; border-radius: 8px; margin-top: 2rem; border: 1px solid var(--border-color);">
+            <h6 style="color: var(--accent); font-weight: 600; margin-bottom: 0.5rem;">Need more help?</h6>
+            <p style="color: var(--muted-text); margin-bottom: 1rem;">Our support team is ready to assist.</p>
+            <a href="{{ url_for('tickets') }}" class="btn btn-primary"><i class="fas fa-ticket-alt"></i> Submit Ticket</a>
           </div>
         </div>
       </div>
 
       <!-- Sidebar -->
       <div class="col-lg-4">
-        <!-- Difficulty Info -->
-        <div class="card border-0 bg-light">
-          <div class="card-body">
-            <h6 class="card-title fw-bold mb-3">📚 About This Article</h6>
-            <ul class="list-unstyled small text-muted">
-              <li class="mb-2">
-                <strong>Difficulty:</strong><br>
+        <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem;">
+            <h6 style="color: var(--accent); font-weight: 600; margin-bottom: 1rem;"><i class="fas fa-info-circle"></i> About This Article</h6>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+              <li style="margin-bottom: 0.75rem;">
+                <small style="color: var(--muted-text);">Difficulty</small><br>
                 <span class="difficulty-badge difficulty-{{ article.difficulty }}">{{ article.difficulty|capitalize }}</span>
               </li>
-              <li class="mb-2">
-                <strong>Category:</strong><br>
-                {{ article.category|capitalize }}
+              <li style="margin-bottom: 0.75rem;">
+                <small style="color: var(--muted-text);">Category</small><br>
+                <span style="color: var(--text);">{{ article.category|capitalize }}</span>
               </li>
-              <li class="mb-2">
-                <strong>Reading Time:</strong><br>
-                5-10 minutes
+              <li>
+                <small style="color: var(--muted-text);">Published</small><br>
+                <span style="color: var(--text);">{{ article.created_date }}</span>
               </li>
             </ul>
-          </div>
         </div>
       </div>
     </div>
 
     <!-- Related Articles -->
     <div class="related-articles">
-      <h5 class="fw-bold mb-4">📖 Related Articles</h5>
+      <h5 style="color: var(--accent); font-weight: 600; margin-bottom: 1rem;"><i class="fas fa-book-open"></i> Related</h5>
       <div class="related-item">
-        <a href="/knowledge-base" class="related-link">Back to Knowledge Base →</a>
+        <a href="{{ url_for('knowledge_base') }}" class="related-link">Back to Knowledge Base &rarr;</a>
       </div>
       <div class="related-item">
-        <a href="/search?q={{ article.category }}" class="related-link">More articles in {{ article.category }} →</a>
+        <a href="{{ url_for('search', q=article.category) }}" class="related-link">More in {{ article.category }} &rarr;</a>
       </div>
       <div class="related-item">
-        <a href="/contact" class="related-link">Need direct support? Contact us →</a>
+        <a href="{{ url_for('contact') }}" class="related-link">Contact Support &rarr;</a>
       </div>
     </div>
 {% endblock %}

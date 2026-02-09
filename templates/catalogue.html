@@ -209,7 +209,7 @@
     <form method="get" action="{{ url_for('catalogue') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
         <div style="flex: 2; min-width: 200px;">
             <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem;"><i class="fas fa-brain"></i> Smart Search</label>
-            <input type="search" name="search" placeholder="Search by part ID, name, categoryâ€¦ (AI fuzzy matching)" value="{{ search_query or '' }}"
+            <input type="search" name="search" placeholder="Search by Part ID, Name, Category   " value="{{ search_query or '' }}"
                    style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
         </div>
         <div style="flex: 1; min-width: 150px;">
@@ -300,7 +300,7 @@
         </div>
         <div style="grid-column: span 2;">
             <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Description</label>
-            <textarea name="description" placeholder="Part descriptionâ€¦" rows="3"
+            <textarea name="description" placeholder="Part Description" rows="3"
                       style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);"></textarea>
         </div>
         <button type="submit" class="btn btn-primary" style="grid-column: span 2;">

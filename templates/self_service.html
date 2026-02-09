@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Self-Service Tools - WDP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tool-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        transition: all var(--transition);
+    }
+
+    .tool-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--accent);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .tool-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .tool-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+    }
+
+    .tool-description {
+        color: var(--muted-text);
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .cta-card {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+        color: var(--text);
+        border-radius: 12px;
+        padding: 3rem;
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .cta-card h3 {
+        color: var(--text);
+    }
+
+    .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    /* Modal styling for dark theme */
+    .modal-content {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-header .btn-close {
+        filter: invert(1);
+    }
+
+    .modal-body .form-control {
+        background-color: var(--input-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text);
+    }
+
+    .modal-body .form-control:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.2rem rgba(255, 106, 61, 0.25);
+        background-color: var(--input-bg);
+        color: var(--text);
+    }
+
+    .modal-body .form-label {
+        color: var(--accent);
+    }
+
+    @media (max-width: 768px) {
+        .tools-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .tool-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title"><i class="fas fa-tools"></i> Self-Service Tools</h1>
+</div>
+
+<!-- Tools Grid -->
+<div class="tools-grid">
+    <!-- Password Reset -->
+    <div class="tool-card">
+        <div class="tool-icon">🔑</div>
+        <div class="tool-title">Reset Password</div>
+        <div class="tool-description">Forgot your password? Reset it securely in minutes.</div>
+        <button class="btn btn-primary" onclick="showPasswordReset()">
+            <i class="fas fa-key"></i> Reset Now
+        </button>
+    </div>
+
+    <!-- Order Tracking -->
+    <div class="tool-card">
+        <div class="tool-icon">📦</div>
+        <div class="tool-title">Track Orders</div>
+        <div class="tool-description">Monitor your order status and delivery updates in real-time.</div>
+        <a href="{{ url_for('orders') }}" class="btn btn-primary">
+            <i class="fas fa-truck"></i> Track Order
+        </a>
+    </div>
+
+    <!-- Account Settings -->
+    <div class="tool-card">
+        <div class="tool-icon">👤</div>
+        <div class="tool-title">Account Settings</div>
+        <div class="tool-description">Update your profile, email, and security preferences.</div>
+        <a href="{{ url_for('auth.profile') }}" class="btn btn-primary">
+            <i class="fas fa-user-cog"></i> Manage Account
+        </a>
+    </div>
+
+    <!-- Billing -->
+    <div class="tool-card">
+        <div class="tool-icon">💳</div>
+        <div class="tool-title">Manage Billing</div>
+        <div class="tool-description">View invoices, payment methods, and subscription details.</div>
+        <button class="btn btn-primary" onclick="showBilling()">
+            <i class="fas fa-credit-card"></i> View Billing
+        </button>
+    </div>
+
+    <!-- Subscription -->
+    <div class="tool-card">
+        <div class="tool-icon">🔄</div>
+        <div class="tool-title">Manage Subscription</div>
+        <div class="tool-description">Upgrade, downgrade, or cancel your subscription anytime.</div>
+        <button class="btn btn-primary" onclick="showSubscription()">
+            <i class="fas fa-sync-alt"></i> Manage Plan
+        </button>
+    </div>
+
+    <!-- Download Data -->
+    <div class="tool-card">
+        <div class="tool-icon">📥</div>
+        <div class="tool-title">Download Your Data</div>
+        <div class="tool-description">Export your account data in a standard format (GDPR compliant).</div>
+        <button class="btn btn-primary" onclick="showDataExport()">
+            <i class="fas fa-download"></i> Download Data
+        </button>
+    </div>
+</div>
+
+<!-- Password Reset Modal -->
+<div class="modal fade" id="passwordResetModal" tabindex="-1" aria-labelledby="passwordResetLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passwordResetLabel"><i class="fas fa-key"></i> Reset Your Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p style="color: var(--muted-text);">Enter your email address and we'll send you a password reset link.</p>
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" placeholder="you@example.com" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-paper-plane"></i> Send Reset Link
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="cta-card">
+    <h3><i class="fas fa-life-ring"></i> Need More Help?</h3>
+    <p style="margin: 1rem 0;">These tools handle most common needs, but our support team is ready to help with anything else.</p>
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('faq') }}" class="btn btn-secondary"><i class="fas fa-question-circle"></i> Browse FAQ</a>
+        <a href="{{ url_for('tickets') }}" class="btn btn-secondary"><i class="fas fa-ticket-alt"></i> Submit Ticket</a>
+        <a href="{{ url_for('contact') }}" class="btn btn-secondary"><i class="fas fa-envelope"></i> Contact Support</a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function showPasswordReset() {
+        new bootstrap.Modal(document.getElementById('passwordResetModal')).show();
+    }
+
+    function showBilling() {
+        alert('Billing dashboard would open here. View invoices, payment methods, and subscription details.');
+    }
+
+    function showSubscription() {
+        alert('Subscription management would open here. Upgrade, downgrade, or cancel your plan.');
+    }
+
+    function showDataExport() {
+        alert('Your data export will be prepared and sent to your email within 24 hours.');
+    }
+</script>
+{% endblock %}

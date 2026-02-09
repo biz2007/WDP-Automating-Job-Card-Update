@@ -4,14 +4,6 @@
 
 {% block extra_css %}
 <style>
-    .page-header {
-        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-        color: var(--text);
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-        border-bottom: 2px solid var(--accent);
-    }
-
     .status-card {
         background: var(--card-bg);
         border: 1px solid var(--border-color);
@@ -71,42 +63,13 @@
         line-height: 1.6;
     }
 
-    .breadcrumb {
-        background: transparent;
-        padding: 1rem 0;
-    }
-
-    .breadcrumb-item {
-        color: var(--muted-text);
-    }
-
-    .breadcrumb-item a {
-        color: var(--accent);
-        text-decoration: none;
-    }
-
-    .breadcrumb-item a:hover {
-        color: var(--accent-hover);
-    }
-
-    .breadcrumb-item.active {
-        color: var(--text);
-    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
     <h1 class="page-title"><i class="fas fa-heartbeat"></i> Service Status</h1>
-    <p style="color: var(--muted-text); margin: 0.5rem 0 0 0;">Real-time updates on our system and services</p>
 </div>
-
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url_for('home') }}">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Service Status</li>
-    </ol>
-</nav>
 
 {% if updates %}
   {% for update in updates|reverse %}
