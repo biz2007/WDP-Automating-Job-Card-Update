@@ -4,6 +4,7 @@ import os
 import csv
 import re
 from io import BytesIO
+from difflib import SequenceMatcher, get_close_matches
 from werkzeug.utils import secure_filename
 try:
     from openpyxl import load_workbook
@@ -30,6 +31,12 @@ MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+
+@app.context_processor
+def inject_cart_count():
+    """Make cart item count available in all templates for the navbar badge"""
+    cart = load_cart() if os.path.exists(CART_FILE) else []
+    return dict(global_cart_count=sum(item.get("quantity", 0) for item in cart))
 
 def allowed_file(filename):
     """Check if file extension is allowed"""
@@ -479,30 +486,140 @@ def catalogue():
     if category_filter:
         filtered_catalogue = [p for p in filtered_catalogue if p.get("category") == category_filter]
     
+    # ========== AI SMART SEARCH with Fuzzy Matching ==========
+    search_suggestions = []
+    fuzzy_matches = []
+    
     if search_query:
-        filtered_catalogue = [
+        # Exact substring match first
+        exact_matches = [
             p for p in filtered_catalogue
             if search_query in p.get("part_id", "").lower()
             or search_query in p.get("name", "").lower()
             or search_query in p.get("category", "").lower()
             or search_query in p.get("description", "").lower()
         ]
+        
+        if exact_matches:
+            filtered_catalogue = exact_matches
+        else:
+            # Fuzzy matching - find similar items when exact search fails
+            all_names = [p.get("name", "") for p in filtered_catalogue]
+            all_categories = list(set(p.get("category", "") for p in filtered_catalogue))
+            all_searchable = all_names + all_categories
+            
+            # Get close matches for the search query
+            close_names = get_close_matches(search_query, [n.lower() for n in all_names], n=5, cutoff=0.4)
+            close_cats = get_close_matches(search_query, [c.lower() for c in all_categories], n=3, cutoff=0.4)
+            
+            # Also do character-level similarity
+            for p in filtered_catalogue:
+                name_ratio = SequenceMatcher(None, search_query, p.get("name", "").lower()).ratio()
+                cat_ratio = SequenceMatcher(None, search_query, p.get("category", "").lower()).ratio()
+                desc_ratio = SequenceMatcher(None, search_query, p.get("description", "").lower()).ratio()
+                best_ratio = max(name_ratio, cat_ratio, desc_ratio)
+                if best_ratio > 0.35:
+                    fuzzy_matches.append((p, best_ratio))
+            
+            # Sort fuzzy matches by relevance
+            fuzzy_matches.sort(key=lambda x: x[1], reverse=True)
+            
+            if fuzzy_matches:
+                filtered_catalogue = [m[0] for m in fuzzy_matches]
+                # Generate "Did you mean?" suggestions
+                search_suggestions = list(set(close_names + close_cats))[:5]
+            else:
+                filtered_catalogue = []
+                search_suggestions = list(set(close_names + close_cats))[:5]
     
-    # Sort by part_id (natural sort: P001, P002, P010, P100, etc.)
-    def extract_number(part_id):
-        """Extract number from part_id for sorting (e.g., 'P001' -> 1)"""
-        import re
-        match = re.search(r'\d+', part_id)
-        return int(match.group()) if match else 0
+    # ========== SORT OPTIONS ==========
+    sort_by = request.args.get("sort", "").strip()
+    if sort_by == "price_low":
+        filtered_catalogue = sorted(filtered_catalogue, key=lambda p: p.get("price", 0))
+    elif sort_by == "price_high":
+        filtered_catalogue = sorted(filtered_catalogue, key=lambda p: p.get("price", 0), reverse=True)
+    elif sort_by == "name_az":
+        filtered_catalogue = sorted(filtered_catalogue, key=lambda p: p.get("name", "").lower())
+    elif sort_by == "name_za":
+        filtered_catalogue = sorted(filtered_catalogue, key=lambda p: p.get("name", "").lower(), reverse=True)
+    elif sort_by == "stock_low":
+        filtered_catalogue = sorted(filtered_catalogue, key=lambda p: p.get("stock", 0))
+    elif sort_by == "stock_high":
+        filtered_catalogue = sorted(filtered_catalogue, key=lambda p: p.get("stock", 0), reverse=True)
+    else:
+        # Default: Sort by part_id (natural sort)
+        def extract_number(part_id):
+            match = re.search(r'\d+', part_id)
+            return int(match.group()) if match else 0
+        filtered_catalogue = sorted(filtered_catalogue, key=lambda p: extract_number(p.get("part_id", "")))
     
-    filtered_catalogue = sorted(filtered_catalogue, key=lambda p: extract_number(p.get("part_id", "")))
+    # ========== ANALYTICS DATA ==========
+    total_parts = len(catalogue_items)
+    total_stock = sum(p.get("stock", 0) for p in catalogue_items)
+    total_value = sum(p.get("price", 0) * p.get("stock", 0) for p in catalogue_items)
+    avg_price = sum(p.get("price", 0) for p in catalogue_items) / max(total_parts, 1)
+    low_stock_parts = [p for p in catalogue_items if 0 < p.get("stock", 0) <= 5]
+    out_of_stock_parts = [p for p in catalogue_items if p.get("stock", 0) == 0]
+    
+    # Category distribution for chart
+    category_stats = {}
+    for p in catalogue_items:
+        cat = p.get("category", "Other")
+        if cat not in category_stats:
+            category_stats[cat] = {"count": 0, "total_stock": 0, "total_value": 0}
+        category_stats[cat]["count"] += 1
+        category_stats[cat]["total_stock"] += p.get("stock", 0)
+        category_stats[cat]["total_value"] += p.get("price", 0) * p.get("stock", 0)
+    
+    # ========== AI RECOMMENDATIONS ==========
+    # Build category relationship map for "You might also need" suggestions
+    recommendations = []
+    cart = load_cart()
+    cart_item_names = [item["item_name"] for item in cart]
+    
+    # Get categories of items in cart
+    cart_categories = set()
+    for item in cart:
+        for p in catalogue_items:
+            if p["name"] == item["item_name"]:
+                cart_categories.add(p.get("category", ""))
+    
+    # Recommend items from same categories not already in cart
+    if cart_categories:
+        for p in catalogue_items:
+            if p["name"] not in cart_item_names and p.get("category") in cart_categories and p.get("stock", 0) > 0:
+                recommendations.append(p)
+    
+    # If no cart-based recommendations, suggest popular/high-stock items
+    if not recommendations:
+        recommendations = sorted(
+            [p for p in catalogue_items if p.get("stock", 0) > 0],
+            key=lambda p: p.get("stock", 0),
+            reverse=True
+        )[:4]
+    else:
+        recommendations = recommendations[:4]
+    
+    # Cart count for badge
+    cart_item_count = sum(item.get("quantity", 0) for item in cart)
     
     return render_template(
         "catalogue.html",
         catalogue=filtered_catalogue,
         categories=categories,
         search_query=search_query,
-        category_filter=category_filter
+        category_filter=category_filter,
+        sort_by=sort_by,
+        search_suggestions=search_suggestions,
+        total_parts=total_parts,
+        total_stock=total_stock,
+        total_value=total_value,
+        avg_price=avg_price,
+        low_stock_parts=low_stock_parts,
+        out_of_stock_parts=out_of_stock_parts,
+        category_stats=category_stats,
+        recommendations=recommendations,
+        cart_item_count=cart_item_count
     )
 
 @app.route("/catalogue/edit/<part_id>", methods=["GET", "POST"])
