@@ -1,30 +1,14 @@
 [
   {
-    "license_plate": "JC1234",
+    "job_id": "JC1234",
     "status": "Closed",
     "remarks": "Completed",
-    "assigned_to": "Bobs",
-    "problem": "",
-    "parts_used": [
-      "P013"
-    ]
+    "assigned_to": "Bobs"
   },
   {
-    "license_plate": "JC1235",
+    "job_id": "JC1235",
     "status": "Open",
     "remarks": "",
-    "assigned_to": "Alice",
-    "problem": "Brakes spoiled",
-    "parts_used": []
-  },
-  {
-    "license_plate": "JC1237",
-    "status": "Open",
-    "remarks": "",
-    "assigned_to": "Bobs",
-    "problem": "Brakes Spoiled",
-    "parts_used": [
-      "P011"
-    ]
+    "assigned_to": "Alice"
   }
 ]
