@@ -1,23 +1,8 @@
 [
   {
-<<<<<<< Updated upstream
-    "phone_number": "98765432",
-    "license_plate": "SGX1234A",
-    "name": "Mai",
-    "total_cost": 450.5,
-    "vouchers_redeemed": 9
-  },
-  {
-    "phone_number": "12345678",
-    "license_plate": "JC1000",
-    "name": "Kim",
-    "total_cost": 9045.5,
-    "vouchers_redeemed": 3
-=======
-    "customer_id": "12345678",
-    "name": "mai",
-    "purchases": 67,
-    "redeemed": 2
->>>>>>> Stashed changes
+    "customer_id": "90009999",
+    "name": "Alex",
+    "purchases": 11,
+    "redeemed": 3
   }
 ]
