@@ -342,6 +342,7 @@
                     </li>
                     <li><a href="{{ url_for('catalogue') }}" class="nav-link"><i class="fas fa-box"></i> Catalogue</a></li>
                     <li><a href="{{ url_for('orders') }}" class="nav-link" style="position: relative;"><i class="fas fa-shopping-cart"></i> Orders{% if global_cart_count %}<span style="position: absolute; top: -2px; right: -4px; background-color: var(--danger); color: white; font-size: 0.65rem; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: cartPulse 0.3s ease;">{{ global_cart_count }}</span>{% endif %}</a></li>
+                    <li><a href="{{ url_for('deliveries') }}" class="nav-link"><i class="fas fa-truck"></i> Deliveries</a></li>
                     {% if session.get('role') == 'admin' %}
                         <li><a href="{{ url_for('rewards') }}" class="nav-link"><i class="fas fa-gift"></i> Rewards</a></li>
                     {% endif %}

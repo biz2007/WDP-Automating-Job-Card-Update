@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block title %}Deliveries - WDP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delivery-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    .delivery-card:hover {
+        border-color: var(--accent);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .delivery-status-badge {
+        padding: 0.35rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .status-preparing {
+        background-color: rgba(255, 165, 0, 0.2);
+        color: var(--accent);
+    }
+    .status-out-for-delivery {
+        background-color: rgba(77, 212, 250, 0.2);
+        color: var(--action);
+    }
+    .status-delivered {
+        background-color: rgba(25, 169, 116, 0.2);
+        color: var(--success);
+    }
+    .status-failed {
+        background-color: rgba(234, 68, 90, 0.2);
+        color: var(--danger);
+    }
+    .map-container {
+        width: 100%;
+        height: 500px;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        position: relative;
+        z-index: 0;
+    }
+    .address-pin {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .address-pin:hover {
+        border-color: var(--action);
+        background-color: rgba(77, 212, 250, 0.05);
+    }
+    .tracker-line {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        margin: 1.5rem 0;
+    }
+    .tracker-step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+    }
+    .tracker-step .step-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        margin-bottom: 0.3rem;
+        border: 2px solid var(--border-color);
+        background-color: var(--card-bg);
+        color: var(--muted-text);
+        position: relative;
+        z-index: 2;
+    }
+    .tracker-step.active .step-icon {
+        border-color: var(--action);
+        background-color: rgba(77, 212, 250, 0.2);
+        color: var(--action);
+    }
+    .tracker-step.completed .step-icon {
+        border-color: var(--success);
+        background-color: var(--success);
+        color: white;
+    }
+    .tracker-step .step-label {
+        font-size: 0.75rem;
+        color: var(--muted-text);
+    }
+    .tracker-step.active .step-label,
+    .tracker-step.completed .step-label {
+        color: var(--text);
+        font-weight: 600;
+    }
+    .tracker-step::before {
+        content: '';
+        position: absolute;
+        top: 18px;
+        left: -50%;
+        right: 50%;
+        height: 2px;
+        background-color: var(--border-color);
+        z-index: 1;
+    }
+    .tracker-step:first-child::before {
+        display: none;
+    }
+    .tracker-step.completed::before,
+    .tracker-step.active::before {
+        background-color: var(--success);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <h1 class="page-title"><i class="fas fa-truck"></i> Deliveries</h1>
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span style="color: var(--muted-text); font-size: 0.9rem;">{{ delivery_orders|length }} delivery order{{ 's' if delivery_orders|length != 1 }}</span>
+        <a href="{{ url_for('orders') }}" class="btn btn-secondary" style="text-decoration: none;">
+            <i class="fas fa-arrow-left"></i> Back to Orders
+        </a>
+    </div>
+</div>
+
+{% if delivery_orders %}
+
+<!-- ==================== MAP SECTION (Admin Only) ==================== -->
+{% if is_admin %}
+<div class="card" style="margin-bottom: 2rem; position: relative; z-index: 0; isolation: isolate;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="color: var(--accent); margin: 0;"><i class="fas fa-map-marked-alt"></i> Customer Delivery Map</h2>
+        <span style="color: var(--muted-text); font-size: 0.85rem;">Click a marker for details</span>
+    </div>
+    <div class="map-container" id="deliveryMap"></div>
+    
+    <!-- Address List -->
+    <div style="margin-top: 1rem;">
+        <h3 style="color: var(--action); font-size: 0.95rem; margin-bottom: 0.75rem;"><i class="fas fa-list-ul"></i> Delivery Addresses</h3>
+        {% for order in delivery_orders %}
+        {% if order.get('delivery_address') %}
+        <div class="address-pin" onclick="focusMarker('{{ order.order_id }}')">
+            <div>
+                <div style="font-weight: 600; color: var(--text); font-size: 0.9rem;">{{ order.order_id }} - {{ order.customer_name }}</div>
+                <div style="color: var(--muted-text); font-size: 0.85rem;"><i class="fas fa-map-marker-alt" style="color: var(--danger);"></i> {{ order.delivery_address }}</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span class="delivery-status-badge status-{{ order.get('delivery_status', 'Preparing')|lower|replace(' ', '-') }}">
+                    {{ order.get('delivery_status', 'Preparing') }}
+                </span>
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ order.delivery_address|urlencode }}" 
+                   target="_blank" class="btn btn-small" 
+                   style="background-color: var(--success); color: white; padding: 0.4rem 0.7rem; font-size: 0.8rem; text-decoration: none;"
+                   title="Get directions from your current location">
+                    <i class="fas fa-directions"></i> Directions
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- ==================== DELIVERY ORDERS ==================== -->
+<div class="card">
+    <h2 style="color: var(--accent); margin-bottom: 1.5rem;">
+        <i class="fas fa-boxes"></i> 
+        {% if is_admin %}All Delivery Orders{% else %}My Deliveries{% endif %}
+    </h2>
+    
+    <div style="display: grid; gap: 1.25rem;">
+        {% for order in delivery_orders %}
+        <div class="delivery-card">
+            <!-- Header Row -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                    <div style="color: var(--action); font-size: 0.85rem; font-weight: 600;">{{ order.order_id }}</div>
+                    <h3 style="color: var(--text); margin: 0.25rem 0; font-size: 1.15rem;">
+                        {% if is_admin %}
+                        {{ order.customer_name }}
+                        {% else %}
+                        Delivery Order
+                        {% endif %}
+                    </h3>
+                    <div style="color: var(--muted-text); font-size: 0.85rem;">
+                        <i class="fas fa-calendar"></i> {{ order.date }}
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="color: var(--success); font-size: 1.3rem; font-weight: bold;">${{ "%.2f" | format(order.total) }}</div>
+                    <div style="color: var(--muted-text); font-size: 0.8rem;">incl. $5.00 delivery</div>
+                </div>
+            </div>
+
+            <!-- Delivery Progress Tracker -->
+            {% set status = order.get('delivery_status', 'Preparing') %}
+            {% set steps = ['Preparing', 'Out for Delivery', 'Delivered'] %}
+            {% set current_idx = steps.index(status) if status in steps else 0 %}
+            <div class="tracker-line">
+                {% for step in steps %}
+                <div class="tracker-step {% if loop.index0 < current_idx %}completed{% elif loop.index0 == current_idx %}active{% endif %}">
+                    <div class="step-icon">
+                        {% if loop.index0 < current_idx %}
+                        <i class="fas fa-check"></i>
+                        {% elif loop.index0 == 0 %}
+                        <i class="fas fa-box"></i>
+                        {% elif loop.index0 == 1 %}
+                        <i class="fas fa-truck"></i>
+                        {% else %}
+                        <i class="fas fa-home"></i>
+                        {% endif %}
+                    </div>
+                    <div class="step-label">{{ step }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Delivery Address -->
+            {% if is_admin and order.get('delivery_address') %}
+            <div style="background-color: rgba(77, 212, 250, 0.08); border: 1px solid rgba(77, 212, 250, 0.2); border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem;">
+                <div style="font-size: 0.8rem; color: var(--action); font-weight: 600; margin-bottom: 0.25rem;">
+                    <i class="fas fa-map-marker-alt"></i> Delivery Address
+                </div>
+                <div style="color: var(--text); font-size: 0.95rem;">{{ order.delivery_address }}</div>
+                {% if order.get('customer_phone') %}
+                <div style="color: var(--muted-text); font-size: 0.85rem; margin-top: 0.25rem;">
+                    <i class="fas fa-phone"></i> {{ order.customer_phone }}
+                </div>
+                {% endif %}
+                {% if order.get('customer_email') %}
+                <div style="color: var(--muted-text); font-size: 0.85rem; margin-top: 0.15rem;">
+                    <i class="fas fa-envelope"></i> {{ order.customer_email }}
+                </div>
+                {% endif %}
+                <a href="https://www.google.com/maps/dir/?api=1&destination={{ order.delivery_address|urlencode }}" 
+                   target="_blank" class="btn btn-small" 
+                   style="background-color: var(--success); color: white; padding: 0.4rem 0.8rem; font-size: 0.85rem; text-decoration: none; margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                    <i class="fas fa-directions"></i> Get Directions
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Items -->
+            <div style="margin-bottom: 1rem;">
+                <div style="font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-bottom: 0.5rem;">
+                    <i class="fas fa-shopping-bag"></i> Items Ordered
+                </div>
+                {% for item in order.get('items', []) %}
+                <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--border-color); font-size: 0.9rem;">
+                    <span style="color: var(--text);">{{ item.item_name }} x{{ item.quantity }}</span>
+                    <span style="color: var(--success);">${{ "%.2f" | format(item.price * item.quantity) }}</span>
+                </div>
+                {% endfor %}
+                <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; font-size: 0.85rem; color: var(--muted-text);">
+                    <span>Delivery Fee</span>
+                    <span>$5.00</span>
+                </div>
+            </div>
+
+            <!-- Admin: Update Delivery Status -->
+            {% if is_admin %}
+            <div style="display: flex; gap: 0.75rem; align-items: center; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+                <span style="color: var(--muted-text); font-size: 0.85rem; white-space: nowrap;">Update Status:</span>
+                <form method="post" action="{{ url_for('deliveries') }}" style="display: flex; gap: 0.5rem; flex: 1; align-items: center;">
+                    <input type="hidden" name="action" value="update_delivery_status">
+                    <input type="hidden" name="order_id" value="{{ order.order_id }}">
+                    <select name="delivery_status" 
+                            style="flex: 1; padding: 0.5rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+                        <option value="Preparing" {% if status == 'Preparing' %}selected{% endif %}>Preparing</option>
+                        <option value="Out for Delivery" {% if status == 'Out for Delivery' %}selected{% endif %}>Out for Delivery</option>
+                        <option value="Delivered" {% if status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                        <option value="Failed" {% if status == 'Failed' %}selected{% endif %}>Failed</option>
+                    </select>
+                    <button type="submit" class="btn btn-small" style="background-color: var(--action); color: var(--primary-bg); padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        <i class="fas fa-sync-alt"></i> Update
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% else %}
+<div class="card">
+    <div style="padding: 3rem; text-align: center; color: var(--muted-text);">
+        <i class="fas fa-truck" style="font-size: 3rem; margin-bottom: 1rem; display: block; color: var(--border-color);"></i>
+        <p style="font-size: 1.1rem;">No delivery orders found.</p>
+        <p style="font-size: 0.9rem; margin-top: 0.5rem;">Orders with delivery will appear here.</p>
+        <a href="{{ url_for('orders') }}" class="btn btn-primary" style="margin-top: 1rem; text-decoration: none;">
+            <i class="fas fa-shopping-cart"></i> Go to Orders
+        </a>
+    </div>
+</div>
+{% endif %}
+
+{% if is_admin and delivery_orders %}
+<!-- Leaflet Map Script -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function() {
+    var map = L.map('deliveryMap').setView([1.3521, 103.8198], 12); // Default: Singapore
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    var markers = {};
+    var addresses = [
+        {% for order in delivery_orders %}
+        {% if order.get('delivery_address') %}
+        {
+            id: "{{ order.order_id }}",
+            address: "{{ order.delivery_address|replace('"', '\\"') }}",
+            customer: "{{ order.customer_name|replace('"', '\\"') }}",
+            status: "{{ order.get('delivery_status', 'Preparing') }}",
+            total: "${{ '%.2f' | format(order.total) }}"
+        },
+        {% endif %}
+        {% endfor %}
+    ];
+
+    // Geocode addresses using Nominatim
+    var bounds = [];
+    addresses.forEach(function(addr, index) {
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(addr.address))
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data && data.length > 0) {
+                    var lat = parseFloat(data[0].lat);
+                    var lon = parseFloat(data[0].lon);
+                    
+                    var statusColor = addr.status === 'Delivered' ? '#19a974' : 
+                                     addr.status === 'Out for Delivery' ? '#4dd4fa' : 
+                                     addr.status === 'Failed' ? '#ea445a' : '#ffa500';
+                    
+                    var icon = L.divIcon({
+                        html: '<div style="background-color: ' + statusColor + '; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"><i class="fas fa-truck"></i></div>',
+                        className: '',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    });
+                    
+                    var marker = L.marker([lat, lon], { icon: icon }).addTo(map);
+                    marker.bindPopup(
+                        '<div style="min-width: 200px;">' +
+                        '<strong style="font-size: 14px;">' + addr.id + '</strong><br>' +
+                        '<span style="color: #555;">' + addr.customer + '</span><br>' +
+                        '<span style="color: #888; font-size: 12px;">' + addr.address + '</span><br>' +
+                        '<span style="font-weight: bold; color: ' + statusColor + ';">' + addr.status + '</span> | ' + addr.total + '<br>' +
+                        '<a href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(addr.address) + '" target="_blank" ' +
+                        'style="display: inline-block; margin-top: 6px; padding: 4px 10px; background: #19a974; color: white; border-radius: 4px; text-decoration: none; font-size: 12px;">' +
+                        '<i class="fas fa-directions"></i> Get Directions</a>' +
+                        '</div>'
+                    );
+                    
+                    markers[addr.id] = marker;
+                    bounds.push([lat, lon]);
+                    
+                    if (bounds.length > 0) {
+                        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+                    }
+                }
+            })
+            .catch(function(err) {
+                console.log('Geocoding failed for: ' + addr.address);
+            });
+    });
+
+    // Expose focusMarker globally
+    window.focusMarker = function(orderId) {
+        if (markers[orderId]) {
+            map.setView(markers[orderId].getLatLng(), 16);
+            markers[orderId].openPopup();
+            document.getElementById('deliveryMap').scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    // Try to show user's current location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var userLat = position.coords.latitude;
+            var userLon = position.coords.longitude;
+            
+            var userIcon = L.divIcon({
+                html: '<div style="background-color: #4285F4; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 0 2px #4285F4, 0 2px 6px rgba(0,0,0,0.3);"></div>',
+                className: '',
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+            });
+            
+            L.marker([userLat, userLon], { icon: userIcon }).addTo(map)
+                .bindPopup('<strong>Your Location</strong>');
+            
+            bounds.push([userLat, userLon]);
+            if (bounds.length > 1) {
+                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+            }
+        });
+    }
+})();
+</script>
+{% endif %}
+{% endblock %}

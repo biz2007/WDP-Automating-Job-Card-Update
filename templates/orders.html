@@ -52,22 +52,87 @@
             </tbody>
         </table>
     </div>
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background-color: rgba(25, 169, 116, 0.1); border-radius: 6px;">
-        <div>
-            <p style="color: var(--muted-text); margin: 0;">Cart Total:</p>
-            <p style="color: var(--success); font-size: 1.5rem; font-weight: bold; margin: 0;">${{ "%.2f" | format(cart_total) }}</p>
+    <div style="padding: 1rem; background-color: rgba(25, 169, 116, 0.1); border-radius: 6px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+                <p style="color: var(--muted-text); margin: 0;">Cart Total:</p>
+                <p style="color: var(--success); font-size: 1.5rem; font-weight: bold; margin: 0;" id="cartTotalDisplay">${{ "%.2f" | format(cart_total) }}</p>
+            </div>
         </div>
-        <form method="post" action="{{ url_for('orders') }}" style="display: flex; gap: 1rem;">
+        <form method="post" action="{{ url_for('orders') }}" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <input type="hidden" name="action" value="checkout">
-            <input type="text" name="customer_name" placeholder="Customer Name" required
-                   style="padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
-            <input type="email" name="customer_email" placeholder="Email" required
-                   style="padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-check"></i> Checkout
-            </button>
+            <div>
+                <label style="color: var(--accent); display: block; margin-bottom: 0.3rem; font-size: 0.85rem;">Customer Name *</label>
+                <input type="text" name="customer_name" placeholder="Customer Name" required
+                       style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+            </div>
+            <div>
+                <label style="color: var(--accent); display: block; margin-bottom: 0.3rem; font-size: 0.85rem;">Email *</label>
+                <input type="email" name="customer_email" placeholder="Email" required
+                       style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+            </div>
+            <div style="grid-column: span 2;">
+                <label style="color: var(--accent); display: block; margin-bottom: 0.3rem; font-size: 0.85rem;">Fulfillment Method</label>
+                <div style="display: flex; gap: 1rem; margin-top: 0.3rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.75rem 1.25rem; border: 2px solid var(--border-color); border-radius: 8px; flex: 1; transition: all 0.3s ease;" id="pickupLabel">
+                        <input type="radio" name="delivery_option" value="pickup" checked onchange="toggleDelivery(this)" style="accent-color: var(--success);">
+                        <i class="fas fa-store" style="color: var(--success);"></i>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text);">Pickup</div>
+                            <div style="font-size: 0.8rem; color: var(--muted-text);">Free - Collect in store</div>
+                        </div>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.75rem 1.25rem; border: 2px solid var(--border-color); border-radius: 8px; flex: 1; transition: all 0.3s ease;" id="deliveryLabel">
+                        <input type="radio" name="delivery_option" value="delivery" onchange="toggleDelivery(this)" style="accent-color: var(--action);">
+                        <i class="fas fa-truck" style="color: var(--action);"></i>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text);">Delivery</div>
+                            <div style="font-size: 0.8rem; color: var(--muted-text);">+$5.00 delivery fee</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div style="grid-column: span 2; display: none;" id="deliveryAddressField">
+                <label style="color: var(--action); display: block; margin-bottom: 0.3rem; font-size: 0.85rem;"><i class="fas fa-map-marker-alt"></i> Delivery Address *</label>
+                <input type="text" name="delivery_address" id="deliveryAddressInput" placeholder="Enter full delivery address"
+                       style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+            </div>
+            <div style="grid-column: span 2;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">
+                    <i class="fas fa-check"></i> Checkout
+                </button>
+            </div>
         </form>
     </div>
+    <script>
+    function toggleDelivery(radio) {
+        var addrField = document.getElementById('deliveryAddressField');
+        var addrInput = document.getElementById('deliveryAddressInput');
+        var pickupLabel = document.getElementById('pickupLabel');
+        var deliveryLabel = document.getElementById('deliveryLabel');
+        var cartTotal = {{ cart_total }};
+        var display = document.getElementById('cartTotalDisplay');
+        if (radio.value === 'delivery') {
+            addrField.style.display = 'block';
+            addrInput.required = true;
+            deliveryLabel.style.borderColor = 'var(--action)';
+            deliveryLabel.style.backgroundColor = 'rgba(77, 212, 250, 0.1)';
+            pickupLabel.style.borderColor = 'var(--border-color)';
+            pickupLabel.style.backgroundColor = 'transparent';
+            display.textContent = '$' + (cartTotal + 5).toFixed(2);
+        } else {
+            addrField.style.display = 'none';
+            addrInput.required = false;
+            pickupLabel.style.borderColor = 'var(--success)';
+            pickupLabel.style.backgroundColor = 'rgba(25, 169, 116, 0.1)';
+            deliveryLabel.style.borderColor = 'var(--border-color)';
+            deliveryLabel.style.backgroundColor = 'transparent';
+            display.textContent = '$' + cartTotal.toFixed(2);
+        }
+    }
+    document.getElementById('pickupLabel').style.borderColor = 'var(--success)';
+    document.getElementById('pickupLabel').style.backgroundColor = 'rgba(25, 169, 116, 0.1)';
+    </script>
     {% else %}
     <div style="padding: 2rem; text-align: center; color: var(--muted-text);">
         <i class="fas fa-shopping-bag" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
@@ -89,6 +154,27 @@
                 <div style="color: var(--muted-text); font-size: 0.9rem;">
                     <i class="fas fa-calendar"></i> {{ order.date }}
                 </div>
+                {% if order.get('delivery_option') == 'delivery' %}
+                <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="background-color: rgba(77, 212, 250, 0.15); color: var(--action); padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">
+                        <i class="fas fa-truck"></i> Delivery (+$5.00)
+                    </span>
+                    {% if order.get('delivery_status') %}
+                    <span style="background-color: {% if order.delivery_status == 'Delivered' %}rgba(25, 169, 116, 0.2); color: var(--success){% elif order.delivery_status == 'Out for Delivery' %}rgba(77, 212, 250, 0.2); color: var(--action){% else %}rgba(255, 165, 0, 0.2); color: var(--accent){% endif %}; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">
+                        {{ order.delivery_status }}
+                    </span>
+                    {% endif %}
+                </div>
+                <div style="color: var(--muted-text); font-size: 0.85rem; margin-top: 0.25rem;">
+                    <i class="fas fa-map-marker-alt"></i> {{ order.get('delivery_address', 'N/A') }}
+                </div>
+                {% elif order.get('delivery_option') == 'pickup' %}
+                <div style="margin-top: 0.5rem;">
+                    <span style="background-color: rgba(25, 169, 116, 0.15); color: var(--success); padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">
+                        <i class="fas fa-store"></i> Pickup
+                    </span>
+                </div>
+                {% endif %}
             </div>
             
             <div style="text-align: center; margin: 0 2rem;">
@@ -542,44 +628,59 @@
                         <div class="cart-total-amount">${{ "%.2f"|format(cart_total) }}</div>
                     </div>
 
-<<<<<<< HEAD
-                    <!-- Email Cart Form -->
-                    <form method="post" style="margin-top: 0.75rem; display:flex; gap:0.5rem; align-items:center;">
-                        <input type="hidden" name="action" value="email_cart" />
-                        <input type="email" name="recipient_email" class="form-input" placeholder="Email cart to..."
-                            required style="flex:1;" />
-                        <button type="submit" class="btn btn-primary">Email Cart</button>
-                    </form>
-
-=======
->>>>>>> parent of e909e58 (.)
                     <!-- Checkout Form -->
                     <form class="checkout-form" method="post">
                         <input type="hidden" name="action" value="checkout" />
                         <div class="form-group">
-                            <label for="customer_name">Customer Name *</label>
-                            <input type="text" id="customer_name" name="customer_name" class="form-input"
+                            <label for="customer_name2">Customer Name *</label>
+                            <input type="text" id="customer_name2" name="customer_name" class="form-input"
                                 placeholder="Enter customer name" required />
                         </div>
                         <div class="form-group">
-                            <label for="customer_phone">Phone Number</label>
-                            <input type="tel" id="customer_phone" name="customer_phone" class="form-input"
+                            <label for="customer_phone2">Phone Number</label>
+                            <input type="tel" id="customer_phone2" name="customer_phone" class="form-input"
                                 placeholder="e.g., +65 9123 4567" />
                         </div>
                         <div class="form-group">
-                            <label for="customer_email">Email</label>
-                            <input type="email" id="customer_email" name="customer_email" class="form-input"
+                            <label for="customer_email2">Email</label>
+                            <input type="email" id="customer_email2" name="customer_email" class="form-input"
                                 placeholder="customer@email.com" />
                         </div>
                         <div class="form-group">
-                            <label for="order_notes">Order Notes</label>
-                            <input type="text" id="order_notes" name="order_notes" class="form-input"
+                            <label for="order_notes2">Order Notes</label>
+                            <input type="text" id="order_notes2" name="order_notes" class="form-input"
                                 placeholder="Special instructions..." />
+                        </div>
+                        <div class="form-group">
+                            <label>Fulfillment Method</label>
+                            <div style="display: flex; gap: 1rem; margin-top: 0.3rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="radio" name="delivery_option" value="pickup" checked onchange="toggleDelivery2(this)">
+                                    🏪 Pickup (Free)
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="radio" name="delivery_option" value="delivery" onchange="toggleDelivery2(this)">
+                                    🚚 Delivery (+$5.00)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group" id="deliveryAddressField2" style="display: none;">
+                            <label for="delivery_address2">Delivery Address *</label>
+                            <input type="text" id="delivery_address2" name="delivery_address" class="form-input"
+                                placeholder="Enter full delivery address" />
                         </div>
                         <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 1rem;">
                             Checkout & Create Order
                         </button>
                     </form>
+                    <script>
+                    function toggleDelivery2(radio) {
+                        var f = document.getElementById('deliveryAddressField2');
+                        var inp = document.getElementById('delivery_address2');
+                        if (radio.value === 'delivery') { f.style.display = 'block'; inp.required = true; }
+                        else { f.style.display = 'none'; inp.required = false; }
+                    }
+                    </script>
                 </div>
                 {% else %}
                 <div class="empty-state">

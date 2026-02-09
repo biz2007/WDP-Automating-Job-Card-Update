@@ -928,6 +928,15 @@ def orders():
                 customer_email = request.form.get("customer_email", "").strip()
                 order_notes = request.form.get("order_notes", "").strip()
                 
+                # Delivery option
+                delivery_option = request.form.get("delivery_option", "pickup").strip()
+                delivery_address = ""
+                delivery_fee = 0.0
+                if delivery_option == "delivery":
+                    delivery_address = request.form.get("delivery_address", "").strip()
+                    delivery_fee = 5.00
+                    total += delivery_fee
+                
                 new_order = {
                     "order_id": order_id,
                     "customer_name": customer_name,
@@ -937,7 +946,12 @@ def orders():
                     "items": cart.copy(),
                     "total": round(total, 2),
                     "status": "Pending",
-                    "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "delivery_option": delivery_option,
+                    "delivery_address": delivery_address,
+                    "delivery_fee": delivery_fee,
+                    "delivery_status": "Preparing" if delivery_option == "delivery" else "",
+                    "placed_by": session.get("username", "Unknown")
                 }
                 
                 orders_list.append(new_order)
@@ -1102,6 +1116,47 @@ def status():
 def contact():
     """Contact page with multiple channels"""
     return render_template("contact.html")
+
+
+# ==================== DELIVERY MANAGEMENT ====================
+
+@app.route("/deliveries", methods=["GET", "POST"])
+@login_required
+def deliveries():
+    """Delivery management page"""
+    orders_list = load_orders()
+    
+    # Filter only delivery orders
+    delivery_orders = [o for o in orders_list if o.get("delivery_option") == "delivery"]
+    
+    if request.method == "POST" and session.get("role") == "admin":
+        action = request.form.get("action", "").strip()
+        
+        if action == "update_delivery_status":
+            order_id = request.form.get("order_id", "").strip()
+            new_status = request.form.get("delivery_status", "").strip()
+            
+            order = next((o for o in orders_list if o["order_id"] == order_id), None)
+            if order and new_status:
+                order["delivery_status"] = new_status
+                save_orders(orders_list)
+            
+            return redirect(url_for("deliveries"))
+    
+    # For regular users, only show their own orders
+    if session.get("role") != "admin":
+        current_user = session.get("username", "")
+        delivery_orders = [o for o in delivery_orders if o.get("placed_by") == current_user]
+    
+    # Sort by most recent
+    delivery_orders = sorted(delivery_orders, key=lambda x: x.get("date", ""), reverse=True)
+    
+    return render_template(
+        "deliveries.html",
+        delivery_orders=delivery_orders,
+        is_admin=session.get("role") == "admin"
+    )
+
 
 if __name__ == "__main__":
     app.run(debug=True)
