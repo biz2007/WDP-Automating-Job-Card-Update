@@ -38,5 +38,24 @@
     "password": "scrypt:32768:8:1$ulijgLAwI1nuDkqw$54ba2c8a56864c9178b11eb4634efa5b353ac199807f6d5a56b51c828033fb28f953d112168dbf1c70a60034f34b975f547a4c6b9dc2f3e45b4dd8d76793f7ed",
     "role": "user",
     "created_at": "2026-01-27T12:01:44.938513"
+<<<<<<< Updated upstream
+=======
+  },
+  {
+    "id": 6,
+    "username": "testuser",
+    "email": "testuser@example.com",
+    "password": "scrypt:32768:8:1$8EgeQDtj6Okom1r1$ad9a2bd6d0f332d7f926bc804f6f110e52a716d8480219ae5c8611d9802e063afa6a0421d1a28d45d1f4b8c4af12724852da90a94474cfd395cba65b58bbceae",
+    "role": "user",
+    "created_at": "2026-01-27T13:00:00.000000"
+  },
+  {
+    "id": 7,
+    "username": "kopiO",
+    "email": "123456@gmail.com",
+    "password": "scrypt:32768:8:1$yhPwM6Bvyn05xN7F$0d671881074ea0f96a423a10839e1398ba89575130d7fc5dfd2bc14c7ff3848bab5ed353eab211fd3469076146543d05abcfa388a9087c7b724ed59cb9fc7cd9",
+    "role": "user",
+    "created_at": "2026-01-27T13:20:47.110660"
+>>>>>>> Stashed changes
   }
 ]
