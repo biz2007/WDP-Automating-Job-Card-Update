@@ -1,12 +1,12 @@
 [
   {
-    "ticket_id": "72E3856B",
-    "name": "rachel kim",
-    "email": "rachelkimdgl@gmail.com",
+    "ticket_id": "7E642FC8",
+    "name": "john doe",
+    "email": "1234@gmail.com",
     "phone": "",
     "issue_type": "billing",
-    "description": "i cant pay",
+    "description": "I am not able to pay using my credit card as it shows an error when i try to input my details",
     "status": "Open",
-    "created_date": "2026-02-10 11:09:11"
+    "created_date": "2026-02-10 11:23:23"
   }
 ]
