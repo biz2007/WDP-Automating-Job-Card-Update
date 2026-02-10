@@ -1145,13 +1145,6 @@ def contact():
     return render_template("contact.html", chat_url="https://chatgpt.com/")
 
 
-@app.route("/self-service")
-@login_required
-def self_service():
-    """Self-service tools page"""
-    return render_template("self_service.html")
-
-
 @app.route("/search")
 @login_required
 def search():
