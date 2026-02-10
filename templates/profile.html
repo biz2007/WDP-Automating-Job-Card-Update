@@ -46,6 +46,59 @@
 
         <hr style="border: 1px solid var(--border-color); margin: 2rem 0;">
 
+        <div style="margin-bottom: 2rem;">
+            <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-camera"></i> Update Face Scan</h2>
+            <form method="POST" action="{{ url_for('auth.update_face') }}">
+                <div style="border: 1px solid var(--border-color); border-radius: 6px; padding: 0.75rem; background-color: var(--input-bg);">
+                    <video id="faceVideo" autoplay playsinline
+                           style="width: 100%; border-radius: 6px; background-color: #111;"></video>
+                    <canvas id="faceCanvas" style="width: 100%; border-radius: 6px; margin-top: 0.75rem; display: none;"></canvas>
+                    <input type="hidden" name="face_image_data" id="face_image_data">
+                    <button type="button" id="captureFaceBtn" class="btn btn-secondary w-100" style="margin-top: 0.75rem;">
+                        <i class="fas fa-camera"></i> Capture Face
+                    </button>
+                    <p id="faceStatus" style="color: var(--muted-text); margin: 0.75rem 0 0 0; font-size: 0.85rem;">
+                        Initializing camera...
+                    </p>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem;">
+                    <i class="fas fa-save"></i> Save Face Scan
+                </button>
+            </form>
+        </div>
+
+        <hr style="border: 1px solid var(--border-color); margin: 2rem 0;">
+
+        <div style="margin-bottom: 2rem;">
+            <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-key"></i> Change Password</h2>
+            <form method="POST" action="{{ url_for('auth.update_password') }}">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;">
+                        <i class="fas fa-lock"></i> Current Password
+                    </label>
+                    <input type="password" name="current_password" required
+                           style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;">
+                        <i class="fas fa-lock"></i> New Password
+                    </label>
+                    <input type="password" name="new_password" required
+                           style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;">
+                        <i class="fas fa-lock"></i> Confirm New Password
+                    </label>
+                    <input type="password" name="confirm_password" required
+                           style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+                </div>
+                <button type="submit" class="btn btn-primary w-100" style="margin-top: 0.5rem;">
+                    <i class="fas fa-save"></i> Update Password
+                </button>
+            </form>
+        </div>
+
         <div style="text-align: center; display: flex; gap: 1rem; justify-content: center;">
             <a href="{{ url_for('home') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back to Home
@@ -56,4 +109,44 @@
         </div>
     </div>
 </div>
+<script>
+(() => {
+    const video = document.getElementById('faceVideo');
+    const canvas = document.getElementById('faceCanvas');
+    const captureBtn = document.getElementById('captureFaceBtn');
+    const status = document.getElementById('faceStatus');
+    const input = document.getElementById('face_image_data');
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        status.textContent = 'Camera not supported. Face update requires a camera.';
+        captureBtn.disabled = true;
+        return;
+    }
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+            video.srcObject = stream;
+            status.textContent = 'Camera ready. Capture a clear photo.';
+        })
+        .catch(() => {
+            status.textContent = 'Camera unavailable. Face update requires a camera.';
+            captureBtn.disabled = true;
+        });
+
+    captureBtn.addEventListener('click', () => {
+        if (!video.videoWidth || !video.videoHeight) {
+            status.textContent = 'Camera not ready yet.';
+            return;
+        }
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        input.value = canvas.toDataURL('image/jpeg', 0.85);
+        canvas.style.display = 'block';
+        status.textContent = 'Face captured. Save to update your profile.';
+    });
+})();
+</script>
 {% endblock %}

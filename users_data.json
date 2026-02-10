@@ -5,7 +5,8 @@
     "email": "admin@example.com",
     "password": "scrypt:32768:8:1$z17bgZfb4arlh07L$d0aeb17030e20db9917e2b383d4e7cb6af922ab6da7a8371c245b690628db11fbfbe29f80ebaea1653ea2eccacbfdff5274ed8770d8578642352fb67f57b0c6b",
     "role": "admin",
-    "created_at": "2026-01-27T01:26:57.084594"
+    "created_at": "2026-01-27T01:26:57.084594",
+    "face_image": "/static/uploads/faces/admin_716f3a15e07940ba9f7c94b3a85d29d4.jpg"
   },
   {
     "id": 2,
@@ -38,5 +39,41 @@
     "password": "scrypt:32768:8:1$ulijgLAwI1nuDkqw$54ba2c8a56864c9178b11eb4634efa5b353ac199807f6d5a56b51c828033fb28f953d112168dbf1c70a60034f34b975f547a4c6b9dc2f3e45b4dd8d76793f7ed",
     "role": "user",
     "created_at": "2026-01-27T12:01:44.938513"
+  },
+  {
+    "id": 6,
+    "username": "user12",
+    "email": "user12@example.com",
+    "password": "123456",
+    "role": "user",
+    "face_mode": "never_recognize",
+    "created_at": "2026-02-10T00:00:00"
+  },
+  {
+    "id": 7,
+    "username": "User12",
+    "email": "User12@example.com",
+    "password": "123456",
+    "role": "user",
+    "face_mode": "always_recognize",
+    "created_at": "2026-02-10T00:00:00"
+  },
+  {
+    "id": 8,
+    "username": "user12 ",
+    "email": "user12space@example.com",
+    "password": "123456",
+    "role": "user",
+    "face_mode": "exception",
+    "created_at": "2026-02-10T00:00:00"
+  },
+  {
+    "id": 9,
+    "username": "testuser101",
+    "email": "testuser101@example.com",
+    "password": "123456",
+    "role": "user",
+    "face_mode": "exception",
+    "created_at": "2026-02-10T00:00:00"
   }
 ]

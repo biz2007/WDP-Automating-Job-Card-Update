@@ -5,6 +5,9 @@ import csv
 import re
 from io import BytesIO
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+load_dotenv()
+
 try:
     from openpyxl import load_workbook
     HAS_OPENPYXL = True

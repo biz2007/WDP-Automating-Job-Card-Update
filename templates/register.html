@@ -43,6 +43,24 @@
                        style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
             </div>
 
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500;">
+                    <i class="fas fa-camera"></i> Face Scan (Required)
+                </label>
+                <div style="border: 1px solid var(--border-color); border-radius: 6px; padding: 0.75rem; background-color: var(--input-bg);">
+                    <video id="faceVideo" autoplay playsinline
+                           style="width: 100%; border-radius: 6px; background-color: #111;"></video>
+                    <canvas id="faceCanvas" style="width: 100%; border-radius: 6px; margin-top: 0.75rem; display: none;"></canvas>
+                    <input type="hidden" name="face_image_data" id="face_image_data">
+                    <button type="button" id="captureFaceBtn" class="btn btn-secondary w-100" style="margin-top: 0.75rem;">
+                        <i class="fas fa-camera"></i> Capture Face
+                    </button>
+                    <p id="faceStatus" style="color: var(--muted-text); margin: 0.75rem 0 0 0; font-size: 0.85rem;">
+                        Initializing camera...
+                    </p>
+                </div>
+            </div>
+
             <button type="submit" class="btn btn-primary w-100" style="margin-bottom: 1rem; padding: 0.75rem;">
                 <i class="fas fa-user-plus"></i> Register
             </button>
@@ -58,4 +76,44 @@
         </div>
     </div>
 </div>
+<script>
+(() => {
+    const video = document.getElementById('faceVideo');
+    const canvas = document.getElementById('faceCanvas');
+    const captureBtn = document.getElementById('captureFaceBtn');
+    const status = document.getElementById('faceStatus');
+    const input = document.getElementById('face_image_data');
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        status.textContent = 'Camera not supported. Registration requires a face scan.';
+        captureBtn.disabled = true;
+        return;
+    }
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+            video.srcObject = stream;
+            status.textContent = 'Camera ready. Capture a clear photo.';
+        })
+        .catch(() => {
+            status.textContent = 'Camera unavailable. Registration requires a face scan.';
+            captureBtn.disabled = true;
+        });
+
+    captureBtn.addEventListener('click', () => {
+        if (!video.videoWidth || !video.videoHeight) {
+            status.textContent = 'Camera not ready yet.';
+            return;
+        }
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        input.value = canvas.toDataURL('image/jpeg', 0.85);
+        canvas.style.display = 'block';
+        status.textContent = 'Face captured. You can submit now.';
+    });
+})();
+</script>
 {% endblock %}
