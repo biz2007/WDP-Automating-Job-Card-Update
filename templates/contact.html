@@ -171,12 +171,12 @@
         </div>
       </div>
 
-      <!-- Live Chat -->
+      <!-- AI Support (formerly Live Chat) -->
       <div class="col-md-6 col-lg-3">
         <div class="contact-option">
           <div class="contact-icon">💬</div>
-          <div class="contact-title">Live Chat</div>
-          <p style="color: var(--muted-text);">Instant messaging with support</p>
+          <div class="contact-title">AI Support</div>
+          <p style="color: var(--muted-text);">Instant messaging with our AI assistant</p>
           <div class="contact-info">Available Now</div>
           <div class="hours">
             <p class="fw-bold mb-2">Available:</p>
@@ -189,7 +189,7 @@
               <strong>Closed</strong>
             </div>
           </div>
-          <button class="cta-button btn-outline-primary" onclick="alert('Live chat would open here')">Start Chat</button>
+          <button type="button" class="cta-button btn-outline-primary" onclick="openAiSupport()">Open AI Support</button>
         </div>
       </div>
 
@@ -243,7 +243,7 @@
               <td class="text-center"><span class="cross">✗</span></td>
             </tr>
             <tr>
-              <td><strong>Live Chat</strong></td>
+              <td><strong>AI Support</strong></td>
               <td class="text-center">Instant</td>
               <td>Quick questions</td>
               <td class="text-center"><span class="cross">✗</span></td>
@@ -283,4 +283,24 @@
         </div>
       </div>
     </div>
+    
+    <!-- AI Support Popup -->
+    <script>
+      function openAiSupport(){
+        var url = "{{ chat_url }}";
+        var maxW = Math.min(window.screen.width * 0.9, 1200);
+        var maxH = Math.min(window.screen.height * 0.9, 900);
+        var left = Math.round((window.screen.width - maxW) / 2);
+        var top = Math.round((window.screen.height - maxH) / 2);
+        var features = 'toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes';
+        features += ',width=' + maxW + ',height=' + maxH + ',top=' + top + ',left=' + left;
+        var win = window.open(url, 'ai_support_popup', features);
+        if (!win || win.closed || typeof win.closed == 'undefined'){
+          // Popup likely blocked — open in new tab as fallback
+          window.open(url, '_blank', 'noopener');
+        } else {
+          try { win.focus(); } catch(e){}
+        }
+      }
+    </script>
 {% endblock %}
