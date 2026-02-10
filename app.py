@@ -284,11 +284,13 @@ def delete(license_plate):
     return redirect(url_for("home"))
 
 @app.route("/rewards", methods=["GET", "POST"])
-@admin_required
+@login_required
 def rewards():
     customers = load_rewards()
     search_query = request.args.get("search", "").strip().lower()
-    if request.method == "POST":
+    is_admin = session.get("role") == "admin"
+    
+    if request.method == "POST" and is_admin:
         action = request.form.get("action", "").strip()
 
         # Create/Update customer
@@ -362,7 +364,8 @@ def rewards():
     return render_template(
         "rewards.html",
         customers=display_customers,
-        search_query=search_query
+        search_query=search_query,
+        is_admin=is_admin
     )
 
 @app.route("/rewards/redeem/<phone_number>/<license_plate>", methods=["POST"])
@@ -374,6 +377,16 @@ def redeem_reward(phone_number, license_plate):
         if compute_reward_balance(cust) > 0:
             cust["vouchers_redeemed"] = int(cust.get("vouchers_redeemed", 0)) + 1
             save_rewards(customers)
+    return redirect(url_for("rewards"))
+
+
+@app.route("/rewards/delete/<phone_number>/<license_plate>", methods=["POST"])
+@admin_required
+def delete_reward(phone_number, license_plate):
+    """Delete a customer from rewards"""
+    customers = load_rewards()
+    customers = [c for c in customers if not (c["phone_number"] == phone_number and c["license_plate"] == license_plate)]
+    save_rewards(customers)
     return redirect(url_for("rewards"))
 
 # ==================== CATALOGUE ROUTES ====================
@@ -1235,7 +1248,7 @@ def deliveries():
 
 
 @app.route("/export-jobs", methods=["POST"])
-@admin_required
+@login_required
 def export_jobs():
     """Export job cards to Excel file, respecting search filters"""
     if not HAS_OPENPYXL:
@@ -1309,7 +1322,7 @@ def export_jobs():
 
 
 @app.route("/export-rewards", methods=["POST"])
-@admin_required
+@login_required
 def export_rewards():
     """Export customer rewards data to Excel file, respecting search filters"""
     if not HAS_OPENPYXL:

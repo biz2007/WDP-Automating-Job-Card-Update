@@ -5,13 +5,23 @@
     "remarks": "Completed",
     "assigned_to": "Bobs",
     "problem": "Brakes spoiled",
-    "parts_used": ["P012"]
+    "parts_used": [
+      "P012"
+    ]
   },
   {
     "license_plate": "SGX5678B",
     "status": "Open",
     "remarks": "",
     "assigned_to": "Alice",
+    "problem": "",
+    "parts_used": []
+  },
+  {
+    "license_plate": "SGX2468C",
+    "status": "Open",
+    "remarks": "",
+    "assigned_to": "Bill",
     "problem": "",
     "parts_used": []
   }
