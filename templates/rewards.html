@@ -7,53 +7,77 @@
     <h1 class="page-title"><i class="fas fa-gift"></i> Customer Rewards</h1>
 </div>
 
-<!-- Search Bar -->
-<form style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-    <input type="search" name="search" placeholder="Search customers…" value="{{ search_query or '' }}"
-           style="flex: 1; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
-    <button type="submit" class="btn btn-primary">
-        <i class="fas fa-search"></i> Search
+<!-- Search and Export Bar -->
+<div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center;">
+    <form style="display: flex; gap: 1rem; flex: 1; min-width: 300px;">
+        <input type="search" name="search" placeholder="Search by phone or license plate…" value="{{ search_query or '' }}"
+               style="flex: 1; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i> Search
+        </button>
+    </form>
+    {% if search_query and not customers %}
+    <button type="button" disabled class="btn" style="background-color: var(--input-bg); color: var(--muted-text); padding: 0.75rem 1.5rem; cursor: not-allowed;" title="No customers match your search">
+        <i class="fas fa-download"></i> Export
     </button>
-</form>
+    {% else %}
+    <form method="post" action="{{ url_for('export_rewards') }}" style="display: inline;">
+        <input type="hidden" name="search_query" value="{{ search_query or '' }}">
+        <button type="submit" class="btn" style="background-color: var(--success); color: white; padding: 0.75rem 1.5rem;">
+            <i class="fas fa-download"></i> Export
+        </button>
+    </form>
+    {% endif %}
+</div>
 
 <!-- Create Customer Section -->
 <div class="card" style="margin-bottom: 2rem;">
     <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-user-plus"></i> Create Customer</h2>
-    <form method="post" style="display: grid; gap: 1rem; grid-template-columns: 1fr 1fr auto;">
+    <form method="post" style="display: grid; gap: 1rem; grid-template-columns: 1fr 1fr 1fr auto;">
         <input type="hidden" name="action" value="create_customer">
         <div>
-            <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">Phone Number</label>
-            <input type="text" name="customer_id" placeholder="e.g. 12345678" required
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">Phone Number *</label>
+            <input type="text" name="phone_number" placeholder="e.g. 98765432" required
+                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">License Plate *</label>
+            <input type="text" name="license_plate" placeholder="e.g. SGX1234A" required
                    style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
         </div>
         <div>
             <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">Name (optional)</label>
-            <input type="text" name="name" placeholder="e.g. Alex Tan"
+            <input type="text" name="name" placeholder="e.g. Alex"
                    style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
         </div>
         <button type="submit" class="btn btn-primary" style="align-self: flex-end;">
-            <i class="fas fa-save"></i> Save Customer
+            <i class="fas fa-save"></i> Save
         </button>
     </form>
     <p style="margin-top: 1rem; padding: 0.75rem; background-color: rgba(77, 212, 250, 0.1); border-left: 3px solid var(--action); border-radius: 4px; color: var(--muted-text); font-size: 0.9rem;">
-        <strong>Reward Rule:</strong> 1 discount reward per 3 purchases
+        <strong>Reward Rule:</strong> $50 repair cost = 50 points | 50 points = $3 voucher
     </p>
 </div>
 
-<!-- Add Purchase Section -->
+<!-- Add Repair Cost Section -->
 <div class="card" style="margin-bottom: 2rem;">
-    <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-shopping-bag"></i> Add Purchase</h2>
-    <form method="post" style="display: grid; gap: 1rem; grid-template-columns: 1fr 1fr auto;">
-        <input type="hidden" name="action" value="add_purchase">
+    <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-wrench"></i> Add Repair Cost</h2>
+    <form method="post" style="display: grid; gap: 1rem; grid-template-columns: 1fr 1fr 1fr auto;">
+        <input type="hidden" name="action" value="add_cost">
         <div>
             <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">Phone Number</label>
-            <input type="text" name="customer_id" placeholder="Enter customer phone number" required
+            <input type="text" name="phone_number" placeholder="Enter phone number" required
                    style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
         </div>
         <div>
-            <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">Number of Purchases</label>
-            <input type="number" name="amount" min="1" value="1"
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">License Plate</label>
+            <input type="text" name="license_plate" placeholder="Enter license plate" required
                    style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--muted-text);">Repair Cost ($)</label>
+            <input type="number" name="cost" step="0.01" min="0.01" placeholder="0.00"
+                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);" required>
         </div>
         <button type="submit" class="btn" style="background-color: var(--success); color: white; align-self: flex-end;">
             <i class="fas fa-plus"></i> Add
@@ -71,7 +95,8 @@
             <!-- Customer Header -->
             <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem;">
                 <div>
-                    <div style="color: var(--action); font-size: 0.85rem; font-weight: 500;">{{ c.customer_id }}</div>
+                    <div style="color: var(--action); font-size: 0.85rem; font-weight: 500;">{{ c.phone_number }}</div>
+                    <div style="color: var(--muted-text); font-size: 0.85rem;">{{ c.license_plate }}</div>
                     <h3 style="color: var(--text); margin: 0.25rem 0; font-size: 1.2rem;">{{ c.name or 'Unknown' }}</h3>
                 </div>
                 <div style="text-align: right;">
@@ -81,7 +106,7 @@
                     </div>
                     {% else %}
                     <div style="background-color: rgba(183, 191, 201, 0.2); color: var(--muted-text); padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.85rem;">
-                        No Rewards
+                        No Vouchers
                     </div>
                     {% endif %}
                 </div>
@@ -90,36 +115,42 @@
             <!-- Stats Grid -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
                 <div style="text-align: center;">
-                    <div style="color: var(--muted-text); font-size: 0.85rem;">Purchases</div>
-                    <div style="color: var(--accent); font-size: 1.8rem; font-weight: bold;">{{ c.purchases }}</div>
+                    <div style="color: var(--muted-text); font-size: 0.85rem;">Total Cost</div>
+                    <div style="color: var(--accent); font-size: 1.8rem; font-weight: bold;">${{ "%.2f"|format(c.total_cost) }}</div>
                 </div>
                 <div style="text-align: center;">
-                    <div style="color: var(--muted-text); font-size: 0.85rem;">Redeemed</div>
-                    <div style="color: var(--success); font-size: 1.8rem; font-weight: bold;">{{ c.redeemed }}</div>
+                    <div style="color: var(--muted-text); font-size: 0.85rem;">Points</div>
+                    <div style="color: var(--action); font-size: 1.8rem; font-weight: bold;">{{ c.current_points }}</div>
                 </div>
             </div>
 
             <!-- Progress Bar -->
             <div style="margin-bottom: 1.5rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <span style="color: var(--muted-text); font-size: 0.9rem;">Next Reward</span>
-                    <span style="color: var(--action); font-weight: bold;">{{ c.next_reward_at }} purchases</span>
+                    <span style="color: var(--muted-text); font-size: 0.9rem;">Points to Next Voucher</span>
+                    <span style="color: var(--action); font-weight: bold;">{{ c.current_points }}/50</span>
                 </div>
                 <div style="background-color: var(--input-bg); height: 8px; border-radius: 10px; overflow: hidden;">
-                    <div style="background-color: var(--action); height: 100%; width: {{ (c.purchases % 3) / 3 * 100 }}%; transition: width 0.3s ease;"></div>
+                    <div style="background-color: var(--action); height: 100%; width: {{ (c.current_points / 50) * 100 }}%; transition: width 0.3s ease;"></div>
                 </div>
+            </div>
+
+            <!-- Vouchers Redeemed Counter -->
+            <div style="text-align: center; margin-bottom: 1.5rem; padding: 0.75rem; background-color: rgba(233, 68, 90, 0.1); border-radius: 4px;">
+                <span style="color: var(--muted-text); font-size: 0.9rem;">Vouchers Redeemed:</span>
+                <span style="color: var(--danger); font-size: 1.2rem; font-weight: bold; display: block;">{{ c.vouchers_redeemed }}</span>
             </div>
 
             <!-- Action Button -->
             {% if c.reward_balance > 0 %}
-            <form method="post" action="{{ url_for('redeem_reward', customer_id=c.customer_id) }}" style="display: inline; width: 100%;">
+            <form method="post" action="{{ url_for('redeem_reward', phone_number=c.phone_number, license_plate=c.license_plate) }}" style="display: inline; width: 100%;">
                 <button type="submit" class="btn btn-primary" style="background-color: var(--success); color: white; padding: 0.75rem; width: 100%; font-weight: 500;">
-                    <i class="fas fa-ticket-alt"></i> Redeem Reward
+                    <i class="fas fa-ticket-alt"></i> Redeem Voucher
                 </button>
             </form>
             {% else %}
             <button type="button" disabled class="btn" style="background-color: var(--input-bg); color: var(--muted-text); padding: 0.75rem; width: 100%; font-weight: 500; cursor: not-allowed;">
-                <i class="fas fa-lock"></i> No Rewards Available
+                <i class="fas fa-lock"></i> No Vouchers Available
             </button>
             {% endif %}
         </div>
