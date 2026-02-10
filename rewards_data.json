@@ -1,8 +1,9 @@
 [
   {
-    "customer_id": "90009999",
+    "phone_number": "98765432",
+    "license_plate": "SGX1234A",
     "name": "Alex",
-    "purchases": 11,
-    "redeemed": 3
+    "total_cost": 550.0,
+    "vouchers_redeemed": 1
   }
 ]

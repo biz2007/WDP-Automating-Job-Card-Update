@@ -7,14 +7,30 @@
     <h1 class="page-title"><i class="fas fa-briefcase"></i> Job Card Management</h1>
 </div>
 
-<!-- Search Bar -->
-<form style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-    <input type="search" name="search" placeholder="Search job cards…" value="{{ search_query or '' }}"
-           style="flex: 1; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
-    <button type="submit" class="btn btn-primary">
-        <i class="fas fa-search"></i> Search
+<!-- Search and Export Bar -->
+<div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center;">
+    <form style="display: flex; gap: 1rem; flex: 1; min-width: 300px;">
+        <input type="search" name="search" placeholder="Search job cards…" value="{{ search_query or '' }}"
+               style="flex: 1; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i> Search
+        </button>
+    </form>
+    {% if is_admin %}
+    {% if search_query and not jobs %}
+    <button type="button" disabled class="btn" style="background-color: var(--input-bg); color: var(--muted-text); padding: 0.75rem 1.5rem; cursor: not-allowed;" title="No job cards match your search">
+        <i class="fas fa-download"></i> Export
     </button>
-</form>
+    {% else %}
+    <form method="post" action="{{ url_for('export_jobs') }}" style="display: inline;">
+        <input type="hidden" name="search_query" value="{{ search_query or '' }}">
+        <button type="submit" class="btn" style="background-color: var(--success); color: white; padding: 0.75rem 1.5rem;">
+            <i class="fas fa-download"></i> Export
+        </button>
+    </form>
+    {% endif %}
+    {% endif %}
+</div>
 
 <!-- Add Job Card Form (Admin Only) -->
 {% if is_admin %}
@@ -22,24 +38,42 @@
     <h2 style="color: var(--accent); margin-bottom: 1.5rem;"><i class="fas fa-plus-circle"></i> Create New Job Card</h2>
     <form method="post" action="{{ url_for('home') }}" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
         <div>
-            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Job ID</label>
-            <input type="text" name="job_id" placeholder="e.g. JC0000" required
+            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">License Plate</label>
+            <input type="text" name="license_plate" placeholder="e.g. SGX1234A" required
                    style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
         </div>
         <div>
-            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Status</label>
-            <input type="text" name="status" placeholder="e.g. Open, In Progress, Closed" required
-                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
-        </div>
-        <div>
-            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Remarks</label>
-            <input type="text" name="remarks" placeholder="Add remarks..."
+            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Problem Occurred</label>
+            <input type="text" name="problem" placeholder="e.g. Brakes spoiled"
                    style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
         </div>
         <div>
             <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Assigned To</label>
             <input type="text" name="assigned_to" placeholder="Technician name"
                    style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+        </div>
+        <div>
+            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Status</label>
+            <select name="status" required style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text);">
+                <option value="">-- Select Status --</option>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Closed">Closed</option>
+            </select>
+        </div>
+        <div>
+            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Remarks</label>
+            <textarea name="remarks" placeholder="Add remarks..."
+                   style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text); min-height: 100px; font-family: inherit; resize: vertical;"></textarea>
+        </div>
+        <div>
+            <label style="color: var(--accent); display: block; margin-bottom: 0.5rem; font-weight: 500;">Parts Used</label>
+            <select name="parts_used" multiple style="width: 100%; padding: 0.75rem; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text); min-height: 100px;">
+                <option value="">-- Select Parts --</option>
+                {% for part in catalogue %}
+                <option value="{{ part.part_id }}">{{ part.name }} ({{ part.part_id }})</option>
+                {% endfor %}
+            </select>
         </div>
         <button type="submit" class="btn btn-primary" style="grid-column: span 2; width: 100%;">
             <i class="fas fa-plus"></i> Create Job Card
@@ -56,8 +90,10 @@
         <table style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr style="border-bottom: 2px solid var(--accent); background-color: rgba(255, 106, 61, 0.1);">
-                    <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">Job ID</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">License Plate</th>
                     <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">Status</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">Problem</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">Parts Used</th>
                     <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">Remarks</th>
                     <th style="padding: 1rem; text-align: left; color: var(--accent); font-weight: bold;">Assigned To</th>
                     {% if is_admin %}
@@ -68,20 +104,22 @@
             <tbody>
                 {% for job in jobs %}
                 <tr style="border-bottom: 1px solid var(--border-color); transition: background-color var(--transition);">
-                    <td style="padding: 1rem;">{{ job.job_id }}</td>
+                    <td style="padding: 1rem;">{{ job.license_plate }}</td>
                     <td style="padding: 1rem;">
                         <span style="background-color: {% if 'Open' in job.status %}var(--action){% elif 'In Progress' in job.status %}var(--accent){% else %}var(--success){% endif %}; color: var(--primary-bg); padding: 0.35rem 0.75rem; border-radius: 4px; font-size: 0.9rem; font-weight: 500;">
                             {{ job.status }}
                         </span>
                     </td>
+                    <td style="padding: 1rem; color: var(--muted-text);">{{ job.problem or '-' }}</td>
+                    <td style="padding: 1rem; color: var(--muted-text);">{{ ', '.join(job.parts_used) if job.parts_used else '-' }}</td>
                     <td style="padding: 1rem; color: var(--muted-text);">{{ job.remarks }}</td>
                     <td style="padding: 1rem;">{{ job.assigned_to }}</td>
                     {% if is_admin %}
                     <td style="padding: 1rem; display: flex; gap: 0.5rem;">
-                        <a href="{{ url_for('update', job_id=job.job_id) }}" class="btn btn-small" style="background-color: var(--action); color: var(--primary-bg); text-decoration: none; padding: 0.5rem 0.75rem;">
+                        <a href="{{ url_for('update', license_plate=job.license_plate) }}" class="btn btn-small" style="background-color: var(--action); color: var(--primary-bg); text-decoration: none; padding: 0.5rem 0.75rem;">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-                        <form method="post" action="{{ url_for('delete', job_id=job.job_id) }}" style="display: inline;" onsubmit="return confirm('Delete job {{ job.job_id }}?');">
+                        <form method="post" action="{{ url_for('delete', license_plate=job.license_plate) }}" style="display: inline;" onsubmit="return confirm('Delete job {{ job.license_plate }}?');">
                             <button type="submit" class="btn btn-small" style="background-color: var(--danger); color: white; padding: 0.5rem 0.75rem;">
                                 <i class="fas fa-trash"></i> Delete
                             </button>
