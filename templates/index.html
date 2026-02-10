@@ -16,7 +16,6 @@
             <i class="fas fa-search"></i> Search
         </button>
     </form>
-    {% if is_admin %}
     {% if search_query and not jobs %}
     <button type="button" disabled class="btn" style="background-color: var(--input-bg); color: var(--muted-text); padding: 0.75rem 1.5rem; cursor: not-allowed;" title="No job cards match your search">
         <i class="fas fa-download"></i> Export
@@ -28,7 +27,6 @@
             <i class="fas fa-download"></i> Export
         </button>
     </form>
-    {% endif %}
     {% endif %}
 </div>
 
