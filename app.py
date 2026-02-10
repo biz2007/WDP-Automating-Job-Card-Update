@@ -180,7 +180,6 @@ faqs_data = [
 kb_data = [
     KnowledgeBaseArticle(1, "Getting Started Guide", "Step 1: Create an account\nStep 2: Verify your email\nStep 3: Set up your profile\nStep 4: Explore the dashboard", "guide", "beginner").to_dict(),
     KnowledgeBaseArticle(2, "Troubleshooting Login Issues", "If you can't login:\n1. Clear your browser cache\n2. Try incognito mode\n3. Check if caps lock is on\n4. Reset password if needed", "troubleshooting", "beginner").to_dict(),
-    KnowledgeBaseArticle(3, "Advanced Settings Configuration", "Configure API keys, webhooks, and integrations in your settings panel. Requires authentication.", "guide", "advanced").to_dict(),
 ]
 
 # Status updates stored in memory
