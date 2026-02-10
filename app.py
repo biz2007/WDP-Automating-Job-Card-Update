@@ -170,7 +170,7 @@ def save_support_tickets(tickets):
 # FAQs stored in memory
 faqs_data = [
     FAQ(1, "How do I reset my password?", "Visit the login page and click 'Forgot Password'. Enter your email and follow the instructions sent to your inbox.", "account").to_dict(),
-    FAQ(2, "What are your support hours?", "We provide 24/7 support via email and ticket system. Live chat is available 9 AM - 5 PM EST.", "general").to_dict(),
+    FAQ(2, "What are your support hours?", "We provide 24/7 support via email, ticket system, and AI chat.", "general").to_dict(),
     FAQ(3, "How long does billing take to process?", "Invoices are processed within 1-2 business days. You'll receive a confirmation email.", "billing").to_dict(),
     FAQ(4, "Can I cancel my subscription?", "Yes, you can cancel anytime from your account settings. Your access continues until the end of the billing period.", "billing").to_dict(),
     FAQ(5, "Is my data secure?", "We use 256-bit SSL encryption and comply with GDPR and industry security standards.", "account").to_dict(),
@@ -1130,7 +1130,7 @@ def status():
 @app.route("/contact")
 def contact():
     """Contact page with multiple channels"""
-    return render_template("contact.html")
+    return render_template("contact.html", chat_url="https://chatgpt.com/")
 
 
 @app.route("/self-service")
